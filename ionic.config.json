@@ -1,0 +1,7 @@
+{
+  "name": "admspot-finance",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
