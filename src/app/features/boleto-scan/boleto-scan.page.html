@@ -1,0 +1,35 @@
+<ion-content [fullscreen]="true" class="boleto-scan-content" [forceOverscroll]="false">
+  <div class="scan-shell">
+    <video #videoElement autoplay playsinline muted></video>
+
+    <header class="scan-header">
+      <button type="button" class="back-btn" (click)="goBack()" aria-label="Voltar">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h1>Ler boleto</h1>
+    </header>
+
+    <div class="scan-window" aria-hidden="true">
+      <div class="scan-line"></div>
+      <span class="scan-label">Area de leitura</span>
+    </div>
+
+    <section class="scan-footer">
+      <p class="status">{{ statusMessage }}</p>
+      <p class="code" *ngIf="detectedCode">Codigo: {{ detectedCode }}</p>
+
+      <ion-button expand="block" class="manual-btn" fill="outline" (click)="goToManualEntry()">
+        Digitar manualmente
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        class="retry-btn"
+        *ngIf="!cameraAllowed || scanState === 'error' || scanState === 'success'"
+        (click)="restartScanner()"
+      >
+        Ler novamente
+      </ion-button>
+    </section>
+  </div>
+</ion-content>

@@ -27,6 +27,14 @@ const routes: Routes = [
     path: 'qr-scan',
     loadChildren: () => import('./features/qr-scan/qr-scan.module').then( m => m.QrScanPageModule)
   },
+  {
+    path: 'boleto-scan',
+    loadChildren: () => import('./features/boleto-scan/boleto-scan.module').then( m => m.BoletoScanPageModule)
+  },
+  {
+    path: 'boleto-manual',
+    loadChildren: () => import('./features/boleto-manual/boleto-manual.module').then( m => m.BoletoManualPageModule)
+  },
 ];
 
 @NgModule({

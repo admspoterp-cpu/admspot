@@ -306,7 +306,7 @@
         <h3>Opção de pagamento</h3>
         <p>Escolha como realizará o seu pagamento<br />PIX ou BOLETO</p>
 
-        <button type="button" class="sheet-option sheet-option-primary">
+        <button type="button" class="sheet-option sheet-option-primary" (click)="goToBoletoScanner()">
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-a36e6938-e0ed-4b3d-8f2b-5e82db830530.svg"
             alt=""
@@ -322,13 +322,32 @@
           <span>QR Code PIX</span>
         </button>
 
-        <button type="button" class="sheet-option sheet-option-primary">
+        <button type="button" class="sheet-option sheet-option-primary" (click)="openChargeFilePickerOptions()">
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Export-14a8b983-656a-4a85-8c1d-18a48122b4de.svg"
             alt=""
           />
           <span>Enviar arquivo ou foto da cobrança</span>
         </button>
+
+        <p class="sheet-file-name" *ngIf="selectedChargeFileName">
+          Selecionado: {{ selectedChargeFileName }}
+        </p>
+
+        <input
+          #galleryFileInput
+          type="file"
+          accept="image/*"
+          class="hidden-file-input"
+          (change)="onChargeFileSelected($event)"
+        />
+        <input
+          #documentFileInput
+          type="file"
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,image/*"
+          class="hidden-file-input"
+          (change)="onChargeFileSelected($event)"
+        />
       </div>
     </section>
   </div>

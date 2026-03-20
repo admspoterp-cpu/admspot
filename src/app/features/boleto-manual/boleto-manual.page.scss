@@ -1,0 +1,46 @@
+ion-content.manual-content {
+  --background: #f5f7fb;
+}
+
+.manual-page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: calc(16px + env(safe-area-inset-top)) 16px 24px;
+}
+
+.manual-page header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manual-page header button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: #e8ecf5;
+  color: #10325f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.manual-page header h1 {
+  margin: 0;
+  font-size: 18px;
+  color: #1d2a3d;
+}
+
+.manual-page section {
+  margin-top: 18px;
+  border-radius: 16px;
+  background: #fff;
+  padding: 16px;
+}
+
+.manual-page section p {
+  margin: 0;
+  color: #5c6574;
+}

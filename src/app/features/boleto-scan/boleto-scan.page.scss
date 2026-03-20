@@ -1,0 +1,146 @@
+:host {
+  --frame-accent: #24d07f;
+}
+
+ion-content.boleto-scan-content {
+  --background: #000;
+}
+
+.scan-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.scan-shell video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scan-header {
+  position: absolute;
+  top: calc(8px + env(safe-area-inset-top));
+  left: 14px;
+  right: 14px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn ion-icon {
+  font-size: 22px;
+}
+
+.scan-header h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.scan-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -56%);
+  width: min(82vw, 620px);
+  height: min(28vh, 160px);
+  border-radius: 14px;
+  border: 2px solid rgba(36, 208, 127, 0.92);
+  box-shadow: 0 0 0 120vmax rgba(0, 0, 0, 0.62);
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(36, 208, 127, 0), rgba(36, 208, 127, 1), rgba(36, 208, 127, 0));
+  animation: scanMove 2.1s linear infinite;
+}
+
+.scan-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+
+.scan-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.74) 35%, rgba(0, 0, 0, 0.86) 100%);
+}
+
+.status {
+  margin: 0 0 8px;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.code {
+  margin: 0 0 10px;
+  text-align: center;
+  color: #cbf6e1;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.manual-btn,
+.retry-btn {
+  margin-top: 10px;
+  text-transform: none;
+  --border-radius: 12px;
+}
+
+.manual-btn {
+  --color: #fff;
+  --border-color: #fff;
+}
+
+.retry-btn {
+  --background: linear-gradient(270deg, #235697 0%, #114280 100%);
+  --color: #fff;
+}
+
+@keyframes scanMove {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: calc(100% - 2px);
+  }
+}
