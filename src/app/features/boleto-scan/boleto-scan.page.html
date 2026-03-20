@@ -1,6 +1,6 @@
 <ion-content [fullscreen]="true" class="boleto-scan-content" [forceOverscroll]="false">
   <div class="scan-shell">
-    <video #videoElement autoplay playsinline muted></video>
+    <div #scannerViewport class="scanner-viewport"></div>
 
     <header class="scan-header">
       <button type="button" class="back-btn" (click)="goBack()" aria-label="Voltar">

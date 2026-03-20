@@ -2,6 +2,18 @@ import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/co
 import { NavController } from '@ionic/angular';
 
 type ScanState = 'idle' | 'scanning' | 'success' | 'error';
+type QuaggaDetectedResult = {
+  codeResult?: {
+    code?: string;
+  };
+};
+type QuaggaGlobal = {
+  init: (config: unknown, callback: (error?: unknown) => void) => void;
+  start: () => void;
+  stop: () => void;
+  onDetected: (callback: (result: QuaggaDetectedResult) => void) => void;
+  offDetected: (callback: (result: QuaggaDetectedResult) => void) => void;
+};
 
 @Component({
   selector: 'app-boleto-scan',
@@ -10,15 +22,24 @@ type ScanState = 'idle' | 'scanning' | 'success' | 'error';
   standalone: false,
 })
 export class BoletoScanPage implements OnDestroy {
-  @ViewChild('videoElement') videoElement?: ElementRef<HTMLVideoElement>;
+  @ViewChild('scannerViewport') scannerViewport?: ElementRef<HTMLDivElement>;
 
   cameraAllowed = false;
   scanState: ScanState = 'idle';
   detectedCode = '';
   statusMessage = 'Aponte o codigo de barras do boleto para a area de leitura.';
 
-  private stream?: MediaStream;
-  private scanFrameId?: number;
+  private scriptLoadPromise?: Promise<void>;
+  private quagga?: QuaggaGlobal;
+  private readonly onDetectedHandler = (result: QuaggaDetectedResult): void => {
+    const raw = result.codeResult?.code ?? '';
+    const normalized = this.normalizeBoletoNumber(raw);
+    if (!this.isLikelyBoleto(normalized)) {
+      return;
+    }
+
+    this.onCodeDetected(normalized);
+  };
   private readonly navController = inject(NavController);
 
   async ionViewDidEnter(): Promise<void> {
@@ -44,10 +65,6 @@ export class BoletoScanPage implements OnDestroy {
     this.navController.navigateForward('/boleto-manual');
   }
 
-  async requestCameraAccess(): Promise<void> {
-    await this.startScanner();
-  }
-
   async restartScanner(): Promise<void> {
     this.stopScanner();
     this.scanState = 'idle';
@@ -70,22 +87,54 @@ export class BoletoScanPage implements OnDestroy {
     }
 
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: 'environment' },
-        },
-        audio: false,
-      });
-
-      this.cameraAllowed = true;
-      const video = this.videoElement?.nativeElement;
-      if (!video) {
+      await this.ensureQuaggaLoaded();
+      if (!this.quagga || !this.scannerViewport?.nativeElement) {
         return;
       }
 
-      video.srcObject = this.stream;
-      await video.play();
-      await this.startDetection(video);
+      this.quagga.init(
+        {
+          inputStream: {
+            type: 'LiveStream',
+            target: this.scannerViewport.nativeElement,
+            constraints: {
+              facingMode: 'environment',
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            },
+            area: {
+              top: '34%',
+              right: '12%',
+              left: '12%',
+              bottom: '34%',
+            },
+          },
+          decoder: {
+            readers: ['i2of5_reader', 'code_128_reader', 'code_39_reader'],
+          },
+          locator: {
+            patchSize: 'medium',
+            halfSample: true,
+          },
+          locate: true,
+          numOfWorkers: navigator.hardwareConcurrency ? Math.min(4, navigator.hardwareConcurrency) : 2,
+        },
+        (error?: unknown) => {
+          if (error) {
+            this.cameraAllowed = false;
+            this.scanState = 'error';
+            this.statusMessage = 'Nao foi possivel iniciar a leitura do boleto.';
+            return;
+          }
+
+          this.cameraAllowed = true;
+          this.scanState = 'scanning';
+          this.statusMessage = 'Aponte o codigo de barras do boleto para a area de leitura.';
+          this.quagga?.offDetected(this.onDetectedHandler);
+          this.quagga?.onDetected(this.onDetectedHandler);
+          this.quagga?.start();
+        }
+      );
     } catch {
       this.cameraAllowed = false;
       this.scanState = 'error';
@@ -93,92 +142,85 @@ export class BoletoScanPage implements OnDestroy {
     }
   }
 
-  private async startDetection(video: HTMLVideoElement): Promise<void> {
-    const BarcodeDetectorCtor = (window as Window & {
-      BarcodeDetector?: new (config?: { formats?: string[] }) => {
-        detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>;
-      };
-    }).BarcodeDetector;
-
-    if (!BarcodeDetectorCtor) {
-      this.scanState = 'error';
-      this.statusMessage = 'Leitura de codigo de barras indisponivel neste dispositivo.';
+  private async ensureQuaggaLoaded(): Promise<void> {
+    if (this.quagga) {
       return;
     }
 
-    const requestedFormats = await this.getSupportedBarcodeFormats();
-    if (requestedFormats.length === 0) {
-      this.scanState = 'error';
-      this.statusMessage = 'Seu dispositivo nao suporta leitura de boleto nesta versao.';
-      return;
-    }
-
-    const detector = new BarcodeDetectorCtor({ formats: requestedFormats });
-    const scan = async (): Promise<void> => {
-      if (this.scanState === 'success') {
-        return;
-      }
-
-      try {
-        const results = await detector.detect(video);
-        const candidate = results.find((item) => this.isLikelyBoleto(item.rawValue ?? ''));
-        if (candidate?.rawValue) {
-          this.onCodeDetected(candidate.rawValue);
+    if (!this.scriptLoadPromise) {
+      this.scriptLoadPromise = new Promise<void>((resolve, reject) => {
+        const loaded = (window as Window & { Quagga?: QuaggaGlobal }).Quagga;
+        if (loaded) {
+          this.quagga = loaded;
+          resolve();
           return;
         }
-      } catch {
-        // Keep reading frame by frame until code is detected.
-      }
 
-      this.scanFrameId = requestAnimationFrame(() => {
-        void scan();
+        const scriptId = 'quagga2-bundle-script';
+        const existing = document.getElementById(scriptId) as HTMLScriptElement | null;
+        if (existing) {
+          existing.addEventListener('load', () => {
+            this.quagga = (window as Window & { Quagga?: QuaggaGlobal }).Quagga;
+            if (this.quagga) {
+              resolve();
+              return;
+            }
+            reject(new Error('Quagga nao disponivel no window.'));
+          });
+          existing.addEventListener('error', () => reject(new Error('Falha ao carregar Quagga.')));
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = 'assets/lib/quagga.min.js';
+        script.async = true;
+        script.onload = () => {
+          this.quagga = (window as Window & { Quagga?: QuaggaGlobal }).Quagga;
+          if (this.quagga) {
+            resolve();
+            return;
+          }
+          reject(new Error('Quagga nao disponivel no window.'));
+        };
+        script.onerror = () => reject(new Error('Falha ao carregar Quagga.'));
+        document.body.appendChild(script);
       });
-    };
-
-    void scan();
-  }
-
-  private async getSupportedBarcodeFormats(): Promise<string[]> {
-    const preferred = ['itf', 'code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e'];
-    const api = (window as Window & {
-      BarcodeDetector?: {
-        getSupportedFormats?: () => Promise<string[]>;
-      };
-    }).BarcodeDetector;
-
-    if (!api?.getSupportedFormats) {
-      return preferred;
     }
 
-    try {
-      const supported = await api.getSupportedFormats();
-      return preferred.filter((format) => supported.includes(format));
-    } catch {
-      return preferred;
-    }
+    await this.scriptLoadPromise;
   }
 
-  private isLikelyBoleto(rawValue: string): boolean {
-    const digitsOnly = rawValue.replace(/\D/g, '');
+  private normalizeBoletoNumber(rawValue: string): string {
+    return rawValue.replace(/\D/g, '');
+  }
+
+  private isLikelyBoleto(digitsOnly: string): boolean {
     return digitsOnly.length === 44 || digitsOnly.length === 47 || digitsOnly.length === 48;
   }
 
-  private onCodeDetected(rawValue: string): void {
+  private onCodeDetected(normalizedCode: string): void {
     this.scanState = 'success';
-    this.detectedCode = rawValue.replace(/\s+/g, '');
+    this.detectedCode = normalizedCode;
     this.statusMessage = 'Codigo de barras lido com sucesso.';
+    window.dispatchEvent(
+      new CustomEvent('boleto-scanned', {
+        detail: {
+          barcode: this.detectedCode,
+        },
+      })
+    );
     this.stopScanner();
   }
 
   private stopScanner(): void {
-    if (this.scanFrameId !== undefined) {
-      cancelAnimationFrame(this.scanFrameId);
-      this.scanFrameId = undefined;
-    }
-
-    if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop());
-      this.stream = undefined;
+    if (this.quagga) {
+      this.quagga.offDetected(this.onDetectedHandler);
+      try {
+        this.quagga.stop();
+      } catch {
+        // Ignore stop errors when scanner was not fully initialized.
+      }
     }
   }
 

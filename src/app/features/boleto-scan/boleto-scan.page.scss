@@ -14,7 +14,13 @@ ion-content.boleto-scan-content {
   background: #000;
 }
 
-.scan-shell video {
+.scanner-viewport {
+  position: absolute;
+  inset: 0;
+}
+
+:host ::ng-deep .scanner-viewport video,
+:host ::ng-deep .scanner-viewport canvas {
   position: absolute;
   inset: 0;
   width: 100%;
