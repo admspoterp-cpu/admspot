@@ -1,0 +1,164 @@
+:host {
+  --brand-blue: #1e5494;
+  --brand-dark-blue: #114280;
+  --brand-text: #3a3c4c;
+  --brand-subtext: #7d7c93;
+  --phone-max-width: 350px;
+  --phone-crop-offset-y: -122px;
+}
+
+ion-content.onboarding-content {
+  --background: linear-gradient(180deg, #235697 0%, #114280 100%);
+}
+
+ion-content.onboarding-content::part(scroll) {
+  overscroll-behavior-y: none;
+}
+
+.screen {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hero {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  padding: calc(64px + env(safe-area-inset-top)) 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(to right, #0d284d 0%, #1f2f5d 100%);
+  overflow: hidden;
+}
+
+.logo {
+  height: 40px;
+  margin-bottom: 32px;
+  z-index: 1;
+}
+
+.phone-wrapper {
+  position: relative;
+  width: min(100%, var(--phone-max-width));
+  flex: 0 0 250px;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 16px;
+  // overflow: hidden;
+}
+
+.phone-image {
+  width: 100%;
+  max-width: var(--phone-max-width);
+  height: auto;
+  object-fit: cover;
+  object-position: top;
+  // transform: translateY(var(--phone-crop-offset-y));
+}
+
+.sheet {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 32px 32px 0 0;
+  margin-top: -14px;
+  padding: 48px 24px 20px;
+  box-shadow: 0 -12px 36px rgba(11, 24, 48, 0.25);
+  z-index: 2;
+}
+
+.sheet h1 {
+  margin: 0 0 16px;
+  color: var(--brand-text);
+  font-size: 32px;
+  line-height: 1.1;
+  font-weight: 900;
+  text-align: center;
+}
+
+.sheet p {
+  margin: 0 auto 40px;
+  max-width: 340px;
+  color: var(--brand-subtext);
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+}
+
+.actions ion-button {
+  margin: 0;
+  height: 56px;
+  --border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.btn-enter {
+  --border-color: var(--brand-blue);
+  --color: var(--brand-blue);
+  --border-width: 1.5px;
+}
+
+.btn-signup {
+  --background: var(--brand-dark-blue);
+  --color: #fff;
+}
+
+@media (max-height: 780px) {
+  .hero {
+    padding-top: calc(48px + env(safe-area-inset-top));
+  }
+
+  .logo {
+    height: 36px;
+    margin-bottom: 22px;
+  }
+
+  .phone-wrapper {
+    width: min(300px, 90%);
+    flex-basis: 210px;
+    height: 210px;
+  }
+
+  .phone-image {
+    max-width: 300px;
+    transform: translateY(-98px);
+  }
+
+  .sheet {
+    padding: 36px 20px 14px;
+  }
+
+  .sheet h1 {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  .sheet p {
+    margin-bottom: 22px;
+    font-size: 15px;
+  }
+}
+
+.home-indicator {
+  width: 134px;
+  height: 5px;
+  border-radius: 999px;
+  background: #101012;
+  margin: 24px auto calc(8px + env(safe-area-inset-bottom));
+}

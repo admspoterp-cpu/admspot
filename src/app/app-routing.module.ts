@@ -3,13 +3,29 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: 'home',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
+    path: '',
+    redirectTo: 'onboarding',
+    pathMatch: 'full'
   },
   {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full'
+    path: 'onboarding',
+    loadChildren: () => import('./features/onboarding/onboarding.module').then( m => m.OnboardingPageModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./features/login/login.module').then( m => m.LoginPageModule)
+  },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./features/dashboard/dashboard.module').then( m => m.DashboardPageModule)
+  },
+  {
+    path: 'transactions',
+    loadChildren: () => import('./features/transactions/transactions.module').then( m => m.TransactionsPageModule)
+  },
+  {
+    path: 'qr-scan',
+    loadChildren: () => import('./features/qr-scan/qr-scan.module').then( m => m.QrScanPageModule)
   },
 ];
 

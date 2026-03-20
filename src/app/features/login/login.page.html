@@ -1,0 +1,66 @@
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-screen">
+    <ion-button
+      fill="clear"
+      class="brand-back-btn"
+      routerLink="/onboarding"
+      routerDirection="back"
+      aria-label="Voltar para onboarding"
+    >
+      <ion-icon name="chevron-back-outline" class="back-icon"></ion-icon>
+    </ion-button>
+
+    <h1>Acessar minha conta</h1>
+
+    <form class="form">
+      <div class="field">
+        <label for="documento">Documento de acesso</label>
+        <ion-input
+          id="documento"
+          type="email"
+          value="victorjimoh62@gmail.com"
+          fill="clear"
+          class="line-input"
+        ></ion-input>
+      </div>
+
+      <div class="field">
+        <label for="senha">Senha</label>
+        <div class="password-row">
+          <ion-input
+            id="senha"
+            [type]="showPassword ? 'text' : 'password'"
+            placeholder="Digite sua senha"
+            fill="clear"
+            class="line-input"
+          ></ion-input>
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+          >
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <label class="remember">
+          <ion-checkbox labelPlacement="end"></ion-checkbox>
+          <span>Me Lembrar</span>
+        </label>
+        <button type="button" class="forgot">Esqueci minha senha</button>
+      </div>
+
+      <ion-button
+        expand="block"
+        class="access-btn"
+        routerLink="/dashboard"
+        routerDirection="forward"
+      >
+        Acessar
+      </ion-button>
+    </form>
+  </div>
+</ion-content>

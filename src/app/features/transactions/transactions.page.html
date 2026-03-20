@@ -1,0 +1,32 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Transacoes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Transacoes</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-list inset="true">
+    <ion-item *ngFor="let transaction of transactions">
+      <ion-label>
+        <h2>{{ transaction.description }}</h2>
+        <p>{{ transaction.category }} - {{ transaction.date | date:'dd/MM/yyyy' }}</p>
+      </ion-label>
+      <ion-note
+        slot="end"
+        [color]="transaction.type === 'income' ? 'success' : 'danger'"
+      >
+        {{ transaction.type === 'income' ? '+' : '-' }}
+        {{ transaction.amount | currency:'BRL':'symbol-narrow':'1.2-2' }}
+      </ion-note>
+    </ion-item>
+  </ion-list>
+</ion-content>

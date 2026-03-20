@@ -1,0 +1,335 @@
+<ion-content [fullscreen]="true" class="dashboard-content" [forceOverscroll]="false">
+  <div class="dashboard-page">
+    <header class="dashboard-header">
+      <div class="profile-row">
+        <button type="button" class="icon-btn tap-highlight-none">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/UserCircle-3b4a7c4d-7f8d-40fe-ba5b-3c7c17ca4577.svg"
+            alt="Profile"
+            class="profile-icon"
+          />
+        </button>
+
+        <div class="profile-text">
+          <h1>Hi, Victor Jimoh</h1>
+          <p>Welcome, let's start making payments</p>
+        </div>
+
+        <div class="header-actions">
+          <button
+            type="button"
+            class="icon-btn tap-highlight-none"
+            (click)="toggleBalance()"
+            [attr.aria-label]="balanceHidden ? 'Mostrar saldo' : 'Ocultar saldo'"
+          >
+            <ion-icon
+              [name]="balanceHidden ? 'eye-outline' : 'eye-off-outline'"
+              class="small-icon eye-toggle-icon"
+            ></ion-icon>
+          </button>
+          <button type="button" class="icon-btn tap-highlight-none">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Bell-07c7aefb-99cb-44cd-95cd-805f6654abde.svg"
+              alt="Notifications"
+              class="small-icon"
+            />
+          </button>
+        </div>
+      </div>
+
+      <div class="balance-area">
+        <p class="balance-label">Total Balance</p>
+        <div class="balance-row">
+          <span class="currency-symbol">R$</span>
+          <span class="balance-value">{{ balanceHidden ? '*******' : '20,000,00.00' }}</span>
+        </div>
+        <p class="balance-updated">Last updated 2 mins ago.</p>
+        <button type="button" class="balance-more tap-highlight-none">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319598-8f3df41d-f60a-447f-9812-dce44f41bdef.svg"
+            alt="More"
+          />
+        </button>
+      </div>
+
+      <div class="card-preview">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319586-faa6aaab-7769-445d-91e6-f13dc0e700ed.svg"
+          alt="Card Background"
+          class="card-bg"
+        />
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Card1Mask-903b33c0-46b2-4791-bee4-25823cd0911b.svg"
+          alt="Card Mask"
+          class="card-mask"
+        />
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/mastercard_logo-8c8065bd-f11a-47fd-b4f8-e4774a60a077.svg"
+          alt="Mastercard"
+          class="mastercard-logo"
+        />
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <section class="quick-actions">
+        <button type="button" class="action-btn tap-highlight-none">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319588-0ce7491a-415d-4405-803e-08507147cbd1.svg"
+            alt="Add money"
+          />
+          <span>Add money</span>
+        </button>
+        <button type="button" class="action-btn tap-highlight-none">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319589-270bf336-df62-4ff3-8928-5c4440001529.svg"
+            alt="My cards"
+          />
+          <span>My cards</span>
+        </button>
+        <button type="button" class="action-btn tap-highlight-none">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319590-e979cf96-6971-4ca1-9f74-f613aab18af5.svg"
+            alt="Send money"
+          />
+          <span>Send money</span>
+        </button>
+        <button type="button" class="action-btn tap-highlight-none">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319590-e979cf96-6971-4ca1-9f74-f613aab18af5.svg"
+            alt="Send money"
+          />
+          <span>Send money</span>
+        </button>
+      </section>
+
+      <section class="panel-section">
+        <h2>Get started</h2>
+
+        <button type="button" class="list-item tap-highlight-none">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-afaac5a2-1aae-4b5d-ad96-fafc14ab53b2.svg"
+            alt="Icon"
+          />
+          <div class="item-text">
+            <p class="item-title">Add Money</p>
+            <p class="item-subtitle">Get more from your account</p>
+          </div>
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-a4833e74-327c-445f-8b3a-a5a3ff3ac460.svg"
+            alt="Arrow"
+          />
+        </button>
+
+        <button type="button" class="list-item tap-highlight-none">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-ff7c0dd3-6edf-4ffb-97f9-bc1d402aa636.svg"
+            alt="Icon"
+          />
+          <div class="item-text">
+            <p class="item-title">Create a debit card</p>
+            <p class="item-subtitle">Get more from your account</p>
+          </div>
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-3b2a7c14-f9b5-4a9b-9b54-36a706642dde.svg"
+            alt="Arrow"
+          />
+        </button>
+
+        <button type="button" class="list-item tap-highlight-none no-divider">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-8842afa3-efb9-4047-9f91-e8d799eae7da.svg"
+            alt="Icon"
+          />
+          <div class="item-text">
+            <p class="item-title">Earn N 2,000 for inviting friends</p>
+            <p class="item-subtitle">Get more from your account</p>
+          </div>
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-8b6b1423-6c44-4c0e-bbad-048b39ff0c6f.svg"
+            alt="Arrow"
+          />
+        </button>
+      </section>
+
+      <section class="panel-section quick-access-section">
+        <h2>Quick access</h2>
+        <div class="quick-access-row">
+          <button type="button" class="chip tap-highlight-none">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Phone-d1e74bdb-b2bd-41cd-9715-e18c885d7287.svg"
+              alt="Airtime"
+            />
+            <span>Airtime</span>
+          </button>
+          <button type="button" class="chip tap-highlight-none">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/SoccerBall-22f55858-a252-4aab-ae77-1da35c8c223a.svg"
+              alt="Betting"
+            />
+            <span>Betting</span>
+          </button>
+          <button type="button" class="chip tap-highlight-none">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/ArrowsDownUp-32d5887e-7bf0-4d21-86bd-35ce93b808ed.svg"
+              alt="Data Bundle"
+            />
+            <span>Data Bundle</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="transactions-section">
+        <div class="transaction-group">
+          <p class="group-title">TODAY</p>
+          <button type="button" class="transaction-item tap-highlight-none">
+            <div class="transaction-left">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319569-c0651c54-8dd7-450b-8d3b-3796de0b8107.svg"
+                alt="UBA"
+              />
+              <div class="transaction-text">
+                <p class="tx-name">Ngozi Uche</p>
+                <p class="tx-time">12:35 PM</p>
+              </div>
+            </div>
+            <div class="tx-amount">- N 2,500.00</div>
+          </button>
+          <button type="button" class="transaction-item tap-highlight-none">
+            <div class="transaction-left">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319601-1ced95db-5d53-41e2-bac5-e4ff797fd969.svg"
+                alt="Carbon"
+              />
+              <div class="transaction-text">
+                <p class="tx-name">Oluwaseun Adeyemi</p>
+                <p class="tx-time">11:37 AM</p>
+              </div>
+            </div>
+            <div class="tx-amount">- N 78,643.00</div>
+          </button>
+        </div>
+
+        <div class="transaction-group">
+          <p class="group-title">TUESDAY 23 MAY</p>
+          <button type="button" class="transaction-item tap-highlight-none">
+            <div class="transaction-left">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319569-c1bf8303-c19d-4ac2-8504-c0e24370fa86.svg"
+                alt="Bank"
+              />
+              <div class="transaction-text">
+                <p class="tx-name">Adeola Balogun</p>
+                <p class="tx-time">7:50 PM</p>
+              </div>
+            </div>
+            <div class="tx-amount positive">+ N 1,234,600.00</div>
+          </button>
+          <button type="button" class="transaction-item tap-highlight-none">
+            <div class="transaction-left">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319649-0b56e6b1-590c-4eb3-bc86-32c86d5feb25.svg"
+                alt="Heritage"
+              />
+              <div class="transaction-text">
+                <p class="tx-name">Coca Cola Industries</p>
+                <p class="tx-time">5:40 PM</p>
+              </div>
+            </div>
+            <div class="tx-amount">- N 2,000,000.00</div>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('Home')">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/House-1bc28e58-f8ca-4933-ba30-c9f5ef51d3bb.svg"
+          alt="Home"
+          [class.inactive-icon]="activeTab !== 'Home'"
+        />
+        <span [class.active-tab]="activeTab === 'Home'" [class.inactive-tab]="activeTab !== 'Home'">Home</span>
+      </button>
+      <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('Send')">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/PaperPlaneTilt-c347db57-e8ab-4dc4-9bd3-4b90c7ad1694.svg"
+          alt="Send"
+          [class.inactive-icon]="activeTab !== 'Send'"
+        />
+        <span [class.active-tab]="activeTab === 'Send'" [class.inactive-tab]="activeTab !== 'Send'">Send</span>
+      </button>
+      <button type="button" class="nav-item tap-highlight-none" (click)="openPaymentSheet()">
+        <ion-icon name="qr-code-outline" [class.inactive-icon]="activeTab !== 'Pagar'"></ion-icon>
+        <span [class.active-tab]="activeTab === 'Pagar'" [class.inactive-tab]="activeTab !== 'Pagar'">Pagar</span>
+      </button>
+      <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('Cards')">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CreditCard-8c67880f-a49e-49f2-bfc8-d835d0d35561.svg"
+          alt="Cards"
+          [class.inactive-icon]="activeTab !== 'Cards'"
+        />
+        <span [class.active-tab]="activeTab === 'Cards'" [class.inactive-tab]="activeTab !== 'Cards'">Cards</span>
+      </button>
+      <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('More')">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CirclesFour-08d4bf2e-5043-4b61-bd51-f6e5526cb953.svg"
+          alt="More"
+          [class.inactive-icon]="activeTab !== 'More'"
+        />
+        <span [class.active-tab]="activeTab === 'More'" [class.inactive-tab]="activeTab !== 'More'">More</span>
+      </button>
+    </nav>
+
+    <div class="payment-sheet-backdrop" [class.open]="paymentSheetOpen" (click)="closePaymentSheet()"></div>
+
+    <section class="payment-sheet" [class.open]="paymentSheetOpen" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="payment-sheet-close tap-highlight-none"
+        (click)="closePaymentSheet()"
+        aria-label="Fechar opcoes de pagamento"
+      >
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+      <!-- <img
+        src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319674-c7f1a71e-4a14-4b35-a5bc-343f32e6fa43.svg"
+        alt=""
+        class="sheet-header-graphic"
+      /> -->
+      <div class="payment-sheet-content">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319718-f0a7d159-c9b9-48aa-a3c0-21180f06ae5f.svg"
+          alt="Pagamento"
+          class="payment-sheet-icon"
+        />
+        <h3>Opção de pagamento</h3>
+        <p>Escolha como realizará o seu pagamento<br />PIX ou BOLETO</p>
+
+        <button type="button" class="sheet-option sheet-option-primary">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-a36e6938-e0ed-4b3d-8f2b-5e82db830530.svg"
+            alt=""
+          />
+          <span>Boleto</span>
+        </button>
+
+        <button type="button" class="sheet-option sheet-option-outline" (click)="goToQrScanner()">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Group142273-a42da308-3106-4fdb-b66a-12b0f62b6c63.svg"
+            alt=""
+          />
+          <span>QR Code PIX</span>
+        </button>
+
+        <button type="button" class="sheet-option sheet-option-primary">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Export-14a8b983-656a-4a85-8c1d-18a48122b4de.svg"
+            alt=""
+          />
+          <span>Enviar arquivo ou foto da cobrança</span>
+        </button>
+      </div>
+    </section>
+  </div>
+</ion-content>

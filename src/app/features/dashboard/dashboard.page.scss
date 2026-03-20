@@ -1,0 +1,512 @@
+@import url('https://fonts.googleapis.com/css2?family=Afacad:wght@500;600;700&display=swap');
+
+:host {
+  --brand-dark: #162d4c;
+  --brand-gray: #777777;
+  --brand-light-gray: #f8f8f8;
+  --brand-text: #313131;
+}
+
+ion-content.dashboard-content {
+  --background: #ffffff;
+}
+
+ion-content.dashboard-content::part(scroll) {
+  padding: 0;
+  background: #ffffff;
+}
+
+.dashboard-page {
+  position: relative;
+  background: #fff;
+  color: var(--brand-text);
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-bottom: 128px;
+  font-family: 'Inter', sans-serif;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-header {
+  background: var(--brand-dark);
+  color: #fff;
+  padding: calc(48px + env(safe-area-inset-top)) 20px 0;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.icon-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.profile-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.profile-text {
+  flex: 1;
+}
+
+.profile-text h1 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.profile-text p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.small-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.eye-toggle-icon {
+  color: #ffffff;
+}
+
+.balance-area {
+  position: relative;
+  z-index: 1;
+}
+
+.balance-label {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.balance-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.currency-symbol {
+  font-family: 'Afacad', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.balance-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.balance-updated {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.balance-more {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.card-preview {
+  margin-top: 24px;
+  // margin-bottom: -31px;
+  position: relative;
+  height: 48px;
+  background: #1e3a5f;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+}
+
+.card-bg,
+.card-mask {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mastercard-logo {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+}
+
+.dashboard-main {
+  background: #fff;
+}
+
+.quick-actions {
+  padding: 14px 20px 8px;
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid var(--brand-light-gray);
+  margin-bottom: -8px;
+}
+
+.action-btn {
+  border: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-text);
+}
+
+.action-btn img {
+  width: 48px;
+  height: 48px;
+}
+
+.action-btn span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.panel-section {
+  padding: 24px 20px;
+}
+
+.panel-section h2 {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.list-item {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--brand-light-gray);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.list-item img {
+  width: 40px;
+  height: 40px;
+}
+
+.list-item.no-divider {
+  border-bottom: 0;
+}
+
+.item-text {
+  flex: 1;
+  text-align: left;
+}
+
+.item-title {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--brand-text);
+}
+
+.item-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--brand-gray);
+}
+
+.quick-access-section {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.quick-access-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+
+.quick-access-row::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  border: 0;
+  background: var(--brand-light-gray);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  white-space: nowrap;
+}
+
+.chip span {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.transactions-section {
+  padding: 16px 20px;
+}
+
+.transaction-group {
+  margin-bottom: 24px;
+}
+
+.transaction-group:last-child {
+  margin-bottom: 0;
+}
+
+.group-title {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.transaction-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.transaction-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.transaction-left img {
+  width: 40px;
+  height: 40px;
+}
+
+.transaction-text {
+  text-align: left;
+}
+
+.tx-name {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tx-time {
+  margin: 0;
+  font-size: 11px;
+  color: #a5a5a5;
+}
+
+.tx-amount {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tx-amount.positive {
+  color: #16a34a;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(430px, 100%);
+  background: #fff;
+  border-top: 1px solid var(--brand-light-gray);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  padding: 17px 20px calc(18px + env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-item {
+  border: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+}
+
+.nav-item img {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-item ion-icon {
+  font-size: 24px;
+  color: #313131;
+}
+
+.nav-item span {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.active-tab {
+  color: #313131;
+}
+
+.inactive-tab {
+  color: #777777;
+}
+
+.inactive-icon {
+  opacity: 0.6;
+}
+
+.payment-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+  z-index: 28;
+}
+
+.payment-sheet-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.payment-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 100%);
+  width: min(430px, 100%);
+  background: #ffffff;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 30;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.payment-sheet.open {
+  transform: translate(-50%, 0);
+}
+
+.payment-sheet-close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  border: 0;
+  background: transparent;
+  color: #6f7284;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.payment-sheet-close ion-icon {
+  font-size: 32px;
+}
+
+.sheet-header-graphic {
+  width: 100%;
+  display: block;
+}
+
+.payment-sheet-content {
+  padding: 18px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.payment-sheet-icon {
+  width: 110px;
+  margin-bottom: 20px;
+}
+
+.payment-sheet-content h3 {
+  margin: 0;
+  color: #3b3d4b;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 600;
+  text-align: center;
+}
+
+.payment-sheet-content p {
+  margin: 14px 0 22px;
+  color: #7d7c93;
+  font-size: 16px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.sheet-option {
+  width: 100%;
+  height: 53px;
+  border-radius: 8px;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.sheet-option span {
+  white-space: nowrap;
+}
+
+.sheet-option-primary {
+  background: linear-gradient(270deg, #235697 0%, #114280 100%);
+  color: #fff;
+}
+
+.sheet-option-outline {
+  background: #fff;
+  border: 1px solid #235697;
+  color: #235697;
+}

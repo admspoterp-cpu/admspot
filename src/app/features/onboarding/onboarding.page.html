@@ -1,0 +1,47 @@
+<ion-content [fullscreen]="true" class="onboarding-content" [scrollY]="false" [forceOverscroll]="false">
+  <div class="screen">
+    <header class="hero">
+      <img
+        src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Group142270-f5ada175-b019-4f99-92cf-3671b12b2ede.svg"
+        alt="Admspot Logo"
+        class="logo"
+      />
+
+      <div class="phone-wrapper">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1%2F31202820-de1e-43e5-8aa2-4b4034052d1a.png"
+          alt="Preview do app"
+          class="phone-image"
+        />
+      </div>
+    </header>
+
+    <main class="sheet">
+      <h1>
+        Criado para quem faz<br />
+        acontecer
+      </h1>
+      <p>
+        Sua empresa na palma da mao. Controle despesas, pague e cobre com poucos
+        cliques.
+      </p>
+
+      <div class="actions">
+        <ion-button
+          fill="outline"
+          shape="round"
+          class="btn-enter"
+          (click)="goToLogin()"
+        >
+          Entrar
+        </ion-button>
+
+        <ion-button fill="solid" shape="round" class="btn-signup">
+          Nova Conta
+        </ion-button>
+      </div>
+
+      <div class="home-indicator" aria-hidden="true"></div>
+    </main>
+  </div>
+</ion-content>
