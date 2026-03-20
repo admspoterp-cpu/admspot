@@ -38,6 +38,10 @@ export class QrScanPage implements OnDestroy {
     this.navController.navigateBack('/dashboard');
   }
 
+  async requestCameraAccess(): Promise<void> {
+    await this.startScanner();
+  }
+
   async restartScanner(): Promise<void> {
     this.stopScanner();
     this.uploadState = 'idle';
@@ -60,6 +64,14 @@ export class QrScanPage implements OnDestroy {
     }
 
     try {
+      const permissionState = await this.getBrowserCameraPermissionState();
+      if (permissionState === 'denied') {
+        this.cameraAllowed = false;
+        this.uploadState = 'error';
+        this.statusMessage = 'Permissao da camera bloqueada. Habilite o acesso nas configuracoes do app.';
+        return;
+      }
+
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: 'environment' } },
         audio: false,
@@ -78,6 +90,22 @@ export class QrScanPage implements OnDestroy {
       this.cameraAllowed = false;
       this.uploadState = 'error';
       this.statusMessage = 'Permissao da camera negada. Toque para tentar novamente.';
+    }
+  }
+
+  private async getBrowserCameraPermissionState(): Promise<PermissionState | 'unknown'> {
+    const permissionApi = navigator.permissions;
+    if (!permissionApi?.query) {
+      return 'unknown';
+    }
+
+    try {
+      const status = await permissionApi.query({
+        name: 'camera' as PermissionName,
+      });
+      return status.state;
+    } catch {
+      return 'unknown';
     }
   }
 

@@ -21,7 +21,7 @@
       <p class="status-message">{{ statusMessage }}</p>
       <p class="code" *ngIf="detectedCode">Codigo: {{ detectedCode }}</p>
 
-      <ion-button expand="block" class="retry-btn" *ngIf="!cameraAllowed" (click)="startScanner()">
+      <ion-button expand="block" class="retry-btn" *ngIf="!cameraAllowed" (click)="requestCameraAccess()">
         Permitir camera
       </ion-button>
 
