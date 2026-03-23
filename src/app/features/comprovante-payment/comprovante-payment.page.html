@@ -1,0 +1,174 @@
+<ion-content [fullscreen]="true" class="comprovante-content" [forceOverscroll]="false">
+  <div class="cp-wrap">
+    <div class="cp-sheet">
+      <header class="cp-toolbar">
+        <div class="cp-toolbar-start">
+          <button type="button" class="cp-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-06827afa-59d9-4e0e-aa5d-8811d10f0f51.svg"
+              alt=""
+            />
+          </button>
+        </div>
+        <h1>Detalhes da transação</h1>
+        <div class="cp-toolbar-end" aria-hidden="true"></div>
+      </header>
+
+      <div class="cp-hero">
+        <img
+          class="cp-success-img"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1%2Fc34a3ebe-179d-4e58-8c59-d82cdbaa7de6.png"
+          alt=""
+        />
+        <p class="cp-success-title">{{ successHeroTitle }}</p>
+        <p class="cp-success-date">{{ receiptSubtitle }}</p>
+
+        <div class="cp-actions-row">
+          <button type="button" class="cp-btn cp-btn-primary tap-highlight-none" (click)="onShare()">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Export-63fe8722-8176-4139-8421-bdefb4f4a5dd.svg"
+              alt=""
+            />
+            <span>Compartilhar</span>
+          </button>
+          <button
+            type="button"
+            class="cp-btn cp-btn-outline tap-highlight-none"
+            (click)="onSendByEmail()"
+            aria-label="Enviar comprovante por e-mail"
+          >
+            <ion-icon name="mail-outline" class="cp-btn-mail-icon" aria-hidden="true"></ion-icon>
+            <span>Enviar</span>
+          </button>
+        </div>
+      </div>
+
+      <img
+        class="cp-line-hero"
+        src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line255-fb33c997-e903-4307-b30e-0935d94f67ab.svg"
+        alt=""
+      />
+
+      <section class="cp-amount-block">
+        <div class="cp-amount-row">
+          <span class="cp-amount-minus">-</span>
+          <span class="cp-amount-rs">R$</span>
+          <span class="cp-amount-value">{{ amountDisplay }}</span>
+        </div>
+        <p class="cp-beneficiary-line">{{ beneficiaryName }}</p>
+        <img
+          class="cp-row-divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-a8c5191e-f77c-4db9-9383-ea8654a6f1ad.svg"
+          alt=""
+        />
+      </section>
+
+      <section class="cp-detail-row cp-detail-padded">
+        <span class="cp-label">Instituição</span>
+        <div class="cp-institution-row">
+          <span class="cp-value">{{ beneficiaryBank }}</span>
+          <img
+            class="cp-bank-logo"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1%2Faa34a013-617f-4fd0-9324-6623610af394.png"
+            alt=""
+          />
+        </div>
+        <img
+          class="cp-row-divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-892e7e2c-85b0-4fa3-97dc-5a12e3f29a46.svg"
+          alt=""
+        />
+      </section>
+
+      <section class="cp-detail-row cp-detail-padded">
+        <span class="cp-label">Documento do Beneficiário</span>
+        <span class="cp-value">{{ documentMasked }}</span>
+        <img
+          class="cp-row-divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-fe2a3dd5-cbd6-497f-8099-0c0c79bddd4f.svg"
+          alt=""
+        />
+      </section>
+
+      <section class="cp-detail-row cp-detail-padded">
+        <span class="cp-label">Tipo de Transação</span>
+        <span class="cp-value cp-value-brand">{{ transactionType }}</span>
+        <img
+          class="cp-row-divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-fc7eaed9-d920-4650-8b54-8d85fdec68fb.svg"
+          alt=""
+        />
+      </section>
+
+      <section class="cp-detail-row cp-detail-padded">
+        <span class="cp-label">ID da Transação</span>
+        <span class="cp-value cp-value-wrap">{{ transactionId }}</span>
+        <img
+          class="cp-row-divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-69791452-1a56-4461-bdc8-cc564a621b23.svg"
+          alt=""
+        />
+      </section>
+
+      <section class="cp-detail-row cp-detail-padded">
+        <span class="cp-label">Identificador</span>
+        <span class="cp-value cp-value-wrap">{{ identifier }}</span>
+        <img
+          class="cp-row-divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-0c5ae9b8-e108-46ac-91dd-a999bc276fc7.svg"
+          alt=""
+        />
+      </section>
+
+      <section class="cp-detail-row cp-detail-padded">
+        <span class="cp-label">Estatus</span>
+        <div class="cp-status-row">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CheckCircle-c2d4b97a-fcb5-4309-8462-7269e7880940.svg"
+            alt=""
+          />
+          <span class="cp-value cp-value-brand">{{ statusText }}</span>
+        </div>
+        <img
+          class="cp-row-divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-ec98076a-c3ce-4e7f-8c64-05fab8f981d2.svg"
+          alt=""
+        />
+      </section>
+
+      <p class="cp-more-actions">Mais ações</p>
+
+      <button type="button" class="cp-list-action tap-highlight-none" (click)="onRepeatTransaction()">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-813473d5-8bf2-4c2c-ac0c-ec63d39101db.svg"
+          alt=""
+        />
+        <div class="cp-list-action-text">
+          <span class="cp-list-action-title">Repetir transação</span>
+          <span class="cp-list-action-sub">Realizar esse pagamento novamente</span>
+        </div>
+        <img
+          class="cp-list-caret"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-b4a758e8-777c-4ea2-9f6d-d2903112c142.svg"
+          alt=""
+        />
+      </button>
+
+      <button type="button" class="cp-list-action tap-highlight-none" (click)="onReportTransaction()">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-cede32b7-8f55-4fb7-a00b-ec4a3b3c4e6e.svg"
+          alt=""
+        />
+        <div class="cp-list-action-text">
+          <span class="cp-list-action-title">Reportar transação</span>
+          <span class="cp-list-action-sub">Reportar ou contestar esse pagamento</span>
+        </div>
+        <img
+          class="cp-list-caret"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-66d43c03-325e-483b-b54e-f8d52c239477.svg"
+          alt=""
+        />
+      </button>
+    </div>
+  </div>
+</ion-content>

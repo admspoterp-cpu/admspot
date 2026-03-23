@@ -1,0 +1,63 @@
+<ion-content [fullscreen]="true" class="transfer-pix-content" [forceOverscroll]="false">
+  <div class="transfer-pix-page">
+    <header class="tp-toolbar">
+      <button type="button" class="tp-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-3e3a2f7e-2c5f-4b62-bc8f-6e232bd0fd75.svg"
+          alt=""
+        />
+      </button>
+      <h1>Transferência PIX</h1>
+    </header>
+
+    <main class="tp-body">
+      <section class="tp-balance-card">
+        <img
+          class="tp-balance-ellipse"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Ellipse655-b6897b74-666f-4983-8c4c-cd4cd62208df.svg"
+          alt=""
+        />
+        <img
+          class="tp-balance-deco"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Group142274-82a07b66-456b-49e5-a101-3f9cf18edcfa.svg"
+          alt=""
+        />
+        <div class="tp-balance-inner">
+          <p class="tp-balance-label">Saldo disponível</p>
+          <div class="tp-balance-row">
+            <span class="tp-currency">{{ amountReais }}</span>
+            <span class="tp-amount">{{ amountValue }}</span>
+          </div>
+          <p class="tp-account-name">{{ accountName }}</p>
+        </div>
+      </section>
+
+      <label class="tp-field">
+        <span class="tp-field-label">Chave PIX</span>
+        <input
+          class="tp-field-input"
+          type="text"
+          name="pixKey"
+          [(ngModel)]="pixKey"
+          inputmode="text"
+          autocomplete="off"
+          placeholder="Digite a chave"
+        />
+      </label>
+
+      <button type="button" class="tp-field tp-field-select tap-highlight-none" (click)="pickKeyType()">
+        <span class="tp-field-label">Tipo de chave</span>
+        <div class="tp-select-row">
+          <span class="tp-select-value">{{ keyType }}</span>
+          <img
+            class="tp-select-caret"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-f6d9d94f-a44c-4c33-9738-42bc6b85277b.svg"
+            alt=""
+          />
+        </div>
+      </button>
+
+      <button type="button" class="tp-continue tap-highlight-none" (click)="onContinue()">Continuar</button>
+    </main>
+  </div>
+</ion-content>

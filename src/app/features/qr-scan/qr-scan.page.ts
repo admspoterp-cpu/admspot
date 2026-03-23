@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 
 type UploadState = 'idle' | 'uploading' | 'success' | 'error';
@@ -21,6 +22,7 @@ export class QrScanPage implements OnDestroy {
   private scanFrameId?: number;
   private simulationTimeout?: ReturnType<typeof setTimeout>;
   private readonly navController = inject(NavController);
+  private readonly router = inject(Router);
 
   async ionViewDidEnter(): Promise<void> {
     await this.startScanner();
@@ -168,7 +170,10 @@ export class QrScanPage implements OnDestroy {
     this.stopScanner();
     await this.simulateUpload(imageBlob, rawValue);
     this.uploadState = 'success';
-    this.statusMessage = 'Leitura concluida e imagem enviada (simulacao).';
+    this.statusMessage = 'QR lido. Abrindo detalhes do pagamento...';
+    void this.router.navigate(['/pix-qr-payment-details'], {
+      state: { qrPayload: rawValue },
+    });
   }
 
   private async captureFrameBlob(): Promise<Blob | null> {

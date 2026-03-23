@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=Abel&display=swap');
+
+:host {
+  --tt-title: #3a3c4c;
+  --tt-muted: #7d7c93;
+  --tt-text: #313131;
+  --tt-input: #373f46;
+  --tt-border: #e5e5e5;
+  --tt-blue: #235697;
+  --tt-blue-dark: #114280;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+ion-content.transfer-ted-content {
+  --background: #ffffff;
+}
+
+ion-content.transfer-ted-content::part(scroll) {
+  min-height: 100%;
+}
+
+.transfer-ted-page {
+  min-height: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Corpo full branco — sem faixa azul do HTML do mock */
+.tt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: calc(13px + env(safe-area-inset-top)) 20px 13px;
+  padding-right: 83px;
+  border-bottom: 1px solid #f3f3f3;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.tt-back {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tt-back img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.tt-toolbar h1 {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+  color: var(--tt-title);
+  max-width: 209px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tt-body {
+  flex: 1;
+  padding: 24px 20px calc(28px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #fff;
+}
+
+.tt-balance-card {
+  position: relative;
+  width: 100%;
+  min-height: 121px;
+  border-radius: 8px;
+  background: var(--tt-blue);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.tt-balance-ellipse {
+  position: absolute;
+  left: 50%;
+  top: -13px;
+  transform: translateX(-50%);
+  width: 280px;
+  max-width: none;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.tt-balance-deco {
+  position: absolute;
+  right: 12px;
+  top: 22px;
+  width: 36px;
+  height: auto;
+  pointer-events: none;
+}
+
+.tt-balance-inner {
+  position: relative;
+  z-index: 1;
+  padding: 24px 20px 20px;
+}
+
+.tt-balance-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tt-balance-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.tt-currency {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #fff;
+}
+
+.tt-amount {
+  font-family: 'Abel', 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 33.6px;
+  color: #fff;
+}
+
+.tt-account-name {
+  margin: 8px 0 0;
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 13.5px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tt-row-split {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+}
+
+.tt-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 10px;
+  border: 0;
+  border-bottom: 1px solid var(--tt-border);
+  background: transparent;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.tt-field-half {
+  flex: 1;
+  min-width: 0;
+}
+
+.tt-field-label {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.4px;
+  color: var(--tt-muted);
+}
+
+.tt-field-input {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--tt-input);
+  outline: none;
+  width: 100%;
+}
+
+.tt-field-input::placeholder {
+  color: var(--tt-muted);
+  opacity: 0.85;
+}
+
+.tt-field-select {
+  cursor: pointer;
+  padding-bottom: 8px;
+}
+
+.tt-select-row,
+.tt-bank-select-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tt-bank-select-row {
+  justify-content: flex-start;
+  padding-top: 2px;
+}
+
+.tt-bank-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.tt-bank-name {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.tt-select-value {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--tt-text);
+}
+
+.tt-bank-row .tt-field-label {
+  margin-bottom: 0;
+}
+
+.tt-select-caret {
+  width: 7px;
+  height: 14px;
+  flex-shrink: 0;
+  transform: rotate(90deg);
+  opacity: 0.75;
+  margin-left: auto;
+}
+
+.tt-continue {
+  margin-top: auto;
+  width: 100%;
+  min-height: 53px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(270deg, var(--tt-blue) 0%, var(--tt-blue-dark) 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 21px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

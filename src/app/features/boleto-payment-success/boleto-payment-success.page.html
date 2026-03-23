@@ -1,0 +1,53 @@
+<ion-content [fullscreen]="true" class="success-content" [forceOverscroll]="false">
+  <div class="success-page">
+    <header class="page-header">
+      <button type="button" class="back-btn tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-0999d665-0ea9-4a85-9bb6-b21c3d1be2e4.svg"
+          alt=""
+        />
+      </button>
+      <h1>Detalhes do Pagamento</h1>
+    </header>
+
+    <main class="page-main">
+      <div class="success-icon-wrap">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319718-c02997e6-2757-4bbe-a419-a6da8c368b2f.svg"
+          alt=""
+          class="success-icon"
+        />
+      </div>
+
+      <h2 class="success-title">Pagamento Realizado</h2>
+
+      <div class="success-message">
+        <p>
+          Transferência concluída com sucesso R$&nbsp;<span class="amount-highlight">{{ amountFormatted }}</span>
+        </p>
+      </div>
+
+      <div class="beneficiary-block">
+        <span class="beneficiary-label">Beneficiário</span>
+        <span class="beneficiary-name">{{ beneficiary }}</span>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-primary tap-highlight-none" (click)="shareReceipt()">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Export-1c8c79c9-e2db-459c-b11f-8c83be04a084.svg"
+            alt=""
+          />
+          <span>Compartilhar recibo</span>
+        </button>
+        <button type="button" class="btn-outline tap-highlight-none" (click)="downloadReceipt()">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/DownloadSimple-be13e7dc-5c4a-437b-bfd7-92d95952c1a7.svg"
+            alt=""
+          />
+          <span>Baixar recibo</span>
+        </button>
+      </div>
+    </main>
+  </div>
+</ion-content>

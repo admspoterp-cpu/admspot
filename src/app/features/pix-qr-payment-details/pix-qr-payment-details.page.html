@@ -1,0 +1,82 @@
+<ion-content [fullscreen]="true" class="pix-details-content" [forceOverscroll]="false">
+  <div class="details-page" *ngIf="qrPayload">
+    <div class="sheet">
+      <header class="sheet-toolbar">
+        <button type="button" class="back-btn tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-e04b896d-d86f-4f2c-b9d2-1e965da983a2.svg"
+            alt=""
+          />
+        </button>
+        <h1>Detalhes do Pagamento</h1>
+      </header>
+
+      <div class="sheet-body">
+        <div class="amount-block">
+          <div class="amount-row">
+            <span class="currency">{{ amountCurrency }}</span>
+            <span class="amount">{{ amountValue }}</span>
+          </div>
+          <p class="payee-short">{{ payeeShort }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-765728bf-e84b-42b4-8102-3f22d507486c.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="info-row identifier-row">
+          <p class="field-label muted">{{ identifierLabel }}</p>
+          <p class="field-value multiline">{{ qrPayload }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-fb7179f7-e638-4d82-a3b9-59b409ce24e0.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="info-row">
+          <p class="field-label muted">{{ institutionLabel }}</p>
+          <p class="field-value">{{ institutionName }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-cdd6d3f5-55bd-42cb-bd42-9b8ad0a4ab74.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="info-row">
+          <p class="field-label muted">{{ beneficiaryLabel }}</p>
+          <p class="field-value">{{ beneficiaryName }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-6bb63e45-fa8d-4cd3-b7ad-522c9c4af422.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="info-row">
+          <p class="field-label muted">{{ documentLabel }}</p>
+          <p class="field-value">{{ documentValue }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-fabf4964-f1b8-4d1e-ba76-bc15d5a1707b.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="info-row">
+          <p class="field-label muted">{{ messageLabel }}</p>
+          <p class="field-value">{{ messageValue }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-e111335b-2edd-4e1b-9628-08168f019a19.svg"
+            alt=""
+          />
+        </div>
+
+        <button type="button" class="pay-btn tap-highlight-none" (click)="onPay()">PAGAR</button>
+      </div>
+    </div>
+  </div>
+</ion-content>

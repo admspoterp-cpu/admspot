@@ -1,0 +1,98 @@
+<ion-content [fullscreen]="true" class="pay-transfer-pix-content" [forceOverscroll]="false">
+  <div class="pt-page">
+    <header class="pt-toolbar">
+      <button type="button" class="pt-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-dfe7531e-80eb-4668-aa39-5254c3aa8401.svg"
+          alt=""
+        />
+      </button>
+      <h1>Transferência PIX</h1>
+    </header>
+
+    <main class="pt-body">
+      <section class="pt-balance-card">
+        <img
+          class="pt-balance-ellipse"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Ellipse655-8200c712-1cff-44b1-9024-f65ebc29e6bb.svg"
+          alt=""
+        />
+        <img
+          class="pt-balance-deco"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Group142274-c9eb44aa-cae4-46b0-8d51-1127b8858603.svg"
+          alt=""
+        />
+        <div class="pt-balance-inner">
+          <p class="pt-balance-label">Saldo disponível</p>
+          <div class="pt-balance-row">
+            <span class="pt-currency">{{ amountReais }}</span>
+            <span class="pt-amount">{{ balanceValue }}</span>
+          </div>
+          <p class="pt-account-name">{{ accountName }}</p>
+        </div>
+      </section>
+
+      <section class="pt-beneficiary" aria-label="Destinatário">
+        <div class="pt-beneficiary-avatar">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319675-f03823ad-b746-42ea-b2f4-1aa844866cd9.svg"
+            alt=""
+          />
+        </div>
+        <div class="pt-beneficiary-text">
+          <p class="pt-beneficiary-name">{{ beneficiaryName }}</p>
+          <p class="pt-beneficiary-bank">{{ beneficiaryBank }}</p>
+        </div>
+        <p class="pt-beneficiary-doc">{{ documentMasked }}</p>
+      </section>
+
+      <label class="pt-field pt-field-value">
+        <span class="pt-field-label">Valor</span>
+        <div class="pt-value-row">
+          <span class="pt-value-prefix">R$</span>
+          <input
+            class="pt-value-input"
+            type="text"
+            name="transferAmount"
+            [(ngModel)]="transferAmount"
+            inputmode="decimal"
+            autocomplete="off"
+          />
+        </div>
+      </label>
+
+      <label class="pt-field pt-field-note">
+        <span class="pt-field-label">Observação (opcional)</span>
+        <input
+          class="pt-field-input"
+          type="text"
+          name="observation"
+          [(ngModel)]="observation"
+          autocomplete="off"
+          placeholder="Opcional"
+        />
+      </label>
+
+      <section class="pt-fee-block">
+        <img
+          class="pt-fee-mark"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Rectangle24546-e6a60773-8795-4ce4-bab6-008372eedf0e.svg"
+          alt=""
+        />
+        <div class="pt-fee-top">
+          <span class="pt-field-label">Taxa</span>
+          <div class="pt-fee-price">
+            <span class="pt-fee-reais">{{ feeCurrency }}</span>
+            <span class="pt-fee-cents">{{ feeValue }}</span>
+          </div>
+        </div>
+        <p class="pt-fee-disclaimer">
+          Você possui 30 transferências gratuitas por mês, após esse limite<br />
+          será descontado R$0,40 por transferência.
+        </p>
+      </section>
+
+      <button type="button" class="pt-pay-btn tap-highlight-none" (click)="onPay()">Pagar</button>
+    </main>
+  </div>
+</ion-content>

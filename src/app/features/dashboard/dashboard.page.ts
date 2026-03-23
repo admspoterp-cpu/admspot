@@ -14,7 +14,14 @@ export class DashboardPage {
   balanceHidden = false;
   activeTab: 'Home' | 'Send' | 'Pagar' | 'Cards' | 'More' = 'Home';
   paymentSheetOpen = false;
+  transferSheetOpen = false;
   selectedChargeFileName = '';
+
+  /** Mock favoritos — alinhar com API depois */
+  readonly transferFavorites: { initials: string; name: string; bank: string }[] = [
+    { initials: 'LP', name: 'Luiz Fernando Henrique', bank: 'NU PAGAMENTOS - IP' },
+    { initials: 'AL', name: 'Ana Luiza Pinto', bank: 'NU PAGAMENTOS - IP' },
+  ];
   private readonly navController = inject(NavController);
   private readonly actionSheetController = inject(ActionSheetController);
   private readonly toastController = inject(ToastController);
@@ -28,10 +35,12 @@ export class DashboardPage {
     if (tab !== 'Pagar') {
       this.paymentSheetOpen = false;
     }
+    this.transferSheetOpen = false;
   }
 
   openPaymentSheet(): void {
     this.activeTab = 'Pagar';
+    this.transferSheetOpen = false;
     this.paymentSheetOpen = true;
   }
 
@@ -39,14 +48,51 @@ export class DashboardPage {
     this.paymentSheetOpen = false;
   }
 
-  goToQrScanner(): void {
+  openTransferSheet(): void {
+    this.paymentSheetOpen = false;
+    this.transferSheetOpen = true;
+  }
+
+  closeTransferSheet(): void {
+    this.transferSheetOpen = false;
+  }
+
+  closeOverlaySheets(): void {
     this.closePaymentSheet();
+    this.closeTransferSheet();
+  }
+
+  goToQrScanner(): void {
+    this.closeOverlaySheets();
     this.navController.navigateForward('/qr-scan');
   }
 
   goToBoletoScanner(): void {
-    this.closePaymentSheet();
+    this.closeOverlaySheets();
     this.navController.navigateForward('/boleto-scan');
+  }
+
+  onTransferPixTap(): void {
+    this.closeTransferSheet();
+    void this.navController.navigateForward('/transfer-pix');
+  }
+
+  onTransferTedTap(): void {
+    this.closeTransferSheet();
+    void this.navController.navigateForward('/transfer-ted');
+  }
+
+  async onTransferFavoriteTap(contact: { name: string }): Promise<void> {
+    await this.showTransferComingSoon(contact.name);
+  }
+
+  private async showTransferComingSoon(label: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message: `${label}: fluxo em breve`,
+      duration: 1600,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 
   async openChargeFilePickerOptions(): Promise<void> {

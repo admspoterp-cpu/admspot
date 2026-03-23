@@ -1,0 +1,115 @@
+<ion-content [fullscreen]="true" class="transfer-ted-content" [forceOverscroll]="false">
+  <div class="transfer-ted-page">
+    <header class="tt-toolbar">
+      <button type="button" class="tt-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-fb4f8976-757b-46b7-9191-47ce3fbd6d10.svg"
+          alt=""
+        />
+      </button>
+      <h1>Transferência TED</h1>
+    </header>
+
+    <main class="tt-body">
+      <section class="tt-balance-card">
+        <img
+          class="tt-balance-ellipse"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Ellipse655-8331effb-d407-4780-adde-6ebcb0d52bb6.svg"
+          alt=""
+        />
+        <img
+          class="tt-balance-deco"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Group142274-921f9199-4f37-4621-9b88-1a63ade8c779.svg"
+          alt=""
+        />
+        <div class="tt-balance-inner">
+          <p class="tt-balance-label">Saldo disponível</p>
+          <div class="tt-balance-row">
+            <span class="tt-currency">{{ amountReais }}</span>
+            <span class="tt-amount">{{ amountValue }}</span>
+          </div>
+          <p class="tt-account-name">{{ accountName }}</p>
+        </div>
+      </section>
+
+      <div class="tt-row-split">
+        <label class="tt-field tt-field-half">
+          <span class="tt-field-label">Agência s/ Digito</span>
+          <input
+            class="tt-field-input"
+            type="text"
+            name="agency"
+            [(ngModel)]="agency"
+            inputmode="numeric"
+            autocomplete="off"
+          />
+        </label>
+        <label class="tt-field tt-field-half">
+          <span class="tt-field-label">Conta c/ Digito</span>
+          <input
+            class="tt-field-input"
+            type="text"
+            name="accountWithDigit"
+            [(ngModel)]="accountWithDigit"
+            inputmode="text"
+            autocomplete="off"
+          />
+        </label>
+      </div>
+
+      <button type="button" class="tt-field tt-field-select tap-highlight-none" (click)="pickAccountType()">
+        <span class="tt-field-label">Tipo de conta</span>
+        <div class="tt-select-row">
+          <span class="tt-select-value">{{ accountType }}</span>
+          <img
+            class="tt-select-caret"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-675dac95-c925-482c-8f96-14c5f8a2642c.svg"
+            alt=""
+          />
+        </div>
+      </button>
+
+      <button type="button" class="tt-field tt-field-select tt-bank-row tap-highlight-none" (click)="pickBank()">
+        <span class="tt-field-label">Banco</span>
+        <div class="tt-bank-select-row">
+          <img
+            class="tt-bank-icon"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319569-6c8d884a-1809-4ab4-acba-ae0ee87e89c2.svg"
+            alt=""
+          />
+          <span class="tt-select-value tt-bank-name">{{ bankName }}</span>
+          <img
+            class="tt-select-caret"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-75fa47ac-8b8f-4177-a210-f2b86245f3bd.svg"
+            alt=""
+          />
+        </div>
+      </button>
+
+      <label class="tt-field">
+        <span class="tt-field-label">Nome do destinatário</span>
+        <input
+          class="tt-field-input"
+          type="text"
+          name="recipientName"
+          [(ngModel)]="recipientName"
+          autocomplete="name"
+        />
+      </label>
+
+      <label class="tt-field">
+        <span class="tt-field-label">CPF / CNPJ</span>
+        <input
+          class="tt-field-input"
+          type="text"
+          name="recipientDocument"
+          [(ngModel)]="recipientDocument"
+          inputmode="numeric"
+          autocomplete="off"
+        />
+      </label>
+
+      <button type="button" class="tt-continue tap-highlight-none" (click)="onContinue()">Continuar</button>
+    </main>
+  </div>
+</ion-content>

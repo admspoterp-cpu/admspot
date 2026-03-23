@@ -1,0 +1,124 @@
+<ion-content [fullscreen]="true" class="boleto-details-content" [forceOverscroll]="false">
+  <div class="details-page" *ngIf="barcodeDigits">
+    <div class="sheet">
+      <header class="sheet-toolbar">
+        <button type="button" class="back-btn tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-caecc404-5feb-4e60-bd4d-5e73fe6d94e6.svg"
+            alt=""
+          />
+        </button>
+        <h1>Detalhes do Pagamento</h1>
+      </header>
+
+      <div class="sheet-body">
+        <p class="section-label">Registro</p>
+
+        <div class="two-cols">
+          <button type="button" class="field-block tap-highlight-none" (click)="openPaymentDateModal()">
+            <span class="field-label">{{ paymentScheduleLabel }}</span>
+            <img
+              class="caret"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-b3419b5e-3d3d-4b0e-9d35-1f7b00ecea46.svg"
+              alt=""
+            />
+            <span class="field-value">{{ paymentDateDisplay }}</span>
+          </button>
+
+          <button type="button" class="field-block tap-highlight-none" (click)="openDueDateModal()">
+            <span class="field-label">{{ dueDateLabel }}</span>
+            <img
+              class="caret"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-cb00029b-a9b6-43c6-82b4-e4a90f8253ff.svg"
+              alt=""
+            />
+            <span class="field-value">{{ dueDateDisplay }}</span>
+          </button>
+        </div>
+
+        <div class="amount-block">
+          <div class="amount-row">
+            <span class="currency">{{ amountCurrency }}</span>
+            <span class="amount">{{ amountValue }}</span>
+          </div>
+          <p class="payee-short">{{ payeeShort }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-77545449-db53-4dae-8ac1-b9481f0969b6.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="barcode-block">
+          <p class="field-label muted">Código de barras</p>
+          <p class="barcode-value">{{ barcodeDisplay }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-2a920a41-dc12-40a1-9bd1-8e5b010e9bfe.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="beneficiary-block">
+          <p class="field-label muted">{{ beneficiaryLabel }}</p>
+          <p class="beneficiary-name">{{ beneficiaryName }}</p>
+          <img
+            class="divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-64539993-1a9a-4504-a23b-7cd476ccf6a5.svg"
+            alt=""
+          />
+        </div>
+
+        <button type="button" class="pay-btn tap-highlight-none" (click)="onPay()">PAGAR</button>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-modal [isOpen]="paymentDateModalOpen" (didDismiss)="closePaymentDateModal()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button (click)="closePaymentDateModal()">Cancelar</ion-button>
+        </ion-buttons>
+        <ion-title>{{ paymentScheduleLabel }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button strong="true" (click)="closePaymentDateModal()">OK</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding datetime-modal-content">
+      <ion-datetime
+        presentation="date"
+        locale="pt-BR"
+        [firstDayOfWeek]="1"
+        [(ngModel)]="paymentDateIso"
+      ></ion-datetime>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="dueDateModalOpen" (didDismiss)="closeDueDateModal()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button (click)="closeDueDateModal()">Cancelar</ion-button>
+        </ion-buttons>
+        <ion-title>{{ dueDateLabel }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button strong="true" (click)="closeDueDateModal()">OK</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding datetime-modal-content">
+      <ion-datetime
+        presentation="date"
+        locale="pt-BR"
+        [firstDayOfWeek]="1"
+        [(ngModel)]="dueDateIso"
+      ></ion-datetime>
+    </ion-content>
+  </ng-template>
+</ion-modal>

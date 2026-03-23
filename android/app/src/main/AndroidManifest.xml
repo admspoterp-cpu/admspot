@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--
+      Visibilidade de pacotes (Android 11+): necessário para o Capacitor Share
+      encontrar apps (Gmail, Drive, WhatsApp, etc.) ao compartilhar o PDF do comprovante.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND_MULTIPLE" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="false">
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
@@ -31,14 +48,36 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 
-    <!-- Permissions -->
+    <!-- Rede -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Câmera: leitura de QR Code PIX e linha digitável de boleto (getUserMedia / Quagga) -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Feedback tátil (@capacitor/haptics) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!--
+      Galeria / mídia: envio de foto da cobrança no dashboard (input file image/*).
+      Android 13+ (API 33): permissões granulares de mídia.
+    -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- Vídeo só se no futuro aceitar vídeo no mesmo fluxo; omitido por ora. -->
+
+    <!--
+      Android 12 e anteriores: acesso a imagens na galeria.
+      maxSdkVersion evita conflito com READ_MEDIA_* no API 33+.
+    -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- Câmera não é obrigatória para instalar o app (ex.: tablet sem câmera) -->
     <uses-feature
         android:name="android.hardware.camera.any"
         android:required="false" />

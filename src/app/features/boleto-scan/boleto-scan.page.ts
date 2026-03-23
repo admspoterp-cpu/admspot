@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 
 type ScanState = 'idle' | 'scanning' | 'success' | 'error';
@@ -38,9 +39,10 @@ export class BoletoScanPage implements OnDestroy {
       return;
     }
 
-    this.onCodeDetected(normalized);
+    void this.onCodeDetected(normalized);
   };
   private readonly navController = inject(NavController);
+  private readonly router = inject(Router);
 
   async ionViewDidEnter(): Promise<void> {
     await this.lockLandscape();
@@ -199,18 +201,15 @@ export class BoletoScanPage implements OnDestroy {
     return digitsOnly.length === 44 || digitsOnly.length === 47 || digitsOnly.length === 48;
   }
 
-  private onCodeDetected(normalizedCode: string): void {
+  private async onCodeDetected(normalizedCode: string): Promise<void> {
     this.scanState = 'success';
     this.detectedCode = normalizedCode;
     this.statusMessage = 'Codigo de barras lido com sucesso.';
-    window.dispatchEvent(
-      new CustomEvent('boleto-scanned', {
-        detail: {
-          barcode: this.detectedCode,
-        },
-      })
-    );
     this.stopScanner();
+    await this.unlockOrientation();
+    await this.router.navigate(['/boleto-payment-details'], {
+      state: { barcode: normalizedCode },
+    });
   }
 
   private stopScanner(): void {

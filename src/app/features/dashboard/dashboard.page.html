@@ -11,8 +11,8 @@
         </button>
 
         <div class="profile-text">
-          <h1>Hi, Victor Jimoh</h1>
-          <p>Welcome, let's start making payments</p>
+          <h1>Olá, César H. Silva</h1>
+          <p>Bem-vindo(a), pronto para você</p>
         </div>
 
         <div class="header-actions">
@@ -38,12 +38,12 @@
       </div>
 
       <div class="balance-area">
-        <p class="balance-label">Total Balance</p>
+        <p class="balance-label">Saldo total</p>
         <div class="balance-row">
           <span class="currency-symbol">R$</span>
-          <span class="balance-value">{{ balanceHidden ? '*******' : '20,000,00.00' }}</span>
+          <span class="balance-value">{{ balanceHidden ? '*******' : '20.000.00,00' }}</span>
         </div>
-        <p class="balance-updated">Last updated 2 mins ago.</p>
+        <p class="balance-updated">Última atualização 2 minutos atrás.</p>
         <button type="button" class="balance-more tap-highlight-none">
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319598-8f3df41d-f60a-447f-9812-dce44f41bdef.svg"
@@ -76,35 +76,35 @@
         <button type="button" class="action-btn tap-highlight-none">
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319588-0ce7491a-415d-4405-803e-08507147cbd1.svg"
-            alt="Add money"
+            alt="Depositar"
           />
-          <span>Add money</span>
+          <span>Depositar</span>
         </button>
         <button type="button" class="action-btn tap-highlight-none">
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319589-270bf336-df62-4ff3-8928-5c4440001529.svg"
-            alt="My cards"
+            alt="Cartões"
           />
-          <span>My cards</span>
+          <span>Cartões</span>
+        </button>
+        <button type="button" class="action-btn tap-highlight-none" (click)="openTransferSheet()">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319590-e979cf96-6971-4ca1-9f74-f613aab18af5.svg"
+            alt="Transferir"
+          />
+          <span>Transferir</span>
         </button>
         <button type="button" class="action-btn tap-highlight-none">
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319590-e979cf96-6971-4ca1-9f74-f613aab18af5.svg"
-            alt="Send money"
+            alt="Recarga"
           />
-          <span>Send money</span>
-        </button>
-        <button type="button" class="action-btn tap-highlight-none">
-          <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319590-e979cf96-6971-4ca1-9f74-f613aab18af5.svg"
-            alt="Send money"
-          />
-          <span>Send money</span>
+          <span>Recarga</span>
         </button>
       </section>
 
       <section class="panel-section">
-        <h2>Get started</h2>
+        <h2>Comece agora</h2>
 
         <button type="button" class="list-item tap-highlight-none">
           <img
@@ -112,8 +112,8 @@
             alt="Icon"
           />
           <div class="item-text">
-            <p class="item-title">Add Money</p>
-            <p class="item-subtitle">Get more from your account</p>
+            <p class="item-title">Criar cobrança</p>
+            <p class="item-subtitle">Crie uma cobrança para receber pagamentos</p>
           </div>
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-a4833e74-327c-445f-8b3a-a5a3ff3ac460.svg"
@@ -127,8 +127,8 @@
             alt="Icon"
           />
           <div class="item-text">
-            <p class="item-title">Create a debit card</p>
-            <p class="item-subtitle">Get more from your account</p>
+            <p class="item-title">Criar cartão pré-pago</p>
+            <p class="item-subtitle">Obtenha mais do seu saldo</p>
           </div>
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-3b2a7c14-f9b5-4a9b-9b54-36a706642dde.svg"
@@ -142,8 +142,8 @@
             alt="Icon"
           />
           <div class="item-text">
-            <p class="item-title">Earn N 2,000 for inviting friends</p>
-            <p class="item-subtitle">Get more from your account</p>
+            <p class="item-title">Venda parcelado</p>
+            <p class="item-subtitle">Venda parcelado</p>
           </div>
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-8b6b1423-6c44-4c0e-bbad-048b39ff0c6f.svg"
@@ -152,8 +152,8 @@
         </button>
       </section>
 
-      <section class="panel-section quick-access-section">
-        <h2>Quick access</h2>
+      <!-- <section class="panel-section quick-access-section">
+        <h2>Acesso rápido</h2>
         <div class="quick-access-row">
           <button type="button" class="chip tap-highlight-none">
             <img
@@ -177,11 +177,11 @@
             <span>Data Bundle</span>
           </button>
         </div>
-      </section>
+      </section> -->
 
       <section class="transactions-section">
         <div class="transaction-group">
-          <p class="group-title">TODAY</p>
+          <p class="group-title">HOJE</p>
           <button type="button" class="transaction-item tap-highlight-none">
             <div class="transaction-left">
               <img
@@ -211,7 +211,7 @@
         </div>
 
         <div class="transaction-group">
-          <p class="group-title">TUESDAY 23 MAY</p>
+          <p class="group-title">TERÇA-FEIRA 23 DE MAIO</p>
           <button type="button" class="transaction-item tap-highlight-none">
             <div class="transaction-left">
               <img
@@ -281,7 +281,11 @@
       </button>
     </nav>
 
-    <div class="payment-sheet-backdrop" [class.open]="paymentSheetOpen" (click)="closePaymentSheet()"></div>
+    <div
+      class="payment-sheet-backdrop"
+      [class.open]="paymentSheetOpen || transferSheetOpen"
+      (click)="closeOverlaySheets()"
+    ></div>
 
     <section class="payment-sheet" [class.open]="paymentSheetOpen" (click)="$event.stopPropagation()">
       <button
@@ -348,6 +352,85 @@
           class="hidden-file-input"
           (change)="onChargeFileSelected($event)"
         />
+      </div>
+    </section>
+
+    <section class="transfer-sheet" [class.open]="transferSheetOpen" (click)="$event.stopPropagation()">
+      <div class="transfer-sheet-panel">
+        <header class="transfer-sheet-header">
+          <button
+            type="button"
+            class="transfer-sheet-back tap-highlight-none"
+            (click)="closeTransferSheet()"
+            aria-label="Fechar transferencias"
+          >
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-db5dbebf-f19e-4b07-9fb4-33a246e733c8.svg"
+              alt=""
+            />
+          </button>
+          <h2 class="transfer-sheet-title">Transferir</h2>
+        </header>
+
+        <div class="transfer-sheet-body">
+          <button type="button" class="transfer-method-row tap-highlight-none" (click)="onTransferPixTap()">
+            <img
+              class="transfer-method-icon"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319554-f93cb7a3-5014-4aa6-8d45-95af6f6b9f8f.svg"
+              alt=""
+            />
+            <div class="transfer-method-text">
+              <span class="transfer-method-name">PIX</span>
+              <span class="transfer-method-desc">Enviar dinheiro via PIX</span>
+            </div>
+            <img
+              class="transfer-caret"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-8b42c40c-b92c-4b61-98a4-7f998814aa73.svg"
+              alt=""
+            />
+          </button>
+
+          <button type="button" class="transfer-method-row tap-highlight-none" (click)="onTransferTedTap()">
+            <img
+              class="transfer-method-icon"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319554-3c94ce7f-3bc8-42bd-9391-003bab351db2.svg"
+              alt=""
+            />
+            <div class="transfer-method-text">
+              <span class="transfer-method-name">TED</span>
+              <span class="transfer-method-desc">Enviar dinheiro para outra instituição bancária</span>
+            </div>
+            <img
+              class="transfer-caret"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-b9733cc1-e0ff-4dae-87bc-51e13a47729e.svg"
+              alt=""
+            />
+          </button>
+
+          <div class="transfer-or-row" aria-hidden="true">
+            <span class="transfer-or-line"></span>
+            <span class="transfer-or-label">OR</span>
+            <span class="transfer-or-line"></span>
+          </div>
+
+          <button
+            type="button"
+            class="transfer-fav-row tap-highlight-none"
+            *ngFor="let fav of transferFavorites"
+            (click)="onTransferFavoriteTap(fav)"
+          >
+            <div class="transfer-fav-avatar">{{ fav.initials }}</div>
+            <div class="transfer-method-text">
+              <span class="transfer-method-name">{{ fav.name }}</span>
+              <span class="transfer-method-desc">{{ fav.bank }}</span>
+            </div>
+            <img
+              class="transfer-caret"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-1b3578d5-45e1-46fb-8f05-613ea2367512.svg"
+              alt=""
+            />
+          </button>
+        </div>
       </div>
     </section>
   </div>

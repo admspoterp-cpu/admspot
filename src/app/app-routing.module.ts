@@ -35,6 +35,54 @@ const routes: Routes = [
     path: 'boleto-manual',
     loadChildren: () => import('./features/boleto-manual/boleto-manual.module').then( m => m.BoletoManualPageModule)
   },
+  {
+    path: 'boleto-payment-details',
+    loadChildren: () =>
+      import('./features/boleto-payment-details/boleto-payment-details.module').then(
+        (m) => m.BoletoPaymentDetailsPageModule
+      ),
+  },
+  {
+    path: 'boleto-payment-success',
+    loadChildren: () =>
+      import('./features/boleto-payment-success/boleto-payment-success.module').then(
+        (m) => m.BoletoPaymentSuccessPageModule
+      ),
+  },
+  {
+    path: 'pix-qr-payment-details',
+    loadChildren: () =>
+      import('./features/pix-qr-payment-details/pix-qr-payment-details.module').then(
+        (m) => m.PixQrPaymentDetailsPageModule
+      ),
+  },
+  {
+    path: 'transfer-pix',
+    loadChildren: () =>
+      import('./features/transfer-pix/transfer-pix.module').then((m) => m.TransferPixPageModule),
+  },
+  {
+    path: 'transfer-ted',
+    loadChildren: () =>
+      import('./features/transfer-ted/transfer-ted.module').then((m) => m.TransferTedPageModule),
+  },
+  {
+    path: 'transfer-ted-info',
+    loadChildren: () =>
+      import('./features/transfer-ted-info/transfer-ted-info.module').then((m) => m.TransferTedInfoPageModule),
+  },
+  {
+    path: 'pay-transfer-pix',
+    loadChildren: () =>
+      import('./features/pay-transfer-pix/pay-transfer-pix.module').then((m) => m.PayTransferPixPageModule),
+  },
+  {
+    path: 'comprovante-payment',
+    loadChildren: () =>
+      import('./features/comprovante-payment/comprovante-payment.module').then(
+        (m) => m.ComprovantePaymentPageModule
+      ),
+  },
 ];
 
 @NgModule({

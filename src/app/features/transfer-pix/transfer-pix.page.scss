@@ -1,0 +1,242 @@
+@import url('https://fonts.googleapis.com/css2?family=Abel&display=swap');
+
+:host {
+  --tp-title: #3a3c4c;
+  --tp-muted: #7d7c93;
+  --tp-text: #313131;
+  --tp-input: #373f46;
+  --tp-border: #e5e5e5;
+  --tp-blue: #235697;
+  --tp-blue-dark: #114280;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+ion-content.transfer-pix-content {
+  --background: #ffffff;
+}
+
+ion-content.transfer-pix-content::part(scroll) {
+  min-height: 100%;
+}
+
+.transfer-pix-page {
+  min-height: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sem faixa azul no topo: toolbar + corpo full branco (mock transf-pix sem Frame427319675) */
+.tp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: calc(13px + env(safe-area-inset-top)) 20px 13px;
+  padding-right: 83px;
+  border-bottom: 1px solid #f3f3f3;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.tp-back {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tp-back img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.tp-toolbar h1 {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+  color: var(--tp-title);
+  max-width: 209px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tp-body {
+  flex: 1;
+  padding: 24px 20px calc(28px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: #fff;
+}
+
+.tp-balance-card {
+  position: relative;
+  width: 100%;
+  min-height: 121px;
+  border-radius: 8px;
+  background: var(--tp-blue);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.tp-balance-ellipse {
+  position: absolute;
+  left: 50%;
+  top: -13px;
+  transform: translateX(-50%);
+  width: 280px;
+  max-width: none;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.tp-balance-deco {
+  position: absolute;
+  right: 12px;
+  top: 22px;
+  width: 36px;
+  height: auto;
+  pointer-events: none;
+}
+
+.tp-balance-inner {
+  position: relative;
+  z-index: 1;
+  padding: 24px 20px 20px;
+}
+
+.tp-balance-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tp-balance-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 5px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tp-currency {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #fff;
+}
+
+.tp-amount {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 33.6px;
+  color: #fff;
+}
+
+.tp-account-name {
+  margin: 8px 0 0;
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 13.5px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tp-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 10px;
+  border: 0;
+  border-bottom: 1px solid var(--tp-border);
+  background: transparent;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.tp-field-label {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.4px;
+  color: var(--tp-muted);
+}
+
+.tp-field-input {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--tp-input);
+  outline: none;
+  width: 100%;
+}
+
+.tp-field-input::placeholder {
+  color: var(--tp-muted);
+  opacity: 0.85;
+}
+
+.tp-field-select {
+  cursor: pointer;
+  padding-bottom: 8px;
+}
+
+.tp-select-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tp-select-value {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--tp-text);
+}
+
+.tp-select-caret {
+  width: 7px;
+  height: 14px;
+  flex-shrink: 0;
+  transform: rotate(90deg);
+  opacity: 0.75;
+}
+
+.tp-continue {
+  margin-top: auto;
+  width: 100%;
+  min-height: 53px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(270deg, var(--tp-blue) 0%, var(--tp-blue-dark) 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 21px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

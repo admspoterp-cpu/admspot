@@ -1,0 +1,107 @@
+<!-- Layout: main (28).html — TED valor / taxa / Pagar (corpo branco, sem faixa azul) -->
+<ion-content [fullscreen]="true" class="pay-transfer-pix-content" [forceOverscroll]="false">
+  <div class="pt-page">
+    <header class="pt-toolbar">
+      <button type="button" class="pt-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-fbf28f04-550b-4a88-9cc9-b1b91b47236d.svg"
+          alt=""
+        />
+      </button>
+      <h1>Transferência TED</h1>
+    </header>
+
+    <main class="pt-body">
+      <section class="pt-balance-card">
+        <img
+          class="pt-balance-ellipse"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Ellipse655-8e7ac9da-b54c-4d20-acc4-3381edba5f0d.svg"
+          alt=""
+        />
+        <img
+          class="pt-balance-deco"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Group142274-983233da-1bc4-422d-912c-ad465a478130.svg"
+          alt=""
+        />
+        <div class="pt-balance-inner">
+          <p class="pt-balance-label">Saldo disponível</p>
+          <div class="pt-balance-row">
+            <span class="pt-currency">{{ amountReais }}</span>
+            <span class="pt-amount">{{ balanceValue }}</span>
+          </div>
+          <p class="pt-account-name">{{ accountName }}</p>
+        </div>
+      </section>
+
+      <section class="pt-beneficiary tti-beneficiary" aria-label="Destinatário">
+        <div class="tti-beneficiary-main">
+          <div class="pt-beneficiary-avatar">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319675-110ff18b-abe4-40f8-bb55-da0ee02e0232.svg"
+              alt=""
+            />
+          </div>
+          <div class="pt-beneficiary-text">
+            <p class="pt-beneficiary-name">{{ recipientName }}</p>
+            <p class="pt-beneficiary-bank">{{ bankSubtitle }}</p>
+          </div>
+        </div>
+        <button type="button" class="tti-mudar tap-highlight-none" (click)="onMudar()">
+          <span>Mudar</span>
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-69f7756d-6704-455a-b044-a47be192fb8e.svg"
+            alt=""
+          />
+        </button>
+      </section>
+
+      <label class="pt-field pt-field-value">
+        <span class="pt-field-label">Valor</span>
+        <div class="pt-value-row">
+          <span class="pt-value-prefix">R$</span>
+          <input
+            class="pt-value-input"
+            type="text"
+            name="transferAmount"
+            [(ngModel)]="transferAmount"
+            inputmode="decimal"
+            autocomplete="off"
+          />
+        </div>
+      </label>
+
+      <label class="pt-field pt-field-note">
+        <span class="pt-field-label">Observação (opcional)</span>
+        <input
+          class="pt-field-input"
+          type="text"
+          name="observation"
+          [(ngModel)]="observation"
+          autocomplete="off"
+          placeholder="Opcional"
+        />
+      </label>
+
+      <section class="pt-fee-block">
+        <img
+          class="pt-fee-mark"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Rectangle24546-e3028c2b-7707-4ce9-9070-6b9fd9d36b28.svg"
+          alt=""
+        />
+        <div class="pt-fee-top">
+          <span class="pt-field-label">Taxa</span>
+          <div class="pt-fee-price">
+            <span class="pt-fee-reais">{{ feeCurrency }}</span>
+            <span class="pt-fee-cents">{{ feeValue }}</span>
+          </div>
+        </div>
+        <p class="pt-fee-disclaimer">
+          Você possui 5 transferências gratuitas por mês, após esse limite<br />
+          será descontado R$2,50 por transferência.
+        </p>
+      </section>
+
+      <button type="button" class="pt-pay-btn tap-highlight-none" (click)="onPay()">Pagar</button>
+    </main>
+  </div>
+</ion-content>

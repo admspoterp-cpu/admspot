@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Afacad:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600&display=swap');
 
 :host {
   --brand-dark: #162d4c;
@@ -526,4 +527,189 @@ ion-content.dashboard-content::part(scroll) {
   height: 1px;
   opacity: 0;
   pointer-events: none;
+}
+
+/* Transfer bottom sheet — alinhado a transfer-options.html */
+.transfer-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 100%);
+  width: min(430px, 100%);
+  transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 30;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.transfer-sheet.open {
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.transfer-sheet-panel {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.18);
+  /* Altura maior que o mock: mais área útil e espaço para mais favoritos */
+  min-height: min(72vh, 680px);
+  max-height: calc(92vh - env(safe-area-inset-bottom, 0px));
+}
+
+.transfer-sheet-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-height: 50px;
+  padding: 13px 20px;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.transfer-sheet-back {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transfer-sheet-back img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.transfer-sheet-title {
+  margin: 0;
+  max-width: 209px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+  color: #3a3c4c;
+}
+
+.transfer-sheet-body {
+  flex: 1;
+  min-height: 0;
+  padding: 0 0 16px;
+  background: #fff;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.transfer-method-row,
+.transfer-fav-row {
+  width: 100%;
+  border: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 10px 20px;
+  text-align: left;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.transfer-method-row::after,
+.transfer-fav-row::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 1px;
+  background: #ececf0;
+}
+
+.transfer-method-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.transfer-method-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.transfer-method-name {
+  font-family: 'Albert Sans', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16.8px;
+  color: #3b3d4b;
+}
+
+.transfer-method-desc {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #7d7c93;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.transfer-caret {
+  width: 7px;
+  height: 14px;
+  flex-shrink: 0;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+.transfer-or-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 20px 12px;
+}
+
+.transfer-or-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e0e0e0 12%, #e0e0e0 88%, transparent);
+  max-width: 120px;
+}
+
+.transfer-or-label {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.4px;
+  color: #d5d5d5;
+  flex-shrink: 0;
+}
+
+.transfer-fav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: rgba(59, 61, 75, 0.5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Albert Sans', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22.4px;
+  flex-shrink: 0;
 }
