@@ -99,7 +99,11 @@ ion-content.recarga-success-content {
 .recarga-success-operator-icon {
   width: 36px;
   height: 36px;
-  object-fit: contain;
+  border-radius: 10px;
+  object-fit: cover;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
   flex-shrink: 0;
 }
 

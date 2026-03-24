@@ -19,7 +19,6 @@ export class DashboardPage {
   recargaSheetOpen = false;
   recargaOperatorMenuOpen = false;
   selectedChargeFileName = '';
-  recargaRecipientName = 'Fernando Pedro de Souza';
   recargaPhone = '(00) 00000-0000';
   selectedRecargaAmount = 50;
   selectedRecargaOperator = 'VIVO';

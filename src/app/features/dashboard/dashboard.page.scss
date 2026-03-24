@@ -974,9 +974,13 @@ ion-content.dashboard-content::part(scroll) {
 }
 
 .recarga-operator-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  object-fit: cover;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
 }
 
 .recarga-caret {
