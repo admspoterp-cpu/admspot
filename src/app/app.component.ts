@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { Platform } from '@ionic/angular';
+
+import { AppScreenOrientationService } from './services/app-screen-orientation.service';
 
 @Component({
   selector: 'app-root',
@@ -6,6 +9,11 @@ import { Component } from '@angular/core';
   styleUrls: ['app.component.scss'],
   standalone: false,
 })
-export class AppComponent {
-  constructor() {}
+export class AppComponent implements OnInit {
+  private readonly platform = inject(Platform);
+  private readonly screenOrientation = inject(AppScreenOrientationService);
+
+  ngOnInit(): void {
+    void this.platform.ready().then(() => this.screenOrientation.lockPortrait());
+  }
 }

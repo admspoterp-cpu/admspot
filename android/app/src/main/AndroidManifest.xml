@@ -62,6 +62,9 @@
     <!-- Feedback tátil (@capacitor/haptics) -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Biometria: impressão digital / reconhecimento facial (BiometricPrompt) -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
     <!--
       Galeria / mídia: envio de foto da cobrança no dashboard (input file image/*).
       Android 13+ (API 33): permissões granulares de mídia.

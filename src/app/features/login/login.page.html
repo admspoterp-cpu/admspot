@@ -53,14 +53,10 @@
         <button type="button" class="forgot">Esqueci minha senha</button>
       </div>
 
-      <ion-button
-        expand="block"
-        class="access-btn"
-        routerLink="/dashboard"
-        routerDirection="forward"
-      >
+      <ion-button expand="block" class="access-btn" type="button" (click)="onAccess()">
         Acessar
       </ion-button>
+      <p class="login-biometric-hint">O acesso só continua após confirmar com Face ID ou digital no celular.</p>
     </form>
   </div>
 </ion-content>

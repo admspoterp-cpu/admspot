@@ -2,6 +2,8 @@ import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/co
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 
+import { AppScreenOrientationService } from '../../services/app-screen-orientation.service';
+
 type ScanState = 'idle' | 'scanning' | 'success' | 'error';
 type QuaggaDetectedResult = {
   codeResult?: {
@@ -43,20 +45,21 @@ export class BoletoScanPage implements OnDestroy {
   };
   private readonly navController = inject(NavController);
   private readonly router = inject(Router);
+  private readonly screenOrientation = inject(AppScreenOrientationService);
 
   async ionViewDidEnter(): Promise<void> {
-    await this.lockLandscape();
+    await this.screenOrientation.lockLandscape();
     await this.startScanner();
   }
 
   async ionViewWillLeave(): Promise<void> {
     this.stopScanner();
-    await this.unlockOrientation();
+    await this.screenOrientation.lockPortrait();
   }
 
   async ngOnDestroy(): Promise<void> {
     this.stopScanner();
-    await this.unlockOrientation();
+    await this.screenOrientation.lockPortrait();
   }
 
   goBack(): void {
@@ -206,7 +209,7 @@ export class BoletoScanPage implements OnDestroy {
     this.detectedCode = normalizedCode;
     this.statusMessage = 'Codigo de barras lido com sucesso.';
     this.stopScanner();
-    await this.unlockOrientation();
+    await this.screenOrientation.lockPortrait();
     await this.router.navigate(['/boleto-payment-details'], {
       state: { barcode: normalizedCode },
     });
@@ -223,29 +226,4 @@ export class BoletoScanPage implements OnDestroy {
     }
   }
 
-  private async lockLandscape(): Promise<void> {
-    const screenOrientation = screen.orientation as ScreenOrientation & {
-      lock?: (orientation: 'landscape') => Promise<void>;
-    };
-    if (!screenOrientation?.lock) {
-      return;
-    }
-
-    try {
-      await screenOrientation.lock('landscape');
-    } catch {
-      // Some WebViews require fullscreen or do not allow lock.
-    }
-  }
-
-  private async unlockOrientation(): Promise<void> {
-    const screenOrientation = screen.orientation as ScreenOrientation & {
-      unlock?: () => void;
-    };
-    try {
-      screenOrientation?.unlock?.();
-    } catch {
-      // Ignore unlock failures.
-    }
-  }
 }
