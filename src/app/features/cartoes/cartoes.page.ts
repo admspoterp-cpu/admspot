@@ -34,6 +34,20 @@ export interface TransacaoItem {
   initials?: string;
   initialsBg?: string;
   iconSrc?: string;
+  /** YYYY-MM-DD para filtro por período */
+  dateIso: string;
+  kind: 'recarga' | 'transacao';
+  currency: 'BRL' | 'USD';
+}
+
+export type CartoesFilterTipo = 'todos' | 'recarga' | 'transacao';
+export type CartoesFilterMoeda = 'todos' | 'BRL' | 'USD';
+
+export interface CartoesTxFilter {
+  dateStart: string;
+  dateEnd: string;
+  tipo: CartoesFilterTipo;
+  moeda: CartoesFilterMoeda;
 }
 
 @Component({
@@ -44,6 +58,25 @@ export interface TransacaoItem {
 })
 export class CartoesPage implements AfterViewInit {
   @ViewChild('swiperEl') swiperRef?: ElementRef<HTMLElement & { swiper?: { update: () => void } }>;
+  @ViewChild('txSearchInput') txSearchInput?: ElementRef<HTMLInputElement>;
+
+  filterSheetOpen = false;
+
+  /** Campo de busca inline na lista de transações */
+  txSearchOpen = false;
+  txSearchQuery = '';
+
+  readonly emptyTxFilter: CartoesTxFilter = {
+    dateStart: '',
+    dateEnd: '',
+    tipo: 'todos',
+    moeda: 'todos',
+  };
+
+  appliedTxFilter: CartoesTxFilter = { ...this.emptyTxFilter };
+  draftTxFilter: CartoesTxFilter = { ...this.emptyTxFilter };
+
+  private readonly todayIso = CartoesPage.formatDateIsoLocal(new Date());
 
   readonly cards: CartaoDados[] = [
     {
@@ -101,6 +134,9 @@ export class CartoesPage implements AfterViewInit {
           tag: 'carga',
           iconType: 'frame',
           iconSrc: `${G}/Frame427319675-562b5251-1e2d-44c4-b078-3f957f441fbf.svg`,
+          dateIso: this.todayIso,
+          kind: 'recarga',
+          currency: 'BRL',
         },
         {
           title: 'Loja Sports',
@@ -111,6 +147,9 @@ export class CartoesPage implements AfterViewInit {
           iconType: 'initials',
           initials: 'LS',
           initialsBg: '#00597d',
+          dateIso: this.todayIso,
+          kind: 'transacao',
+          currency: 'BRL',
         },
       ],
     },
@@ -126,6 +165,9 @@ export class CartoesPage implements AfterViewInit {
           iconType: 'initials',
           initials: 'AB',
           initialsBg: '#e21001',
+          dateIso: '2023-05-23',
+          kind: 'transacao',
+          currency: 'USD',
         },
         {
           title: 'Ifeoma Okonkwo',
@@ -136,6 +178,9 @@ export class CartoesPage implements AfterViewInit {
           iconType: 'initials',
           initials: 'IO',
           initialsBg: '#162d4c',
+          dateIso: '2023-05-23',
+          kind: 'transacao',
+          currency: 'BRL',
         },
       ],
     },
@@ -151,6 +196,9 @@ export class CartoesPage implements AfterViewInit {
           iconType: 'initials',
           initials: 'PO',
           initialsBg: '#114280',
+          dateIso: '2023-05-22',
+          kind: 'transacao',
+          currency: 'BRL',
         },
       ],
     },
@@ -194,12 +242,101 @@ export class CartoesPage implements AfterViewInit {
     await toast.present();
   }
 
-  async searchSoon(): Promise<void> {
-    await this.actionSoon('Busca');
+  openTxSearch(): void {
+    this.txSearchOpen = true;
+    window.setTimeout(() => this.txSearchInput?.nativeElement?.focus(), 0);
   }
 
-  async filterSoon(): Promise<void> {
-    await this.actionSoon('Filtros');
+  closeTxSearch(): void {
+    this.txSearchOpen = false;
+    this.txSearchQuery = '';
+  }
+
+  get filteredTxGroups(): TransacaoGrupo[] {
+    const base = this.filterTransactionGroups(this.txGroups, this.appliedTxFilter);
+    const q = this.txSearchQuery.trim().toLowerCase();
+    if (!this.txSearchOpen || !q) {
+      return base;
+    }
+    return this.filterGroupsByTitleQuery(base, q);
+  }
+
+  get emptyTxListMessage(): string {
+    const q = this.txSearchQuery.trim();
+    if (this.txSearchOpen && q) {
+      return 'Nenhuma transação encontrada.';
+    }
+    return 'Nenhuma transação com estes filtros.';
+  }
+
+  get hasActiveTxFilters(): boolean {
+    const f = this.appliedTxFilter;
+    return !!(f.dateStart || f.dateEnd || f.tipo !== 'todos' || f.moeda !== 'todos');
+  }
+
+  openFilterSheet(): void {
+    this.draftTxFilter = { ...this.appliedTxFilter };
+    this.filterSheetOpen = true;
+  }
+
+  closeFilterSheet(): void {
+    this.filterSheetOpen = false;
+  }
+
+  clearDraftFilters(): void {
+    this.draftTxFilter = { ...this.emptyTxFilter };
+  }
+
+  applyDraftFilters(): void {
+    this.appliedTxFilter = { ...this.draftTxFilter };
+    this.filterSheetOpen = false;
+  }
+
+  setDraftTipo(t: CartoesFilterTipo): void {
+    this.draftTxFilter = { ...this.draftTxFilter, tipo: t };
+  }
+
+  setDraftMoeda(m: CartoesFilterMoeda): void {
+    this.draftTxFilter = { ...this.draftTxFilter, moeda: m };
+  }
+
+  private filterTransactionGroups(groups: TransacaoGrupo[], f: CartoesTxFilter): TransacaoGrupo[] {
+    return groups
+      .map((g) => ({
+        label: g.label,
+        items: g.items.filter((item) => {
+          if (f.tipo !== 'todos' && item.kind !== f.tipo) {
+            return false;
+          }
+          if (f.moeda !== 'todos' && item.currency !== f.moeda) {
+            return false;
+          }
+          if (f.dateStart && item.dateIso < f.dateStart) {
+            return false;
+          }
+          if (f.dateEnd && item.dateIso > f.dateEnd) {
+            return false;
+          }
+          return true;
+        }),
+      }))
+      .filter((g) => g.items.length > 0);
+  }
+
+  private filterGroupsByTitleQuery(groups: TransacaoGrupo[], q: string): TransacaoGrupo[] {
+    return groups
+      .map((g) => ({
+        label: g.label,
+        items: g.items.filter((item) => item.title.toLowerCase().includes(q)),
+      }))
+      .filter((g) => g.items.length > 0);
+  }
+
+  private static formatDateIsoLocal(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 
   private async presentToast(message: string, color: 'success' | 'warning' = 'success'): Promise<void> {

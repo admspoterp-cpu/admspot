@@ -172,13 +172,36 @@
       <div class="cartoes-tx-head">
         <h2 class="cartoes-tx-title">Transações</h2>
         <div class="cartoes-tx-tools">
-          <button type="button" class="cartoes-tx-tool tap-highlight-none" (click)="searchSoon()" aria-label="Buscar">
+          <button
+            *ngIf="!txSearchOpen"
+            type="button"
+            class="cartoes-tx-tool tap-highlight-none"
+            (click)="openTxSearch()"
+            aria-label="Buscar"
+          >
             <img
               src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/MagnifyingGlass-a94a80e0-b199-43dc-8e26-7685998be524.svg"
               alt=""
             />
           </button>
-          <button type="button" class="cartoes-tx-tool tap-highlight-none" (click)="filterSoon()" aria-label="Filtros">
+          <div *ngIf="txSearchOpen" class="cartoes-tx-search">
+            <input
+              #txSearchInput
+              type="search"
+              class="cartoes-tx-search-input"
+              [(ngModel)]="txSearchQuery"
+              name="cartoesTxSearch"
+              placeholder="Buscar transação"
+              autocomplete="off"
+              enterkeyhint="search"
+              inputmode="search"
+              aria-label="Buscar por nome da transação"
+            />
+            <button type="button" class="cartoes-tx-search-close tap-highlight-none" (click)="closeTxSearch()" aria-label="Cancelar busca">
+              <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
+          <button type="button" class="cartoes-tx-tool tap-highlight-none" (click)="openFilterSheet()" aria-label="Filtros">
             <img
               src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319712-d0220d86-78e1-4044-a961-4bea864963f9.svg"
               alt=""
@@ -188,7 +211,8 @@
       </div>
 
       <div class="cartoes-tx-scroll">
-        <ng-container *ngFor="let group of txGroups">
+        <p *ngIf="filteredTxGroups.length === 0" class="cartoes-tx-empty">{{ emptyTxListMessage }}</p>
+        <ng-container *ngFor="let group of filteredTxGroups">
           <p class="cartoes-tx-group-label">{{ group.label }}</p>
           <div class="cartoes-tx-row" *ngFor="let item of group.items">
             <div class="cartoes-tx-icon" *ngIf="item.iconType === 'frame'">
@@ -218,6 +242,115 @@
           </div>
         </ng-container>
       </div>
+    </section>
+
+    <button
+      type="button"
+      class="cartoes-filter-backdrop tap-highlight-none"
+      [class.open]="filterSheetOpen"
+      [attr.aria-hidden]="filterSheetOpen ? 'false' : 'true'"
+      (click)="closeFilterSheet()"
+      aria-label="Fechar filtros"
+    ></button>
+    <section
+      class="cartoes-filter-sheet"
+      [class.open]="filterSheetOpen"
+      (click)="$event.stopPropagation()"
+      aria-label="Filtros de transações"
+      [attr.aria-hidden]="filterSheetOpen ? 'false' : 'true'"
+    >
+        <div class="cartoes-filter-handle" aria-hidden="true"></div>
+        <header class="cartoes-filter-header">
+          <h2 class="cartoes-filter-title">Filtros</h2>
+          <button type="button" class="cartoes-filter-close tap-highlight-none" (click)="closeFilterSheet()" aria-label="Fechar">
+            <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+          </button>
+        </header>
+
+        <div class="cartoes-filter-body">
+          <div class="cartoes-filter-field">
+            <span class="cartoes-filter-label">Período</span>
+            <div class="cartoes-filter-dates">
+              <label class="cartoes-filter-date">
+                <span class="cartoes-filter-date-caption">Início</span>
+                <input type="date" [(ngModel)]="draftTxFilter.dateStart" name="cartoesFilterStart" />
+              </label>
+              <label class="cartoes-filter-date">
+                <span class="cartoes-filter-date-caption">Fim</span>
+                <input type="date" [(ngModel)]="draftTxFilter.dateEnd" name="cartoesFilterEnd" />
+              </label>
+            </div>
+          </div>
+
+          <div class="cartoes-filter-field">
+            <span class="cartoes-filter-label">Tipo</span>
+            <div class="cartoes-filter-chips" role="group" aria-label="Tipo de lançamento">
+              <button
+                type="button"
+                class="cartoes-filter-chip tap-highlight-none"
+                [class.cartoes-filter-chip--active]="draftTxFilter.tipo === 'todos'"
+                (click)="setDraftTipo('todos')"
+              >
+                Todos
+              </button>
+              <button
+                type="button"
+                class="cartoes-filter-chip tap-highlight-none"
+                [class.cartoes-filter-chip--active]="draftTxFilter.tipo === 'recarga'"
+                (click)="setDraftTipo('recarga')"
+              >
+                Recarga
+              </button>
+              <button
+                type="button"
+                class="cartoes-filter-chip tap-highlight-none"
+                [class.cartoes-filter-chip--active]="draftTxFilter.tipo === 'transacao'"
+                (click)="setDraftTipo('transacao')"
+              >
+                Transação
+              </button>
+            </div>
+          </div>
+
+          <div class="cartoes-filter-field">
+            <span class="cartoes-filter-label">Moeda</span>
+            <div class="cartoes-filter-chips" role="group" aria-label="Moeda">
+              <button
+                type="button"
+                class="cartoes-filter-chip tap-highlight-none"
+                [class.cartoes-filter-chip--active]="draftTxFilter.moeda === 'todos'"
+                (click)="setDraftMoeda('todos')"
+              >
+                Todos
+              </button>
+              <button
+                type="button"
+                class="cartoes-filter-chip tap-highlight-none"
+                [class.cartoes-filter-chip--active]="draftTxFilter.moeda === 'BRL'"
+                (click)="setDraftMoeda('BRL')"
+              >
+                BRL
+              </button>
+              <button
+                type="button"
+                class="cartoes-filter-chip tap-highlight-none"
+                [class.cartoes-filter-chip--active]="draftTxFilter.moeda === 'USD'"
+                (click)="setDraftMoeda('USD')"
+              >
+                USD
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <footer class="cartoes-filter-footer">
+          <button type="button" class="cartoes-filter-btn cartoes-filter-btn--ghost tap-highlight-none" (click)="clearDraftFilters()">
+            Limpar
+          </button>
+          <button type="button" class="cartoes-filter-btn cartoes-filter-btn--primary tap-highlight-none" (click)="applyDraftFilters()">
+            Aplicar
+          </button>
+        </footer>
     </section>
   </div>
 </ion-content>
