@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { NavController, ToastController } from '@ionic/angular';
 
+import { BRL_ZERO_DISPLAY, brlStringToCents } from '../../shared/utils/brl-currency.util';
 import type { ComprovantePaymentNavState } from '../comprovante-payment/comprovante-payment.page';
 
 /** Estado enviado por `transfer-pix` via `navigateForward(..., { state })` */
@@ -32,7 +33,7 @@ export class PayTransferPixPage implements OnInit {
   readonly beneficiaryBank = 'NU PAGAMENTO - IP';
   readonly documentMasked = '***.898.898-**';
 
-  transferAmount = '5.000,00';
+  transferAmount = BRL_ZERO_DISPLAY;
   observation = 'Segue o valor do aluguel';
 
   readonly feeCurrency = 'R$';
@@ -53,10 +54,10 @@ export class PayTransferPixPage implements OnInit {
   }
 
   async onPay(): Promise<void> {
-    const amount = this.transferAmount.trim();
-    if (!amount) {
+    const cents = brlStringToCents(this.transferAmount);
+    if (cents <= 0) {
       const toast = await this.toastController.create({
-        message: 'Informe o valor da transferência',
+        message: 'Informe um valor maior que zero',
         duration: 2000,
         position: 'bottom',
         color: 'warning',
@@ -64,6 +65,8 @@ export class PayTransferPixPage implements OnInit {
       await toast.present();
       return;
     }
+
+    const amount = this.transferAmount.trim();
 
     const state: ComprovantePaymentNavState = {
       amountDisplay: amount,

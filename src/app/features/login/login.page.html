@@ -56,7 +56,17 @@
       <ion-button expand="block" class="access-btn" type="button" (click)="onAccess()">
         Acessar
       </ion-button>
-      <p class="login-biometric-hint">O acesso só continua após confirmar com Face ID ou digital no celular.</p>
+
+      <div
+        class="login-bio-feedback"
+        [class.login-bio-feedback--error]="biometricFeedbackError"
+        aria-live="polite"
+      >
+        <ion-icon name="finger-print-outline" class="login-bio-icon" aria-hidden="true"></ion-icon>
+        <p class="login-biometric-hint">
+          O acesso só continua após confirmar com Face ID ou digital no dispositivo.
+        </p>
+      </div>
     </form>
   </div>
 </ion-content>

@@ -1,0 +1,132 @@
+/* Bloqueio ao retornar do multitarefa — alinhado ao login (cartão branco, azul marca, fundo suave) */
+
+.app-resume-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  box-sizing: border-box;
+}
+
+.app-resume-lock__bg {
+  position: absolute;
+  inset: 0;
+  background-color: #e8f2f4;
+  background-image:
+    radial-gradient(ellipse 90% 70% at 15% 25%, rgba(72, 189, 189, 0.35), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 88% 72%, rgba(255, 196, 120, 0.32), transparent 50%),
+    url('../assets/app-resume-lock-bg.png');
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.06);
+}
+
+.app-resume-lock__veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(248, 250, 252, 0.88) 45%,
+    rgba(232, 244, 245, 0.75) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.app-resume-lock__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 360px;
+  padding: 32px 26px 28px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow:
+    0 4px 24px rgba(17, 66, 128, 0.12),
+    0 24px 48px rgba(35, 86, 151, 0.08);
+  text-align: center;
+}
+
+.app-resume-lock__icon-stack {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-resume-lock__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(35, 86, 151, 0.18) 0%, transparent 70%);
+}
+
+.app-resume-lock__icon {
+  position: absolute;
+  color: #235697;
+}
+
+.app-resume-lock__icon--lock {
+  font-size: 52px;
+  opacity: 0.35;
+  transform: translate(-18px, -10px);
+}
+
+.app-resume-lock__icon--bio {
+  font-size: 64px;
+  opacity: 0.95;
+  transform: translate(14px, 8px);
+  filter: drop-shadow(0 2px 8px rgba(35, 86, 151, 0.2));
+}
+
+.app-resume-lock__title {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #3a3c4c;
+  letter-spacing: -0.02em;
+}
+
+.app-resume-lock__subtitle {
+  margin: 0 0 24px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #7d7c93;
+}
+
+.app-resume-lock__subtitle strong {
+  color: #3a3c4c;
+  font-weight: 600;
+}
+
+.app-resume-lock__btn {
+  --background: linear-gradient(270deg, #235697 0%, #114280 100%);
+  --border-radius: 10px;
+  --box-shadow: 0 8px 20px rgba(17, 66, 128, 0.28);
+  height: 52px;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: none;
+  margin: 0;
+}
+
+.app-resume-lock__spinner {
+  width: 22px;
+  height: 22px;
+  color: #fff;
+}
+
+.app-resume-lock__error {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #c0392b;
+}

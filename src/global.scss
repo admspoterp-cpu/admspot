@@ -25,3 +25,9 @@ ion-app,
 ion-content {
   font-family: 'Inter', sans-serif;
 }
+
+/* Toast do login — biometria (apresentado fora do componente) */
+ion-toast.login-biometric-toast {
+  --border-radius: 12px;
+  font-weight: 500;
+}

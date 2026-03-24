@@ -1,3 +1,41 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+
+  <div
+    *ngIf="resumeLock.overlayVisible()"
+    class="app-resume-lock"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="app-resume-lock-title"
+  >
+    <div class="app-resume-lock__bg" aria-hidden="true"></div>
+    <div class="app-resume-lock__veil" aria-hidden="true"></div>
+
+    <div class="app-resume-lock__card">
+      <div class="app-resume-lock__icon-stack">
+        <div class="app-resume-lock__glow"></div>
+        <ion-icon name="lock-closed-outline" class="app-resume-lock__icon app-resume-lock__icon--lock" aria-hidden="true"></ion-icon>
+        <ion-icon name="finger-print-outline" class="app-resume-lock__icon app-resume-lock__icon--bio" aria-hidden="true"></ion-icon>
+      </div>
+
+      <h2 id="app-resume-lock-title" class="app-resume-lock__title">Conta bloqueada</h2>
+      <p class="app-resume-lock__subtitle">
+        Por segurança, confirme com <strong>Face ID</strong> ou <strong>impressão digital</strong> para continuar.
+      </p>
+
+      <ion-button
+        expand="block"
+        class="app-resume-lock__btn tap-highlight-none"
+        type="button"
+        [disabled]="resumeLock.unlockBusy()"
+        (click)="onResumeUnlock()"
+      >
+        <ion-spinner *ngIf="resumeLock.unlockBusy()" name="crescent" class="app-resume-lock__spinner"></ion-spinner>
+        <span *ngIf="!resumeLock.unlockBusy()">Desbloquear com biometria</span>
+        <span *ngIf="resumeLock.unlockBusy()">Aguardando…</span>
+      </ion-button>
+
+      <p *ngIf="resumeLock.inlineError() as err" class="app-resume-lock__error" role="alert">{{ err }}</p>
+    </div>
+  </div>
 </ion-app>
