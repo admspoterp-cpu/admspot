@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@500&family=Poppins:wght@400;500;600&display=swap');
 
 :host {
+  display: block;
+  height: 100%;
   --cartoes-border: #f3f3f3;
   --cartoes-text: #3a3c4c;
   --cartoes-text-dark: #3b3d4b;
@@ -11,18 +13,33 @@
 
 ion-content.cartoes-content {
   --background: #fff;
+  --overflow: hidden;
+  height: 100%;
+}
+
+ion-content.cartoes-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .cartoes-page {
+  flex: 1 1 auto;
+  min-height: 0;
   max-width: 430px;
+  width: 100%;
   margin: 0 auto;
   background: #fff;
   position: relative;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0));
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .cartoes-header {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   display: grid;
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
@@ -65,6 +82,7 @@ ion-content.cartoes-content {
 }
 
 .cartoes-swiper-wrap {
+  flex: 0 0 auto;
   position: relative;
   z-index: 2;
   padding: 12px 0 8px;
@@ -274,9 +292,9 @@ ion-content.cartoes-content {
 
 .cartao-balance {
   position: absolute;
-  right: 12px;
+  left: 14px;
   top: 12px;
-  left: auto;
+  right: auto;
   z-index: 4;
   padding: 4px 10px;
   background: rgba(199, 212, 229, 0.2);
@@ -310,6 +328,7 @@ ion-content.cartoes-content {
 }
 
 .cartoes-actions {
+  flex: 0 0 auto;
   position: relative;
   z-index: 2;
   display: flex;
@@ -389,9 +408,14 @@ ion-content.cartoes-content {
 }
 
 .cartoes-transactions {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background: #fff;
   position: relative;
   z-index: 2;
+  overflow: hidden;
 }
 
 .cartoes-tx-head {
@@ -430,7 +454,14 @@ ion-content.cartoes-content {
 }
 
 .cartoes-tx-scroll {
-  padding: 0 0 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  padding: 0 0 calc(12px + env(safe-area-inset-bottom, 0));
 }
 
 .cartoes-tx-group-label {
