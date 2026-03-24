@@ -353,16 +353,12 @@ ion-content.cartoes-content::part(scroll) {
 }
 
 .cartoes-action-img {
+  display: block;
+  flex-shrink: 0;
   width: 47px;
   height: 47px;
   object-fit: contain;
   margin-bottom: 6px;
-}
-
-.cartoes-action:nth-child(3) .cartoes-action-img,
-.cartoes-action:nth-child(4) .cartoes-action-img {
-  width: 40px;
-  height: 40px;
 }
 
 .cartoes-action-label {
