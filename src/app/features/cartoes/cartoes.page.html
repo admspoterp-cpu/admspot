@@ -1,0 +1,219 @@
+<ion-content [fullscreen]="true" class="cartoes-content" [scrollY]="false" [forceOverscroll]="false">
+  <div class="cartoes-page">
+    <header class="cartoes-header">
+      <button type="button" class="cartoes-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-6cbcca83-94cc-46db-b86e-fbf3f2c9b127.svg"
+          alt=""
+        />
+      </button>
+      <h1 class="cartoes-title">Meus Cartões</h1>
+      <button type="button" class="cartoes-header-action tap-highlight-none" (click)="actionSoon('Novo cartão')" aria-label="Adicionar cartão">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-1a851cd0-25ac-4214-895e-579fd48e66f5.svg"
+          alt=""
+        />
+      </button>
+    </header>
+
+    <div class="cartoes-swiper-wrap">
+      <swiper-container
+        #swiperEl
+        class="cartoes-swiper"
+        slides-per-view="auto"
+        centered-slides="true"
+        space-between="10"
+        initial-slide="1"
+        observer="true"
+        observe-parents="true"
+      >
+        <swiper-slide *ngFor="let card of cards" class="cartoes-slide">
+          <article class="cartao-card" [class.cartao-card--full]="card.variant === 'full'" [class.cartao-card--minimal]="card.variant === 'minimal'">
+            <img class="cartao-bg" [src]="card.bgRect" alt="" />
+            <img *ngIf="card.mapPng" class="cartao-map" [src]="card.mapPng" alt="" />
+            <img *ngIf="card.ellipseDecor" class="cartao-ellipse" [src]="card.ellipseDecor" alt="" />
+            <img *ngIf="card.ellipse655" class="cartao-ellipse655" [src]="card.ellipse655" alt="" />
+            <img *ngIf="card.unionDecor" class="cartao-union" [src]="card.unionDecor" alt="" />
+
+            <div class="cartao-inner" *ngIf="card.variant === 'full'">
+              <div class="cartao-pan-block cartao-pan-block--hero">
+                <p class="cartao-pan">{{ card.panDisplay }}</p>
+                <button
+                  type="button"
+                  class="cartao-copy tap-highlight-none"
+                  (click)="copyPan(card); $event.stopPropagation()"
+                  aria-label="Copiar número do cartão"
+                >
+                  <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+                </button>
+              </div>
+              <p class="cartao-holder">{{ card.holderLabel }}</p>
+              <div class="cartao-meta">
+                <div class="cartao-meta-item">
+                  <span class="cartao-meta-label">Expira</span>
+                  <span class="cartao-meta-value">{{ card.expiry }}</span>
+                </div>
+                <div class="cartao-meta-item cartao-meta-item--cvv">
+                  <span class="cartao-meta-label">CVV</span>
+                  <span class="cartao-meta-value">{{ card.cvv }}</span>
+                  <button
+                    type="button"
+                    class="cartao-copy cartao-copy--cvv tap-highlight-none"
+                    (click)="copyCvv(card); $event.stopPropagation()"
+                    aria-label="Copiar CVV"
+                  >
+                    <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+                  </button>
+                </div>
+              </div>
+              <div class="cartao-mc" *ngIf="card.mcGroup">
+                <img [src]="card.mcGroup" alt="" class="cartao-mc-img" />
+                <span class="cartao-mc-label">Mastercard</span>
+              </div>
+            </div>
+
+            <div class="cartao-inner cartao-inner--side" *ngIf="card.variant !== 'full'">
+              <div class="cartao-side-pan">
+                <span class="cartao-pan cartao-pan--muted">{{ card.panDisplay }}</span>
+                <button
+                  type="button"
+                  class="cartao-copy tap-highlight-none"
+                  (click)="copyPan(card); $event.stopPropagation()"
+                  aria-label="Copiar número do cartão"
+                >
+                  <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+                </button>
+              </div>
+              <div class="cartao-side-meta">
+                <span class="cartao-meta-label">CVV</span>
+                <span class="cartao-meta-value">•••</span>
+                <button
+                  type="button"
+                  class="cartao-copy cartao-copy--cvv tap-highlight-none"
+                  (click)="copyCvv(card); $event.stopPropagation()"
+                  aria-label="Copiar CVV"
+                >
+                  <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+                </button>
+              </div>
+              <p class="cartao-mc-label cartao-mc-label--side">Mastercard</p>
+            </div>
+
+            <div class="cartao-balance" *ngIf="card.variant === 'full'">
+              <span>{{ card.balanceFormatted }}</span>
+            </div>
+          </article>
+        </swiper-slide>
+      </swiper-container>
+    </div>
+
+    <img
+      class="cartoes-deco cartoes-deco--a"
+      src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-f0218769-eb0e-46d0-89cd-ce72703e8489.svg"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="cartoes-deco cartoes-deco--b"
+      src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-897aa5ee-3b22-43c3-88a6-f0d5122672f8.svg"
+      alt=""
+      aria-hidden="true"
+    />
+
+    <nav class="cartoes-actions" aria-label="Ações do cartão">
+      <button type="button" class="cartoes-action tap-highlight-none" (click)="actionSoon('Info cartão')">
+        <span class="cartoes-action-icon cartoes-action-icon--info">
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-36b15abf-a3be-4980-8370-4a24e1fdb5cf.svg"
+            alt=""
+          />
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-abb502a7-ed33-47c1-8cf0-7008b1369c02.svg"
+            alt=""
+          />
+          <img
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-372086af-6fd0-4536-afef-feb17f458c84.svg"
+            alt=""
+          />
+        </span>
+        <span class="cartoes-action-label">Info Cartão</span>
+      </button>
+      <button type="button" class="cartoes-action tap-highlight-none" (click)="actionSoon('Carregar')">
+        <img
+          class="cartoes-action-img"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/adicionar-ac28e527-dae3-4418-9460-40237c98c095.svg"
+          alt=""
+        />
+        <span class="cartoes-action-label">Carregar</span>
+      </button>
+      <button type="button" class="cartoes-action tap-highlight-none" (click)="actionSoon('Excluir')">
+        <img
+          class="cartoes-action-img"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/deletar-5f020d8a-2a42-40e6-855d-4a744ec4ed5c.svg"
+          alt=""
+        />
+        <span class="cartoes-action-label">Excluir</span>
+      </button>
+      <button type="button" class="cartoes-action tap-highlight-none" (click)="actionSoon('Bloquear')">
+        <img
+          class="cartoes-action-img"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/deletar-d98ccb1f-f76e-439c-8e5e-389d29977ac7.svg"
+          alt=""
+        />
+        <span class="cartoes-action-label">Bloquear</span>
+      </button>
+    </nav>
+
+    <section class="cartoes-transactions" aria-label="Transações">
+      <div class="cartoes-tx-head">
+        <h2 class="cartoes-tx-title">Transações</h2>
+        <div class="cartoes-tx-tools">
+          <button type="button" class="cartoes-tx-tool tap-highlight-none" (click)="searchSoon()" aria-label="Buscar">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/MagnifyingGlass-a94a80e0-b199-43dc-8e26-7685998be524.svg"
+              alt=""
+            />
+          </button>
+          <button type="button" class="cartoes-tx-tool tap-highlight-none" (click)="filterSoon()" aria-label="Filtros">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319712-d0220d86-78e1-4044-a961-4bea864963f9.svg"
+              alt=""
+            />
+          </button>
+        </div>
+      </div>
+
+      <div class="cartoes-tx-scroll">
+        <ng-container *ngFor="let group of txGroups">
+          <p class="cartoes-tx-group-label">{{ group.label }}</p>
+          <div class="cartoes-tx-row" *ngFor="let item of group.items">
+            <div class="cartoes-tx-icon" *ngIf="item.iconType === 'frame'">
+              <img [src]="item.iconSrc" alt="" />
+            </div>
+            <div
+              class="cartoes-tx-avatar"
+              *ngIf="item.iconType === 'initials' && item.initials"
+              [style.background]="item.initialsBg"
+            >
+              {{ item.initials }}
+            </div>
+            <div class="cartoes-tx-body">
+              <div class="cartoes-tx-line1">
+                <span class="cartoes-tx-name">{{ item.title }}</span>
+                <span class="cartoes-tx-amount" [class.cartoes-tx-amount--neg]="!item.positive" [class.cartoes-tx-amount--pos]="item.positive">
+                  <span class="cartoes-tx-sign">{{ item.positive ? '+' : '-' }}</span>
+                  {{ item.amountLabel }}
+                </span>
+              </div>
+              <p class="cartoes-tx-time">{{ item.time }}</p>
+            </div>
+            <span class="cartoes-tx-tag" [class.cartoes-tx-tag--neg]="!item.positive" [class.cartoes-tx-tag--pos]="item.positive">
+              {{ item.tag }}
+            </span>
+            <div class="cartoes-tx-line" aria-hidden="true"></div>
+          </div>
+        </ng-container>
+      </div>
+    </section>
+  </div>
+</ion-content>

@@ -25,6 +25,11 @@ const routes: Routes = [
       import('./features/depositar/depositar.module').then((m) => m.DepositarPageModule),
   },
   {
+    path: 'cartoes',
+    loadChildren: () =>
+      import('./features/cartoes/cartoes.module').then((m) => m.CartoesPageModule),
+  },
+  {
     path: 'transactions',
     loadChildren: () => import('./features/transactions/transactions.module').then( m => m.TransactionsPageModule)
   },

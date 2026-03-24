@@ -85,7 +85,7 @@
           />
           <span>Depositar</span>
         </button>
-        <button type="button" class="action-btn tap-highlight-none">
+        <button type="button" class="action-btn tap-highlight-none" (click)="goToCartoes()">
           <img
             src="assets/icons/cartao.svg"
             alt="Cartões"
@@ -113,7 +113,7 @@
 
         <button type="button" class="list-item tap-highlight-none">
           <img
-            src="assets/icons/recarga.svg"
+            src="assets/icons/cobranca.svg"
             alt="Icon"
           />
           <div class="item-text">
@@ -262,13 +262,13 @@
           alt="Send"
           [class.inactive-icon]="activeTab !== 'Send'"
         />
-        <span [class.active-tab]="activeTab === 'Send'" [class.inactive-tab]="activeTab !== 'Send'">Transferir</span>
+        <span [class.active-tab]="activeTab === 'Send'" [class.inactive-tab]="activeTab !== 'Send'">Extrato</span>
       </button>
       <button type="button" class="nav-item tap-highlight-none" (click)="openPaymentSheet()">
         <ion-icon name="qr-code-outline" [class.inactive-icon]="activeTab !== 'Pagar'"></ion-icon>
         <span [class.active-tab]="activeTab === 'Pagar'" [class.inactive-tab]="activeTab !== 'Pagar'">Pagar</span>
       </button>
-      <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('Cards')">
+      <button type="button" class="nav-item tap-highlight-none" (click)="goToCartoes()">
         <img
           src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CreditCard-8c67880f-a49e-49f2-bfc8-d835d0d35561.svg"
           alt="Cards"

@@ -132,6 +132,12 @@ export class DashboardPage {
     void this.navController.navigateForward('/depositar');
   }
 
+  goToCartoes(): void {
+    this.activeTab = 'Cards';
+    this.closeOverlaySheets();
+    void this.navController.navigateForward('/cartoes');
+  }
+
   goToBoletoScanner(): void {
     this.closeOverlaySheets();
     this.navController.navigateForward('/boleto-scan');
