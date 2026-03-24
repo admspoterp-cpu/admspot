@@ -18,7 +18,7 @@ export class DashboardPage {
   notificationsSheetOpen = false;
   recargaSheetOpen = false;
   selectedChargeFileName = '';
-  recargaPhone = '(00) 00000-0000';
+  recargaPhone = '';
   selectedRecargaAmount = 50;
   selectedRecargaOperator = 'VIVO';
 
@@ -115,6 +115,33 @@ export class DashboardPage {
     this.selectedRecargaAmount = amount;
   }
 
+  onRecargaPhoneFocus(): void {
+    const digits = this.recargaPhone.replace(/\D/g, '');
+    if (digits === '00000000000' || this.recargaPhone.trim() === '(00) 00000-0000') {
+      this.recargaPhone = '';
+    }
+  }
+
+  onRecargaPhoneModelChange(raw: string): void {
+    this.recargaPhone = this.formatBrazilMobilePhone(raw);
+  }
+
+  /** Máscara celular BR: (00) 00000-0000 (11 dígitos) */
+  private formatBrazilMobilePhone(raw: string): string {
+    const digits = raw.replace(/\D/g, '').slice(0, 11);
+    if (!digits.length) {
+      return '';
+    }
+    if (digits.length <= 2) {
+      return `(${digits}`;
+    }
+    const afterDdd = digits.slice(2);
+    if (afterDdd.length <= 5) {
+      return `(${digits.slice(0, 2)}) ${afterDdd}`;
+    }
+    return `(${digits.slice(0, 2)}) ${afterDdd.slice(0, 5)}-${afterDdd.slice(5)}`;
+  }
+
   closeOverlaySheets(): void {
     this.closePaymentSheet();
     this.closeTransferSheet();
@@ -160,10 +187,11 @@ export class DashboardPage {
 
 
   async onRecargaSubmit(): Promise<void> {
-    if (!this.recargaPhone.trim()) {
+    const digits = this.recargaPhone.replace(/\D/g, '');
+    if (digits.length !== 11) {
       const toast = await this.toastController.create({
-        message: 'Informe o número com DDD',
-        duration: 1800,
+        message: 'Informe o celular completo com DDD (11 dígitos)',
+        duration: 2200,
         position: 'bottom',
         color: 'warning',
       });

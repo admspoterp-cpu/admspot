@@ -487,9 +487,13 @@
             <input
               type="tel"
               class="recarga-input"
-              [(ngModel)]="recargaPhone"
+              [ngModel]="recargaPhone"
+              (ngModelChange)="onRecargaPhoneModelChange($event)"
+              (focus)="onRecargaPhoneFocus()"
               placeholder="(00) 00000-0000"
               inputmode="numeric"
+              autocomplete="tel-national"
+              maxlength="15"
             />
           </div>
 
