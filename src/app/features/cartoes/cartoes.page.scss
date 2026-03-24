@@ -352,39 +352,6 @@ ion-content.cartoes-content::part(scroll) {
   font-family: 'Inter', sans-serif;
 }
 
-.cartoes-action-icon {
-  position: relative;
-  width: 47px;
-  height: 47px;
-  border-radius: 50px;
-  background: #e8eaeb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
-.cartoes-action-icon--info img {
-  position: absolute;
-  width: 10px;
-  height: auto;
-}
-
-.cartoes-action-icon--info img:nth-child(1) {
-  left: 11px;
-  top: 10px;
-}
-
-.cartoes-action-icon--info img:nth-child(2) {
-  left: 20px;
-  top: 15px;
-}
-
-.cartoes-action-icon--info img:nth-child(3) {
-  left: 20px;
-  top: 18px;
-}
-
 .cartoes-action-img {
   width: 47px;
   height: 47px;
