@@ -80,28 +80,28 @@
       <section class="quick-actions">
         <button type="button" class="action-btn tap-highlight-none" (click)="goToDepositar()">
           <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319588-0ce7491a-415d-4405-803e-08507147cbd1.svg"
+            src="assets/icons/deposito.svg"
             alt="Depositar"
           />
           <span>Depositar</span>
         </button>
         <button type="button" class="action-btn tap-highlight-none">
           <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319589-270bf336-df62-4ff3-8928-5c4440001529.svg"
+            src="assets/icons/cartao.svg"
             alt="Cartões"
           />
           <span>Cartões</span>
         </button>
         <button type="button" class="action-btn tap-highlight-none" (click)="openTransferSheet()">
           <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319590-e979cf96-6971-4ca1-9f74-f613aab18af5.svg"
+            src="assets/icons/transferir.svg"
             alt="Transferir"
           />
           <span>Transferir</span>
         </button>
         <button type="button" class="action-btn tap-highlight-none" (click)="openRecargaSheet()">
           <img
-            src="assets/icons/mobile.png"
+            src="assets/icons/recarga.svg"
             alt="Recarga"
           />
           <span>Recarga</span>
@@ -113,7 +113,7 @@
 
         <button type="button" class="list-item tap-highlight-none">
           <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-afaac5a2-1aae-4b5d-ad96-fafc14ab53b2.svg"
+            src="assets/icons/recarga.svg"
             alt="Icon"
           />
           <div class="item-text">
@@ -128,7 +128,7 @@
 
         <button type="button" class="list-item tap-highlight-none">
           <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-ff7c0dd3-6edf-4ffb-97f9-bc1d402aa636.svg"
+            src="assets/icons/pre-pago.svg"
             alt="Icon"
           />
           <div class="item-text">
@@ -143,7 +143,7 @@
 
         <button type="button" class="list-item tap-highlight-none no-divider">
           <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-8842afa3-efb9-4047-9f91-e8d799eae7da.svg"
+            src="assets/icons/parcelado.svg"
             alt="Icon"
           />
           <div class="item-text">
@@ -198,7 +198,7 @@
                 <p class="tx-time">12:35 PM</p>
               </div>
             </div>
-            <div class="tx-amount">- N 2,500.00</div>
+            <div class="tx-amount">- R$ 2.500,00</div>
           </button>
           <button type="button" class="transaction-item tap-highlight-none">
             <div class="transaction-left">
@@ -211,7 +211,7 @@
                 <p class="tx-time">11:37 AM</p>
               </div>
             </div>
-            <div class="tx-amount">- N 78,643.00</div>
+            <div class="tx-amount">- R$ 78,60</div>
           </button>
         </div>
 
@@ -228,7 +228,7 @@
                 <p class="tx-time">7:50 PM</p>
               </div>
             </div>
-            <div class="tx-amount positive">+ N 1,234,600.00</div>
+            <div class="tx-amount positive">+ R$ 1.234,00</div>
           </button>
           <button type="button" class="transaction-item tap-highlight-none">
             <div class="transaction-left">
@@ -241,7 +241,7 @@
                 <p class="tx-time">5:40 PM</p>
               </div>
             </div>
-            <div class="tx-amount">- N 2,000,000.00</div>
+            <div class="tx-amount">- R$ 2.000,00</div>
           </button>
         </div>
       </section>
@@ -254,7 +254,7 @@
           alt="Home"
           [class.inactive-icon]="activeTab !== 'Home'"
         />
-        <span [class.active-tab]="activeTab === 'Home'" [class.inactive-tab]="activeTab !== 'Home'">Home</span>
+        <span [class.active-tab]="activeTab === 'Home'" [class.inactive-tab]="activeTab !== 'Home'">Início</span>
       </button>
       <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('Send')">
         <img
@@ -262,7 +262,7 @@
           alt="Send"
           [class.inactive-icon]="activeTab !== 'Send'"
         />
-        <span [class.active-tab]="activeTab === 'Send'" [class.inactive-tab]="activeTab !== 'Send'">Send</span>
+        <span [class.active-tab]="activeTab === 'Send'" [class.inactive-tab]="activeTab !== 'Send'">Transferir</span>
       </button>
       <button type="button" class="nav-item tap-highlight-none" (click)="openPaymentSheet()">
         <ion-icon name="qr-code-outline" [class.inactive-icon]="activeTab !== 'Pagar'"></ion-icon>
@@ -274,7 +274,7 @@
           alt="Cards"
           [class.inactive-icon]="activeTab !== 'Cards'"
         />
-        <span [class.active-tab]="activeTab === 'Cards'" [class.inactive-tab]="activeTab !== 'Cards'">Cards</span>
+        <span [class.active-tab]="activeTab === 'Cards'" [class.inactive-tab]="activeTab !== 'Cards'">Cartões</span>
       </button>
       <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('More')">
         <img
@@ -282,7 +282,7 @@
           alt="More"
           [class.inactive-icon]="activeTab !== 'More'"
         />
-        <span [class.active-tab]="activeTab === 'More'" [class.inactive-tab]="activeTab !== 'More'">More</span>
+        <span [class.active-tab]="activeTab === 'More'" [class.inactive-tab]="activeTab !== 'More'">Mais</span>
       </button>
     </nav>
 
@@ -458,37 +458,28 @@
         </header>
 
         <div class="recarga-sheet-body">
-          <button
-            type="button"
-            class="recarga-field recarga-field--operator tap-highlight-none"
-            (click)="toggleRecargaOperatorMenu()"
-          >
+          <div class="recarga-field recarga-field--operator">
             <span class="recarga-label">Operadora</span>
-            <div class="recarga-operator-row">
+            <div class="recarga-operator-select-row">
               <img
                 class="recarga-operator-icon"
                 [src]="selectedRecargaOperatorImage"
                 alt=""
               />
-              <span class="recarga-value recarga-value--dark">{{ selectedRecargaOperator }}</span>
+              <ion-select
+                class="recarga-operator-select"
+                [(ngModel)]="selectedRecargaOperator"
+                interface="action-sheet"
+                cancelText="Cancelar"
+                [interfaceOptions]="recargaOperatorSelectInterfaceOptions"
+                toggleIcon="chevron-down-outline"
+                aria-label="Selecionar operadora"
+              >
+                <ion-select-option *ngFor="let operator of recargaOperators" [value]="operator.name">
+                  {{ operator.name }}
+                </ion-select-option>
+              </ion-select>
             </div>
-            <img
-              class="recarga-caret"
-              [class.recarga-caret--open]="recargaOperatorMenuOpen"
-              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-bf136698-9868-4a58-bbaa-a4786b526214.svg"
-              alt=""
-            />
-          </button>
-          <div class="recarga-operator-options" *ngIf="recargaOperatorMenuOpen">
-            <button
-              type="button"
-              class="recarga-operator-option tap-highlight-none"
-              *ngFor="let operator of recargaOperators"
-              (click)="selectRecargaOperator(operator.name)"
-            >
-              <img class="recarga-operator-icon" [src]="operator.image" [alt]="operator.name" />
-              <span>{{ operator.name }}</span>
-            </button>
           </div>
 
           <div class="recarga-field">

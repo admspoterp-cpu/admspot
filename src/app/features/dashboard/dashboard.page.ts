@@ -17,7 +17,6 @@ export class DashboardPage {
   transferSheetOpen = false;
   notificationsSheetOpen = false;
   recargaSheetOpen = false;
-  recargaOperatorMenuOpen = false;
   selectedChargeFileName = '';
   recargaPhone = '(00) 00000-0000';
   selectedRecargaAmount = 50;
@@ -30,6 +29,8 @@ export class DashboardPage {
     { name: 'OI', image: 'assets/recarga-operadoras/OI.webp' },
   ];
   readonly recargaAmountOptions: ReadonlyArray<number> = [20, 30, 50, 100];
+
+  readonly recargaOperatorSelectInterfaceOptions = { header: 'Operadora', subHeader: 'Selecione a operadora' };
 
   /** Mock favoritos — alinhar com API depois */
   readonly transferFavorites: { initials: string; name: string; bank: string }[] = [
@@ -93,21 +94,10 @@ export class DashboardPage {
     this.transferSheetOpen = false;
     this.notificationsSheetOpen = false;
     this.recargaSheetOpen = true;
-    this.recargaOperatorMenuOpen = false;
   }
 
   closeRecargaSheet(): void {
     this.recargaSheetOpen = false;
-    this.recargaOperatorMenuOpen = false;
-  }
-
-  toggleRecargaOperatorMenu(): void {
-    this.recargaOperatorMenuOpen = !this.recargaOperatorMenuOpen;
-  }
-
-  selectRecargaOperator(name: string): void {
-    this.selectedRecargaOperator = name;
-    this.recargaOperatorMenuOpen = false;
   }
 
   get selectedRecargaOperatorImage(): string {

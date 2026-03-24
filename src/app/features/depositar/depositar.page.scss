@@ -93,27 +93,41 @@ ion-content.depositar-content {
 
 .dep-sheet {
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  max-height: min(65vh, 560px);
   background: #fff;
   border-radius: 32px 32px 0 0;
   padding: 32px 20px calc(40px + env(safe-area-inset-bottom, 0));
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
 }
 
 .dep-sheet-title {
-  margin: 0 0 24px;
+  flex-shrink: 0;
+  margin: 0 0 16px;
   font-size: 14px;
   font-weight: 500;
   color: var(--dep-pix-text);
   letter-spacing: 0.02em;
 }
 
+.dep-sheet-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
 .dep-key-block {
   margin-bottom: 20px;
 }
 
-.dep-key-block--last {
-  margin-bottom: 40px;
+.dep-key-block:last-child {
+  margin-bottom: 0;
 }
 
 .dep-key-label {
@@ -160,8 +174,10 @@ ion-content.depositar-content {
 }
 
 .dep-primary-btn {
+  flex-shrink: 0;
   width: 100%;
   height: 54px;
+  margin-top: 24px;
   border: 0;
   border-radius: 12px;
   display: flex;

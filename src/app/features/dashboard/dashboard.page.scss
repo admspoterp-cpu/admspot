@@ -960,17 +960,14 @@ ion-content.dashboard-content::part(scroll) {
 }
 
 .recarga-field--operator {
-  border: 0;
-  background: transparent;
-  text-align: left;
-  font-family: inherit;
-  padding: 0 24px 8px 0;
+  padding-right: 0;
 }
 
-.recarga-operator-row {
-  display: inline-flex;
+.recarga-operator-select-row {
+  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  min-height: 40px;
 }
 
 .recarga-operator-icon {
@@ -981,44 +978,28 @@ ion-content.dashboard-content::part(scroll) {
   overflow: hidden;
   background: #fff;
   border: 1px solid #e5e7eb;
+  flex-shrink: 0;
 }
 
-.recarga-caret {
-  position: absolute;
-  right: 0;
-  top: 18px;
-  width: 14px;
-  height: 7px;
-  transform: rotate(90deg);
-  transition: transform 0.2s ease;
-  opacity: 0.8;
-}
-
-.recarga-caret--open {
-  transform: rotate(270deg);
-}
-
-.recarga-operator-options {
-  display: grid;
-  gap: 4px;
-  margin-top: -2px;
-  padding: 4px 0 6px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.recarga-operator-option {
-  width: 100%;
-  border: 0;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 40px;
-  padding: 8px 4px;
-  text-align: left;
+.recarga-operator-select {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  --padding-start: 0;
+  --padding-end: 4px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --border-width: 0;
+  font-size: 15px;
+  font-weight: 500;
   color: #313131;
+}
+
+.recarga-operator-select::part(icon) {
+  margin-inline-start: auto;
+  opacity: 0.55;
+  font-size: 18px;
 }
 
 .recarga-amount-options {

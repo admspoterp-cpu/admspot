@@ -24,28 +24,34 @@
     <main class="dep-sheet">
       <h2 class="dep-sheet-title">Suas chaves PIX</h2>
 
-      <div class="dep-key-block">
-        <p class="dep-key-label">Chave PIX #1</p>
-        <button type="button" class="dep-key-row tap-highlight-none" (click)="copyKey(pixKey1)">
-          <span class="dep-key-value">{{ pixKey1 }}</span>
-          <img
-            class="dep-copy-icon"
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319583-1b354426-a2af-4963-b399-c33ebb04539c.svg"
-            alt=""
-          />
-        </button>
-      </div>
+      <div
+        class="dep-sheet-scroll"
+        role="region"
+        aria-label="Lista de chaves PIX"
+      >
+        <div class="dep-key-block">
+          <p class="dep-key-label">Chave PIX #1</p>
+          <button type="button" class="dep-key-row tap-highlight-none" (click)="copyKey(pixKey1)">
+            <span class="dep-key-value">{{ pixKey1 }}</span>
+            <img
+              class="dep-copy-icon"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319583-1b354426-a2af-4963-b399-c33ebb04539c.svg"
+              alt=""
+            />
+          </button>
+        </div>
 
-      <div class="dep-key-block dep-key-block--last">
-        <p class="dep-key-label">Chave PIX #2</p>
-        <button type="button" class="dep-key-row tap-highlight-none" (click)="copyKey(pixKey2)">
-          <span class="dep-key-value">{{ pixKey2 }}</span>
-          <img
-            class="dep-copy-icon"
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319583-f0c16a51-a8bb-4c6c-8a2a-d803b45fefdb.svg"
-            alt=""
-          />
-        </button>
+        <div class="dep-key-block">
+          <p class="dep-key-label">Chave PIX #2</p>
+          <button type="button" class="dep-key-row tap-highlight-none" (click)="copyKey(pixKey2)">
+            <span class="dep-key-value">{{ pixKey2 }}</span>
+            <img
+              class="dep-copy-icon"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319583-f0c16a51-a8bb-4c6c-8a2a-d803b45fefdb.svg"
+              alt=""
+            />
+          </button>
+        </div>
       </div>
 
       <button type="button" class="dep-primary-btn tap-highlight-none" (click)="onCreateNewKey()">
