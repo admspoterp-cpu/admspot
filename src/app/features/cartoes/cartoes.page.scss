@@ -13,19 +13,12 @@ ion-content.cartoes-content {
   --background: #fff;
 }
 
-ion-content.cartoes-content::part(scroll) {
-  overflow: hidden;
-}
-
 .cartoes-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
   max-width: 430px;
   margin: 0 auto;
   background: #fff;
   position: relative;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0));
 }
 
 .cartoes-header {
@@ -72,7 +65,8 @@ ion-content.cartoes-content::part(scroll) {
 }
 
 .cartoes-swiper-wrap {
-  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
   padding: 12px 0 8px;
   overflow: hidden;
 }
@@ -80,10 +74,6 @@ ion-content.cartoes-content::part(scroll) {
 .cartoes-swiper {
   width: 100%;
   --swiper-wrapper-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.cartoes-swiper::part(container) {
-  overflow: visible;
 }
 
 .cartoes-slide {
@@ -98,6 +88,8 @@ ion-content.cartoes-content::part(scroll) {
   border-radius: 12px;
   overflow: hidden;
   font-family: 'Poppins', sans-serif;
+  isolation: isolate;
+  contain: layout style paint;
 }
 
 .cartao-bg {
@@ -131,7 +123,7 @@ ion-content.cartoes-content::part(scroll) {
   pointer-events: none;
 }
 
-.cartao-card--full .cartao-ellipse {
+.cartao-card .cartao-ellipse {
   left: 11%;
   top: -2%;
   opacity: 0.2;
@@ -175,7 +167,7 @@ ion-content.cartoes-content::part(scroll) {
 }
 
 .cartao-pan-block--hero {
-  margin-top: 52px;
+  margin-top: 48px;
 }
 
 .cartao-holder {
@@ -199,26 +191,25 @@ ion-content.cartoes-content::part(scroll) {
   letter-spacing: 0.02em;
 }
 
-.cartao-pan--muted {
-  font-size: 16px;
-  opacity: 0.92;
-}
-
 .cartao-copy {
+  flex-shrink: 0;
   border: 0;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.22);
   border-radius: 8px;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   padding: 0;
+  position: relative;
 }
 
-.cartao-copy ion-icon {
-  font-size: 18px;
+.cartao-copy-svg {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .cartao-meta {
@@ -236,9 +227,14 @@ ion-content.cartoes-content::part(scroll) {
 
 .cartao-meta-item--cvv {
   flex-direction: row;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 6px 8px;
+  align-items: center;
+  gap: 8px;
+}
+
+.cartao-meta-cvv-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .cartao-meta-label {
@@ -276,60 +272,29 @@ ion-content.cartoes-content::part(scroll) {
   color: #fff;
 }
 
-.cartao-mc-label--side {
-  position: absolute;
-  right: 14px;
-  bottom: 12px;
-  margin: 0;
-}
-
 .cartao-balance {
   position: absolute;
-  left: 50%;
-  top: 20px;
-  transform: translateX(-50%);
-  z-index: 5;
+  right: 12px;
+  top: 12px;
+  left: auto;
+  z-index: 4;
   padding: 4px 10px;
   background: rgba(199, 212, 229, 0.2);
   border-radius: 8px;
   font-family: 'Poppins', sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
-  line-height: 30px;
+  line-height: 26px;
   color: #fff;
   white-space: nowrap;
   pointer-events: none;
 }
 
-.cartao-inner--side {
-  justify-content: flex-end;
-  padding-bottom: 44px;
-}
-
-.cartao-side-pan {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: auto;
-}
-
-.cartao-side-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.cartao-inner--side .cartao-meta-label,
-.cartao-inner--side .cartao-meta-value {
-  color: #fff;
-}
-
 .cartoes-deco {
   position: absolute;
   pointer-events: none;
-  z-index: 1;
-  opacity: 0.9;
+  z-index: 0;
+  opacity: 0.85;
 }
 
 .cartoes-deco--a {
@@ -345,15 +310,14 @@ ion-content.cartoes-content::part(scroll) {
 }
 
 .cartoes-actions {
-  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   gap: 21px;
   padding: 10px 20px 13px;
   border-bottom: 1px solid var(--cartoes-border);
-  position: relative;
-  z-index: 2;
   background: #fff;
 }
 
@@ -425,10 +389,6 @@ ion-content.cartoes-content::part(scroll) {
 }
 
 .cartoes-transactions {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
   background: #fff;
   position: relative;
   z-index: 2;
@@ -470,12 +430,7 @@ ion-content.cartoes-content::part(scroll) {
 }
 
 .cartoes-tx-scroll {
-  flex: 1;
-  min-height: 120px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding: 0 0 24px;
+  padding: 0 0 8px;
 }
 
 .cartoes-tx-group-label {

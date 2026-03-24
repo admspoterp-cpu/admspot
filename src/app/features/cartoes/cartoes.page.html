@@ -1,4 +1,4 @@
-<ion-content [fullscreen]="true" class="cartoes-content" [scrollY]="false" [forceOverscroll]="false">
+<ion-content [fullscreen]="true" class="cartoes-content" [scrollY]="true" [forceOverscroll]="false">
   <div class="cartoes-page">
     <header class="cartoes-header">
       <button type="button" class="cartoes-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
@@ -28,14 +28,18 @@
         observe-parents="true"
       >
         <swiper-slide *ngFor="let card of cards" class="cartoes-slide">
-          <article class="cartao-card" [class.cartao-card--full]="card.variant === 'full'" [class.cartao-card--minimal]="card.variant === 'minimal'">
+          <article class="cartao-card">
             <img class="cartao-bg" [src]="card.bgRect" alt="" />
             <img *ngIf="card.mapPng" class="cartao-map" [src]="card.mapPng" alt="" />
             <img *ngIf="card.ellipseDecor" class="cartao-ellipse" [src]="card.ellipseDecor" alt="" />
             <img *ngIf="card.ellipse655" class="cartao-ellipse655" [src]="card.ellipse655" alt="" />
             <img *ngIf="card.unionDecor" class="cartao-union" [src]="card.unionDecor" alt="" />
 
-            <div class="cartao-inner" *ngIf="card.variant === 'full'">
+            <div class="cartao-balance">
+              <span>{{ card.balanceFormatted }}</span>
+            </div>
+
+            <div class="cartao-inner">
               <div class="cartao-pan-block cartao-pan-block--hero">
                 <p class="cartao-pan">{{ card.panDisplay }}</p>
                 <button
@@ -44,7 +48,28 @@
                   (click)="copyPan(card); $event.stopPropagation()"
                   aria-label="Copiar número do cartão"
                 >
-                  <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+                  <svg class="cartao-copy-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true">
+                    <rect
+                      x="128"
+                      y="128"
+                      width="336"
+                      height="336"
+                      rx="57"
+                      ry="57"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linejoin="round"
+                      stroke-width="32"
+                    />
+                    <path
+                      d="M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="32"
+                    />
+                  </svg>
                 </button>
               </div>
               <p class="cartao-holder">{{ card.holderLabel }}</p>
@@ -54,15 +79,38 @@
                   <span class="cartao-meta-value">{{ card.expiry }}</span>
                 </div>
                 <div class="cartao-meta-item cartao-meta-item--cvv">
-                  <span class="cartao-meta-label">CVV</span>
-                  <span class="cartao-meta-value">{{ card.cvv }}</span>
+                  <div class="cartao-meta-cvv-text">
+                    <span class="cartao-meta-label">CVV</span>
+                    <span class="cartao-meta-value">{{ card.cvv }}</span>
+                  </div>
                   <button
                     type="button"
                     class="cartao-copy cartao-copy--cvv tap-highlight-none"
                     (click)="copyCvv(card); $event.stopPropagation()"
                     aria-label="Copiar CVV"
                   >
-                    <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+                    <svg class="cartao-copy-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true">
+                      <rect
+                        x="128"
+                        y="128"
+                        width="336"
+                        height="336"
+                        rx="57"
+                        ry="57"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-linejoin="round"
+                        stroke-width="32"
+                      />
+                      <path
+                        d="M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="32"
+                      />
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -70,37 +118,6 @@
                 <img [src]="card.mcGroup" alt="" class="cartao-mc-img" />
                 <span class="cartao-mc-label">Mastercard</span>
               </div>
-            </div>
-
-            <div class="cartao-inner cartao-inner--side" *ngIf="card.variant !== 'full'">
-              <div class="cartao-side-pan">
-                <span class="cartao-pan cartao-pan--muted">{{ card.panDisplay }}</span>
-                <button
-                  type="button"
-                  class="cartao-copy tap-highlight-none"
-                  (click)="copyPan(card); $event.stopPropagation()"
-                  aria-label="Copiar número do cartão"
-                >
-                  <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
-                </button>
-              </div>
-              <div class="cartao-side-meta">
-                <span class="cartao-meta-label">CVV</span>
-                <span class="cartao-meta-value">•••</span>
-                <button
-                  type="button"
-                  class="cartao-copy cartao-copy--cvv tap-highlight-none"
-                  (click)="copyCvv(card); $event.stopPropagation()"
-                  aria-label="Copiar CVV"
-                >
-                  <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
-                </button>
-              </div>
-              <p class="cartao-mc-label cartao-mc-label--side">Mastercard</p>
-            </div>
-
-            <div class="cartao-balance" *ngIf="card.variant === 'full'">
-              <span>{{ card.balanceFormatted }}</span>
             </div>
           </article>
         </swiper-slide>
