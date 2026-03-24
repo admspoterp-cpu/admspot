@@ -16,7 +16,21 @@ export class DashboardPage {
   paymentSheetOpen = false;
   transferSheetOpen = false;
   notificationsSheetOpen = false;
+  recargaSheetOpen = false;
+  recargaOperatorMenuOpen = false;
   selectedChargeFileName = '';
+  recargaRecipientName = 'Fernando Pedro de Souza';
+  recargaPhone = '(00) 00000-0000';
+  selectedRecargaAmount = 50;
+  selectedRecargaOperator = 'VIVO';
+
+  readonly recargaOperators: ReadonlyArray<{ name: string; image: string }> = [
+    { name: 'VIVO', image: 'assets/recarga-operadoras/VIVO.webp' },
+    { name: 'TIM', image: 'assets/recarga-operadoras/TIM.webp' },
+    { name: 'CLARO', image: 'assets/recarga-operadoras/CLARO.webp' },
+    { name: 'OI', image: 'assets/recarga-operadoras/OI.webp' },
+  ];
+  readonly recargaAmountOptions: ReadonlyArray<number> = [20, 30, 50, 100];
 
   /** Mock favoritos — alinhar com API depois */
   readonly transferFavorites: { initials: string; name: string; bank: string }[] = [
@@ -38,12 +52,14 @@ export class DashboardPage {
     }
     this.transferSheetOpen = false;
     this.notificationsSheetOpen = false;
+    this.recargaSheetOpen = false;
   }
 
   openPaymentSheet(): void {
     this.activeTab = 'Pagar';
     this.transferSheetOpen = false;
     this.notificationsSheetOpen = false;
+    this.recargaSheetOpen = false;
     this.paymentSheetOpen = true;
   }
 
@@ -54,6 +70,7 @@ export class DashboardPage {
   openTransferSheet(): void {
     this.paymentSheetOpen = false;
     this.notificationsSheetOpen = false;
+    this.recargaSheetOpen = false;
     this.transferSheetOpen = true;
   }
 
@@ -64,6 +81,7 @@ export class DashboardPage {
   openNotificationsSheet(): void {
     this.paymentSheetOpen = false;
     this.transferSheetOpen = false;
+    this.recargaSheetOpen = false;
     this.notificationsSheetOpen = true;
   }
 
@@ -71,10 +89,48 @@ export class DashboardPage {
     this.notificationsSheetOpen = false;
   }
 
+  openRecargaSheet(): void {
+    this.paymentSheetOpen = false;
+    this.transferSheetOpen = false;
+    this.notificationsSheetOpen = false;
+    this.recargaSheetOpen = true;
+    this.recargaOperatorMenuOpen = false;
+  }
+
+  closeRecargaSheet(): void {
+    this.recargaSheetOpen = false;
+    this.recargaOperatorMenuOpen = false;
+  }
+
+  toggleRecargaOperatorMenu(): void {
+    this.recargaOperatorMenuOpen = !this.recargaOperatorMenuOpen;
+  }
+
+  selectRecargaOperator(name: string): void {
+    this.selectedRecargaOperator = name;
+    this.recargaOperatorMenuOpen = false;
+  }
+
+  get selectedRecargaOperatorImage(): string {
+    return (
+      this.recargaOperators.find((operator) => operator.name === this.selectedRecargaOperator)?.image ??
+      this.recargaOperators[0].image
+    );
+  }
+
+  get selectedRecargaAmountLabel(): string {
+    return this.selectedRecargaAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  selectRecargaAmount(amount: number): void {
+    this.selectedRecargaAmount = amount;
+  }
+
   closeOverlaySheets(): void {
     this.closePaymentSheet();
     this.closeTransferSheet();
     this.closeNotificationsSheet();
+    this.closeRecargaSheet();
   }
 
   goToQrScanner(): void {
@@ -104,6 +160,35 @@ export class DashboardPage {
 
   async onTransferFavoriteTap(contact: { name: string }): Promise<void> {
     await this.showTransferComingSoon(contact.name);
+  }
+
+
+
+  async onRecargaSubmit(): Promise<void> {
+    if (!this.recargaPhone.trim()) {
+      const toast = await this.toastController.create({
+        message: 'Informe o número com DDD',
+        duration: 1800,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
+
+    const selectedOperator =
+      this.recargaOperators.find((operator) => operator.name === this.selectedRecargaOperator) ?? this.recargaOperators[0];
+
+    this.closeRecargaSheet();
+
+    await this.navController.navigateForward('/recarga-success', {
+      state: {
+        operatorName: selectedOperator.name,
+        operatorImage: selectedOperator.image,
+        phone: this.recargaPhone.trim(),
+        amount: this.selectedRecargaAmount,
+      },
+    });
   }
 
   private async showTransferComingSoon(label: string): Promise<void> {

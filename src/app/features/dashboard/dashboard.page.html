@@ -99,9 +99,9 @@
           />
           <span>Transferir</span>
         </button>
-        <button type="button" class="action-btn tap-highlight-none">
+        <button type="button" class="action-btn tap-highlight-none" (click)="openRecargaSheet()">
           <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319590-e979cf96-6971-4ca1-9f74-f613aab18af5.svg"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Phone-d1e74bdb-b2bd-41cd-9715-e18c885d7287.svg"
             alt="Recarga"
           />
           <span>Recarga</span>
@@ -288,7 +288,7 @@
 
     <div
       class="payment-sheet-backdrop"
-      [class.open]="paymentSheetOpen || transferSheetOpen || notificationsSheetOpen"
+      [class.open]="paymentSheetOpen || transferSheetOpen || notificationsSheetOpen || recargaSheetOpen"
       (click)="closeOverlaySheets()"
     ></div>
 
@@ -434,6 +434,96 @@
               src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-1b3578d5-45e1-46fb-8f05-613ea2367512.svg"
               alt=""
             />
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="recarga-sheet" [class.open]="recargaSheetOpen" (click)="$event.stopPropagation()">
+      <div class="recarga-sheet-panel">
+        <header class="recarga-sheet-header">
+          <button
+            type="button"
+            class="recarga-sheet-back tap-highlight-none"
+            (click)="closeRecargaSheet()"
+            aria-label="Fechar recarga"
+          >
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-5e02b457-97d3-4674-95c4-b74ce116d9e3.svg"
+              alt=""
+            />
+          </button>
+          <h2 class="recarga-sheet-title">Recarga</h2>
+        </header>
+
+        <div class="recarga-sheet-body">
+          <button
+            type="button"
+            class="recarga-field recarga-field--operator tap-highlight-none"
+            (click)="toggleRecargaOperatorMenu()"
+          >
+            <span class="recarga-label">Operadora</span>
+            <div class="recarga-operator-row">
+              <img
+                class="recarga-operator-icon"
+                [src]="selectedRecargaOperatorImage"
+                alt=""
+              />
+              <span class="recarga-value recarga-value--dark">{{ selectedRecargaOperator }}</span>
+            </div>
+            <img
+              class="recarga-caret"
+              [class.recarga-caret--open]="recargaOperatorMenuOpen"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-bf136698-9868-4a58-bbaa-a4786b526214.svg"
+              alt=""
+            />
+          </button>
+          <div class="recarga-operator-options" *ngIf="recargaOperatorMenuOpen">
+            <button
+              type="button"
+              class="recarga-operator-option tap-highlight-none"
+              *ngFor="let operator of recargaOperators"
+              (click)="selectRecargaOperator(operator.name)"
+            >
+              <img class="recarga-operator-icon" [src]="operator.image" [alt]="operator.name" />
+              <span>{{ operator.name }}</span>
+            </button>
+          </div>
+
+          <div class="recarga-field">
+            <span class="recarga-label">Nome do destinatário</span>
+            <span class="recarga-value">{{ recargaRecipientName }}</span>
+          </div>
+
+          <div class="recarga-field">
+            <span class="recarga-label">Informe seu número com DDD</span>
+            <input
+              type="tel"
+              class="recarga-input"
+              [(ngModel)]="recargaPhone"
+              placeholder="(00) 00000-0000"
+              inputmode="numeric"
+            />
+          </div>
+
+          <div class="recarga-field">
+            <span class="recarga-label">Valor da recarga</span>
+            <div class="recarga-amount-options">
+              <button
+                type="button"
+                class="recarga-amount-option tap-highlight-none"
+                *ngFor="let amount of recargaAmountOptions"
+                [class.recarga-amount-option--active]="amount === selectedRecargaAmount"
+                (click)="selectRecargaAmount(amount)"
+              >
+                R$ {{ amount }}
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="recarga-submit tap-highlight-none" (click)="onRecargaSubmit()">
+            Recarregar
           </button>
         </div>
       </div>

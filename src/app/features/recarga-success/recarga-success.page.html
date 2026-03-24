@@ -1,0 +1,42 @@
+<ion-content [fullscreen]="true" class="recarga-success-content" [forceOverscroll]="false">
+  <div class="recarga-success-page">
+    <header class="recarga-success-header">
+      <button
+        type="button"
+        class="recarga-success-back tap-highlight-none"
+        (click)="goBack()"
+        aria-label="Voltar"
+      >
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-4ab216c0-8436-4c21-ae9e-33f84caf406e.svg"
+          alt=""
+        />
+      </button>
+      <h1 class="recarga-success-title">Recarga</h1>
+    </header>
+
+    <main class="recarga-success-main">
+      <img
+        class="recarga-success-icon"
+        src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319718-b8560c31-18a6-4f45-8635-8f0b5e5ffe72.svg"
+        alt="Sucesso"
+      />
+
+      <h2 class="recarga-success-heading">Recarga Feita!</h2>
+      <p class="recarga-success-sub">Sua recarga foi realizada com sucesso!</p>
+
+      <section class="recarga-success-card" aria-label="Resumo da recarga">
+        <img class="recarga-success-operator-icon" [src]="operatorImage" [alt]="operatorName" />
+        <div class="recarga-success-operator-text">
+          <p class="recarga-success-operator-name">{{ operatorName }}</p>
+          <p class="recarga-success-phone">{{ phone }}</p>
+        </div>
+      </section>
+
+      <section class="recarga-success-value" aria-label="Valor da recarga">
+        <p class="recarga-success-value-label">Valor</p>
+        <p class="recarga-success-value-amount"><span>R$</span> {{ amountLabel }}</p>
+      </section>
+    </main>
+  </div>
+</ion-content>

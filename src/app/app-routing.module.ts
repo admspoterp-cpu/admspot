@@ -88,6 +88,11 @@ const routes: Routes = [
         (m) => m.ComprovantePaymentPageModule
       ),
   },
+  {
+    path: 'recarga-success',
+    loadChildren: () =>
+      import('./features/recarga-success/recarga-success.module').then((m) => m.RecargaSuccessPageModule),
+  },
 ];
 
 @NgModule({
