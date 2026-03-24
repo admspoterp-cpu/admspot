@@ -15,6 +15,7 @@ export class DashboardPage {
   activeTab: 'Home' | 'Send' | 'Pagar' | 'Cards' | 'More' = 'Home';
   paymentSheetOpen = false;
   transferSheetOpen = false;
+  notificationsSheetOpen = false;
   selectedChargeFileName = '';
 
   /** Mock favoritos — alinhar com API depois */
@@ -36,11 +37,13 @@ export class DashboardPage {
       this.paymentSheetOpen = false;
     }
     this.transferSheetOpen = false;
+    this.notificationsSheetOpen = false;
   }
 
   openPaymentSheet(): void {
     this.activeTab = 'Pagar';
     this.transferSheetOpen = false;
+    this.notificationsSheetOpen = false;
     this.paymentSheetOpen = true;
   }
 
@@ -50,6 +53,7 @@ export class DashboardPage {
 
   openTransferSheet(): void {
     this.paymentSheetOpen = false;
+    this.notificationsSheetOpen = false;
     this.transferSheetOpen = true;
   }
 
@@ -57,14 +61,30 @@ export class DashboardPage {
     this.transferSheetOpen = false;
   }
 
+  openNotificationsSheet(): void {
+    this.paymentSheetOpen = false;
+    this.transferSheetOpen = false;
+    this.notificationsSheetOpen = true;
+  }
+
+  closeNotificationsSheet(): void {
+    this.notificationsSheetOpen = false;
+  }
+
   closeOverlaySheets(): void {
     this.closePaymentSheet();
     this.closeTransferSheet();
+    this.closeNotificationsSheet();
   }
 
   goToQrScanner(): void {
     this.closeOverlaySheets();
     this.navController.navigateForward('/qr-scan');
+  }
+
+  goToDepositar(): void {
+    this.closeOverlaySheets();
+    void this.navController.navigateForward('/depositar');
   }
 
   goToBoletoScanner(): void {

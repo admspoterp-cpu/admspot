@@ -1,19 +1,26 @@
 <ion-content [fullscreen]="true" class="onboarding-content" [scrollY]="false" [forceOverscroll]="false">
   <div class="screen">
+    <div class="onboarding-bg" aria-hidden="true">
+      <div class="slides-track">
+        <img
+          *ngFor="let src of slides; let i = index"
+          [src]="src"
+          alt=""
+          class="slide-image"
+          [class.slide-image--active]="i === activeSlideIndex"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+      <div class="onboarding-bg__veil"></div>
+    </div>
+
     <header class="hero">
       <img
         src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Group142270-f5ada175-b019-4f99-92cf-3671b12b2ede.svg"
         alt="Admspot Logo"
         class="logo"
       />
-
-      <div class="phone-wrapper">
-        <img
-          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1%2F31202820-de1e-43e5-8aa2-4b4034052d1a.png"
-          alt="Preview do app"
-          class="phone-image"
-        />
-      </div>
     </header>
 
     <main class="sheet">

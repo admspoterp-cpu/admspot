@@ -27,10 +27,15 @@
               class="small-icon eye-toggle-icon"
             ></ion-icon>
           </button>
-          <button type="button" class="icon-btn tap-highlight-none">
+          <button
+            type="button"
+            class="icon-btn tap-highlight-none"
+            (click)="openNotificationsSheet()"
+            aria-label="Notificações"
+          >
             <img
               src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Bell-07c7aefb-99cb-44cd-95cd-805f6654abde.svg"
-              alt="Notifications"
+              alt=""
               class="small-icon"
             />
           </button>
@@ -41,7 +46,7 @@
         <p class="balance-label">Saldo total</p>
         <div class="balance-row">
           <span class="currency-symbol">R$</span>
-          <span class="balance-value">{{ balanceHidden ? '*******' : '20.000.00,00' }}</span>
+          <span class="balance-value">{{ balanceHidden ? '*******' : '20.000,00' }}</span>
         </div>
         <p class="balance-updated">Última atualização 2 minutos atrás.</p>
         <button type="button" class="balance-more tap-highlight-none">
@@ -73,7 +78,7 @@
 
     <main class="dashboard-main">
       <section class="quick-actions">
-        <button type="button" class="action-btn tap-highlight-none">
+        <button type="button" class="action-btn tap-highlight-none" (click)="goToDepositar()">
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319588-0ce7491a-415d-4405-803e-08507147cbd1.svg"
             alt="Depositar"
@@ -283,7 +288,7 @@
 
     <div
       class="payment-sheet-backdrop"
-      [class.open]="paymentSheetOpen || transferSheetOpen"
+      [class.open]="paymentSheetOpen || transferSheetOpen || notificationsSheetOpen"
       (click)="closeOverlaySheets()"
     ></div>
 
@@ -430,6 +435,43 @@
               alt=""
             />
           </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- notifications.html — apenas área branca (sem header azul do mock) -->
+    <section class="notifications-sheet" [class.open]="notificationsSheetOpen" (click)="$event.stopPropagation()">
+      <div class="notifications-sheet-panel">
+        <header class="notifications-sheet-header">
+          <button
+            type="button"
+            class="notifications-sheet-close tap-highlight-none"
+            (click)="closeNotificationsSheet()"
+            aria-label="Fechar notificações"
+          >
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/X-994b873d-8700-4356-b7c9-f51cedfff6f0.svg"
+              alt=""
+            />
+          </button>
+          <h2 class="notifications-sheet-title">Notifications</h2>
+          <img
+            class="notifications-sheet-bell"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/BellRinging-f4bcfbe7-ef3f-4913-a032-8466632309cd.svg"
+            alt=""
+            aria-hidden="true"
+          />
+        </header>
+        <div class="notifications-sheet-body">
+          <div class="notifications-empty">
+            <img
+              class="notifications-empty-illu"
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319508-ea69a1d6-a9cc-4e72-8693-ca7e9b808710.svg"
+              alt=""
+            />
+            <p class="notifications-empty-title">Você não tem notificações</p>
+            <p class="notifications-empty-sub">Suas notificações aparecerão aqui assim que chegarem.</p>
+          </div>
         </div>
       </div>
     </section>

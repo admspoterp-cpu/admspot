@@ -1,0 +1,56 @@
+<!-- Layout alinhado a depositar.html (mock) -->
+<ion-content [fullscreen]="true" class="depositar-content" [forceOverscroll]="false">
+  <div class="dep-page">
+    <button type="button" class="dep-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </button>
+
+    <header class="dep-header">
+      <div class="dep-qr-wrap" aria-hidden="true">
+        <img
+          class="dep-qr-frame"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Rectangle24547-4be61a86-52a9-48e5-ae36-2ea97ce32c28.svg"
+          alt=""
+        />
+        <img
+          class="dep-qr-inner"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-8690bfaa-0313-454f-b50f-17a30ca3d28d.svg"
+          alt=""
+        />
+      </div>
+      <h1 class="dep-title">Use Ler QR code do seu app bancário</h1>
+    </header>
+
+    <main class="dep-sheet">
+      <h2 class="dep-sheet-title">Suas chaves PIX</h2>
+
+      <div class="dep-key-block">
+        <p class="dep-key-label">Chave PIX #1</p>
+        <button type="button" class="dep-key-row tap-highlight-none" (click)="copyKey(pixKey1)">
+          <span class="dep-key-value">{{ pixKey1 }}</span>
+          <img
+            class="dep-copy-icon"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319583-1b354426-a2af-4963-b399-c33ebb04539c.svg"
+            alt=""
+          />
+        </button>
+      </div>
+
+      <div class="dep-key-block dep-key-block--last">
+        <p class="dep-key-label">Chave PIX #2</p>
+        <button type="button" class="dep-key-row tap-highlight-none" (click)="copyKey(pixKey2)">
+          <span class="dep-key-value">{{ pixKey2 }}</span>
+          <img
+            class="dep-copy-icon"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319583-f0c16a51-a8bb-4c6c-8a2a-d803b45fefdb.svg"
+            alt=""
+          />
+        </button>
+      </div>
+
+      <button type="button" class="dep-primary-btn tap-highlight-none" (click)="onCreateNewKey()">
+        <span>Criar nova chave PIX</span>
+      </button>
+    </main>
+  </div>
+</ion-content>

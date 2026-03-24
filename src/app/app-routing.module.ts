@@ -20,6 +20,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/dashboard/dashboard.module').then( m => m.DashboardPageModule)
   },
   {
+    path: 'depositar',
+    loadChildren: () =>
+      import('./features/depositar/depositar.module').then((m) => m.DepositarPageModule),
+  },
+  {
     path: 'transactions',
     loadChildren: () => import('./features/transactions/transactions.module').then( m => m.TransactionsPageModule)
   },

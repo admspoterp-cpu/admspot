@@ -18,9 +18,75 @@
   <!-- add to homescreen for ios -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+  <style>
+    #app-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483646;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #114280;
+    }
+
+    #app-splash.app-splash--exiting {
+      opacity: 0;
+      transition: opacity 0.38s ease;
+      pointer-events: none;
+    }
+
+    .app-splash__gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, #114280 0%, #235697 100%);
+    }
+
+    .app-splash__logo {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
+      object-fit: contain;
+      object-position: center;
+      transform-origin: center center;
+      animation: app-splash-logo-in 0.92s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes app-splash-logo-in {
+      from {
+        opacity: 0;
+        transform: scale(0.84) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .app-splash__logo {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+      #app-splash.app-splash--exiting {
+        transition-duration: 0.12s;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div id="app-splash" aria-hidden="true">
+    <div class="app-splash__gradient"></div>
+    <img class="app-splash__logo" src="assets/splash/splash-logo-mark.svg" alt="" width="375" height="812" />
+  </div>
   <app-root></app-root>
 </body>
 
