@@ -96,6 +96,18 @@ export class CartaoInfoPage implements OnInit {
     }
   }
 
+  // Mock do bloco "Limite de gastos mensais"
+  readonly limiteMin = 'R$0';
+  readonly limiteAtual = 'R$4.600';
+  readonly limiteMax = 'R$50.000';
+  readonly limiteTotalGasto = 'R$8,545.00';
+  readonly gastoLimiteAtual = 4600;
+  readonly gastoLimiteMax = 50000;
+
+  get gastoLimitePct(): number {
+    return this.gastoLimiteMax > 0 ? (this.gastoLimiteAtual / this.gastoLimiteMax) * 100 : 0;
+  }
+
   private async presentToast(message: string, color: 'success' | 'warning' = 'success'): Promise<void> {
     const toast = await this.toastController.create({
       message,
@@ -104,5 +116,9 @@ export class CartaoInfoPage implements OnInit {
       color,
     });
     await toast.present();
+  }
+
+  async download(): Promise<void> {
+    await this.presentToast('Descarregar em breve');
   }
 }

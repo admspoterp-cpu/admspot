@@ -189,5 +189,35 @@
         <div class="cartao-info-line" aria-hidden="true"></div>
       </div>
     </section>
+
+    <section class="cartao-limit" aria-label="Limite de gastos mensais">
+      <h2 class="cartao-limit-title">Limite de gastos mensais</h2>
+
+      <div class="cartao-limit-card" role="group" aria-label="Resumo do limite">
+        <div class="cartao-limit-total">Total gasto: {{ limiteTotalGasto }}</div>
+
+        <div class="cartao-limit-bar-wrap" aria-hidden="true">
+          <div class="cartao-limit-bar">
+            <div class="cartao-limit-bar-fill" [style.width]="gastoLimitePct + '%'"></div>
+          </div>
+        </div>
+
+        <div class="cartao-limit-labels" aria-hidden="true">
+          <span>{{ limiteMin }}</span>
+          <span class="cartao-limit-labels__mid">{{ limiteAtual }}</span>
+          <span>{{ limiteMax }}</span>
+        </div>
+      </div>
+
+      <div class="cartao-limit-actions">
+        <button
+          type="button"
+          class="cartao-limit-download tap-highlight-none"
+          (click)="download()"
+        >
+          Descarregar
+        </button>
+      </div>
+    </section>
   </div>
 </ion-content>
