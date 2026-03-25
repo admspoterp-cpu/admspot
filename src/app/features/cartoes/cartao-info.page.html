@@ -1,0 +1,206 @@
+<ion-content [fullscreen]="true" class="cartao-info-content">
+  <div class="cartao-info-page">
+    <header class="cartao-info-header">
+      <button type="button" class="cartao-info-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="assetBase + '/CaretLeft-01cc57ba-1e8e-4f1a-a037-cfdfca01f010.svg'" alt="" />
+      </button>
+      <h1 class="cartao-info-title">Meus Cartões</h1>
+      <span class="cartao-info-header-spacer" aria-hidden="true"></span>
+    </header>
+
+    <div class="cartao-info-preview-wrap">
+      <article class="cartao-card">
+        <img class="cartao-bg" [src]="previewCard.bgRect" alt="" />
+        <img *ngIf="previewCard.mapPng" class="cartao-map" [src]="previewCard.mapPng" alt="" />
+        <img *ngIf="previewCard.ellipseDecor" class="cartao-ellipse" [src]="previewCard.ellipseDecor" alt="" />
+        <img *ngIf="previewCard.ellipse655" class="cartao-ellipse655" [src]="previewCard.ellipse655" alt="" />
+        <img *ngIf="previewCard.unionDecor" class="cartao-union" [src]="previewCard.unionDecor" alt="" />
+
+        <div class="cartao-balance">
+          <span>{{ previewCard.balanceFormatted }}</span>
+        </div>
+
+        <div class="cartao-inner">
+          <div class="cartao-pan-block cartao-pan-block--hero">
+            <p class="cartao-pan">{{ previewCard.panDisplay }}</p>
+            <button type="button" class="cartao-copy tap-highlight-none" (click)="copyPan()" aria-label="Copiar número do cartão">
+              <svg class="cartao-copy-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true">
+                <rect
+                  x="128"
+                  y="128"
+                  width="336"
+                  height="336"
+                  rx="57"
+                  ry="57"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linejoin="round"
+                  stroke-width="32"
+                />
+                <path
+                  d="M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="32"
+                />
+              </svg>
+            </button>
+          </div>
+          <p class="cartao-holder">{{ previewCard.holderLabel }}</p>
+          <div class="cartao-meta">
+            <div class="cartao-meta-item">
+              <span class="cartao-meta-label">Expira</span>
+              <span class="cartao-meta-value">{{ previewCard.expiry }}</span>
+            </div>
+            <div class="cartao-meta-item cartao-meta-item--cvv">
+              <div class="cartao-meta-cvv-text">
+                <span class="cartao-meta-label">CVV</span>
+                <span class="cartao-meta-value">{{ previewCard.cvv }}</span>
+              </div>
+              <button type="button" class="cartao-copy cartao-copy--cvv tap-highlight-none" (click)="copyCvv()" aria-label="Copiar CVV">
+                <svg class="cartao-copy-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true">
+                  <rect
+                    x="128"
+                    y="128"
+                    width="336"
+                    height="336"
+                    rx="57"
+                    ry="57"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linejoin="round"
+                    stroke-width="32"
+                  />
+                  <path
+                    d="M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="32"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="cartao-mc" *ngIf="previewCard.mcGroup">
+            <img [src]="previewCard.mcGroup" alt="" class="cartao-mc-img" />
+            <span class="cartao-mc-label">Mastercard</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <section class="cartao-info-fields" aria-label="Dados do cartão">
+      <div class="cartao-info-fields-head">
+        <ion-toggle
+          class="cartao-info-toggle"
+          [checked]="editEnabled"
+          (ionChange)="onEditToggle($event)"
+          aria-label="Permitir edição dos dados"
+        ></ion-toggle>
+      </div>
+
+      <div class="cartao-info-field">
+        <span class="cartao-info-label">Nome</span>
+        <div class="cartao-info-row" *ngIf="!editEnabled">
+          <img
+            class="cartao-info-row-icon"
+            [src]="assetBase + '/Group-47e794a4-8648-4cd2-b638-be2f0eb0eb32.svg'"
+            alt=""
+            aria-hidden="true"
+          />
+          <span class="cartao-info-value">{{ draft.holderLabel }}</span>
+        </div>
+        <input
+          *ngIf="editEnabled"
+          type="text"
+          class="cartao-info-input"
+          [(ngModel)]="draft.holderLabel"
+          name="cartaoInfoHolder"
+          autocomplete="cc-name"
+        />
+        <div class="cartao-info-line" aria-hidden="true"></div>
+      </div>
+
+      <div class="cartao-info-row-split">
+        <div class="cartao-info-field cartao-info-field--half">
+          <span class="cartao-info-label">Expira</span>
+          <span class="cartao-info-value cartao-info-value--block" *ngIf="!editEnabled">{{ draft.expiry }}</span>
+          <input
+            *ngIf="editEnabled"
+            type="text"
+            class="cartao-info-input"
+            [(ngModel)]="draft.expiry"
+            name="cartaoInfoExpiry"
+            inputmode="numeric"
+            maxlength="5"
+            placeholder="MM/AA"
+            autocomplete="cc-exp"
+          />
+          <div class="cartao-info-line" aria-hidden="true"></div>
+        </div>
+        <div class="cartao-info-field cartao-info-field--half">
+          <span class="cartao-info-label">CVV</span>
+          <span class="cartao-info-value cartao-info-value--block" *ngIf="!editEnabled">{{ draft.cvv }}</span>
+          <input
+            *ngIf="editEnabled"
+            type="text"
+            class="cartao-info-input"
+            [(ngModel)]="draft.cvv"
+            name="cartaoInfoCvv"
+            inputmode="numeric"
+            maxlength="4"
+            autocomplete="cc-csc"
+          />
+          <div class="cartao-info-line" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="cartao-info-field">
+        <span class="cartao-info-label">Número</span>
+        <div class="cartao-info-row cartao-info-row--pan" *ngIf="!editEnabled">
+          <img
+            class="cartao-info-row-icon"
+            [src]="assetBase + '/Group-a3fd5ae6-eed6-4710-bf7f-be1d5e547554.svg'"
+            alt=""
+            aria-hidden="true"
+          />
+          <span class="cartao-info-value">{{ draft.panDisplay }}</span>
+          <img
+            *ngIf="previewCard.mcGroup"
+            class="cartao-info-pan-brand"
+            [src]="previewCard.mcGroup"
+            alt=""
+            aria-hidden="true"
+          />
+        </div>
+        <input
+          *ngIf="editEnabled"
+          type="text"
+          class="cartao-info-input"
+          [(ngModel)]="draft.panDisplay"
+          name="cartaoInfoPan"
+          inputmode="numeric"
+          autocomplete="cc-number"
+        />
+        <div class="cartao-info-line" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <img
+      class="cartao-info-deco cartao-info-deco--a"
+      [src]="assetBase + '/Vector-379643b2-4916-4653-bc3f-abc613ebc030.svg'"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="cartao-info-deco cartao-info-deco--b"
+      [src]="assetBase + '/Vector-473b2c26-2130-4ac2-b57e-5325a8047686.svg'"
+      alt=""
+      aria-hidden="true"
+    />
+  </div>
+</ion-content>

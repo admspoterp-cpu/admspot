@@ -8,7 +8,7 @@
         />
       </button>
       <h1 class="cartoes-title">Meus Cartões</h1>
-      <button type="button" class="cartoes-header-action tap-highlight-none" (click)="actionSoon('Novo cartão')" aria-label="Adicionar cartão">
+      <button type="button" class="cartoes-header-action tap-highlight-none" (click)="openNovoCartao()" aria-label="Adicionar cartão">
         <img
           src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Vector-1a851cd0-25ac-4214-895e-579fd48e66f5.svg"
           alt=""
@@ -138,7 +138,7 @@
     />
 
     <nav class="cartoes-actions" aria-label="Ações do cartão">
-      <button type="button" class="cartoes-action tap-highlight-none" (click)="actionSoon('Info cartão')">
+      <button type="button" class="cartoes-action tap-highlight-none" (click)="openCardInfo()">
         <img class="cartoes-action-img" src="assets/icons/info_card.svg" alt="" />
         <span class="cartoes-action-label">Info Cartão</span>
       </button>

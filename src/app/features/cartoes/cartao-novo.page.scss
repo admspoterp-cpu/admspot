@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@400;500&display=swap');
+
+:host {
+  display: block;
+  height: 100%;
+  --cn-border: #f3f3f3;
+  --cn-text: #3a3c4c;
+  --cn-text-dark: #1e1e2d;
+  --cn-muted: #a2a2a7;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+ion-content.cartao-novo-content {
+  --background: #fff;
+}
+
+.cartao-novo-page {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.cartao-novo-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 13px 20px;
+  padding-top: max(13px, env(safe-area-inset-top, 13px));
+  border-bottom: 1px solid var(--cn-border);
+  box-sizing: border-box;
+}
+
+.cartao-novo-back {
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartao-novo-back img {
+  width: 24px;
+  height: 24px;
+}
+
+.cartao-novo-title {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+  color: var(--cn-text);
+  text-align: center;
+}
+
+.cartao-novo-header-spacer {
+  width: 40px;
+  height: 1px;
+}
+
+.cartao-novo-fields {
+  padding: 24px 20px 0;
+  max-width: 375px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.cartao-novo-field {
+  margin-bottom: 22px;
+}
+
+.cartao-novo-field--half {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.cartao-novo-label {
+  display: block;
+  margin-bottom: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  color: var(--cn-muted);
+}
+
+.cartao-novo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+
+.cartao-novo-row--pan {
+  position: relative;
+  padding-right: 40px;
+}
+
+.cartao-novo-row-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.cartao-novo-input {
+  border: 0;
+  margin: 0;
+  padding: 6px 0 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  color: var(--cn-text-dark);
+  background: transparent;
+  outline: none;
+}
+
+.cartao-novo-input::placeholder {
+  color: var(--cn-text-dark);
+  opacity: 0.85;
+}
+
+.cartao-novo-input--grow {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cartao-novo-input--block {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cartao-novo-pan-brand {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: auto;
+  object-fit: contain;
+}
+
+.cartao-novo-line {
+  height: 1px;
+  margin-top: 2px;
+  background: linear-gradient(90deg, #e8e8ef 0%, #e8e8ef 100%);
+}
+
+.cartao-novo-row-split {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.cartao-novo-actions {
+  padding: 48px 20px 0;
+  max-width: 375px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.cartao-novo-submit {
+  width: 100%;
+  max-width: 335px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 53px;
+  padding: 16px 32px;
+  border: 0;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 21px;
+  color: #fff;
+  background: linear-gradient(270deg, #235697 0%, #114280 100%);
+  box-sizing: border-box;
+}
+
+.cartao-novo-submit:active {
+  opacity: 0.92;
+}

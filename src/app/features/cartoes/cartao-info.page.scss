@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@400;500&display=swap');
+@import './cartao-card.shared.scss';
+
+:host {
+  display: block;
+  height: 100%;
+  --ci-border: #f3f3f3;
+  --ci-text: #3a3c4c;
+  --ci-text-dark: #1e1e2d;
+  --ci-muted: #a2a2a7;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+ion-content.cartao-info-content {
+  --background: #fff;
+}
+
+.cartao-info-page {
+  position: relative;
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.cartao-info-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 13px 20px;
+  padding-top: max(13px, env(safe-area-inset-top, 13px));
+  border-bottom: 1px solid var(--ci-border);
+  box-sizing: border-box;
+}
+
+.cartao-info-back {
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartao-info-back img {
+  width: 24px;
+  height: 24px;
+}
+
+.cartao-info-title {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+  color: var(--ci-text);
+  text-align: center;
+}
+
+.cartao-info-header-spacer {
+  width: 40px;
+  height: 1px;
+}
+
+.cartao-info-preview-wrap {
+  padding: 16px 20px 8px;
+}
+
+.cartao-info-preview-wrap .cartao-card {
+  max-width: 355px;
+  margin: 0 auto;
+}
+
+.cartao-info-fields {
+  position: relative;
+  z-index: 2;
+  padding: 20px 20px 0;
+}
+
+.cartao-info-fields-head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+.cartao-info-toggle {
+  --background: #e5e5e5;
+  --background-checked: #235697;
+  --handle-background: #fff;
+  --handle-background-checked: #fff;
+  width: 51px;
+  height: 31px;
+  padding-inline: 0;
+}
+
+.cartao-info-field {
+  margin-bottom: 22px;
+}
+
+.cartao-info-field--half {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.cartao-info-label {
+  display: block;
+  margin-bottom: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  color: var(--ci-muted);
+}
+
+.cartao-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+
+.cartao-info-row--pan {
+  position: relative;
+  padding-right: 40px;
+}
+
+.cartao-info-row-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.cartao-info-value {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  color: var(--ci-text-dark);
+}
+
+.cartao-info-value--block {
+  display: block;
+  min-height: 24px;
+  line-height: 24px;
+}
+
+.cartao-info-pan-brand {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: auto;
+  object-fit: contain;
+}
+
+.cartao-info-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  margin: 0;
+  padding: 6px 0 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  color: var(--ci-text-dark);
+  background: transparent;
+  outline: none;
+}
+
+.cartao-info-line {
+  height: 1px;
+  margin-top: 2px;
+  background: linear-gradient(90deg, #e8e8ef 0%, #e8e8ef 100%);
+}
+
+.cartao-info-row-split {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.cartao-info-deco {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.9;
+}
+
+.cartao-info-deco--a {
+  width: 72px;
+  right: 48px;
+  bottom: 120px;
+}
+
+.cartao-info-deco--b {
+  width: 88px;
+  left: 50%;
+  margin-left: -120px;
+  bottom: 40px;
+}

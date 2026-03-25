@@ -1,0 +1,97 @@
+<ion-content [fullscreen]="true" class="cartao-novo-content">
+  <div class="cartao-novo-page">
+    <header class="cartao-novo-header">
+      <button type="button" class="cartao-novo-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="assetBase + '/CaretLeft-0ff6b469-726f-4042-8dcd-355e63bdb947.svg'" alt="" />
+      </button>
+      <h1 class="cartao-novo-title">Novo Cartão</h1>
+      <span class="cartao-novo-header-spacer" aria-hidden="true"></span>
+    </header>
+
+    <section class="cartao-novo-fields" aria-label="Dados do novo cartão">
+      <div class="cartao-novo-field">
+        <span class="cartao-novo-label">Nome</span>
+        <div class="cartao-novo-row">
+          <img
+            class="cartao-novo-row-icon"
+            [src]="assetBase + '/Group-65541e32-ee3b-42b6-a972-08af2b4ca54f.svg'"
+            alt=""
+            aria-hidden="true"
+          />
+          <input
+            type="text"
+            class="cartao-novo-input cartao-novo-input--grow"
+            [(ngModel)]="form.holderLabel"
+            name="novoHolder"
+            placeholder="NOME DO CARTAO"
+            autocomplete="cc-name"
+          />
+        </div>
+        <div class="cartao-novo-line" aria-hidden="true"></div>
+      </div>
+
+      <div class="cartao-novo-row-split">
+        <div class="cartao-novo-field cartao-novo-field--half">
+          <span class="cartao-novo-label">Expira</span>
+          <input
+            type="text"
+            class="cartao-novo-input cartao-novo-input--block"
+            [(ngModel)]="form.expiry"
+            name="novoExpiry"
+            placeholder="00/00"
+            inputmode="numeric"
+            maxlength="5"
+            autocomplete="cc-exp"
+          />
+          <div class="cartao-novo-line" aria-hidden="true"></div>
+        </div>
+        <div class="cartao-novo-field cartao-novo-field--half">
+          <span class="cartao-novo-label">CVV</span>
+          <input
+            type="text"
+            class="cartao-novo-input cartao-novo-input--block"
+            [(ngModel)]="form.cvv"
+            name="novoCvv"
+            placeholder="000"
+            inputmode="numeric"
+            maxlength="4"
+            autocomplete="cc-csc"
+          />
+          <div class="cartao-novo-line" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="cartao-novo-field">
+        <span class="cartao-novo-label">Número</span>
+        <div class="cartao-novo-row cartao-novo-row--pan">
+          <img
+            class="cartao-novo-row-icon"
+            [src]="assetBase + '/Group-48ee6698-8b46-4a3f-9ed0-30c30037cb98.svg'"
+            alt=""
+            aria-hidden="true"
+          />
+          <input
+            type="text"
+            class="cartao-novo-input cartao-novo-input--grow"
+            [(ngModel)]="form.panDisplay"
+            name="novoPan"
+            placeholder="0000 0000 0000 0000"
+            inputmode="numeric"
+            autocomplete="cc-number"
+          />
+          <img
+            class="cartao-novo-pan-brand"
+            [src]="assetBase + '/Group2-b90ec758-d31b-4115-92f1-118e20944a28.svg'"
+            alt=""
+            aria-hidden="true"
+          />
+        </div>
+        <div class="cartao-novo-line" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <div class="cartao-novo-actions">
+      <button type="button" class="cartao-novo-submit tap-highlight-none" (click)="salvar()">Criar / Salvar</button>
+    </div>
+  </div>
+</ion-content>

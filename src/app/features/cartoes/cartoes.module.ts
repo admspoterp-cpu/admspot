@@ -4,12 +4,14 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
+import { CartaoInfoPage } from './cartao-info.page';
+import { CartaoNovoPage } from './cartao-novo.page';
 import { CartoesPageRoutingModule } from './cartoes-routing.module';
 import { CartoesPage } from './cartoes.page';
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, CartoesPageRoutingModule],
-  declarations: [CartoesPage],
+  declarations: [CartoesPage, CartaoInfoPage, CartaoNovoPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CartoesPageModule {}
