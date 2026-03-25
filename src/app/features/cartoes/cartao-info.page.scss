@@ -187,23 +187,3 @@ ion-content.cartao-info-content {
   gap: 24px;
   margin-bottom: 22px;
 }
-
-.cartao-info-deco {
-  position: absolute;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.9;
-}
-
-.cartao-info-deco--a {
-  width: 72px;
-  right: 48px;
-  bottom: 120px;
-}
-
-.cartao-info-deco--b {
-  width: 88px;
-  left: 50%;
-  margin-left: -120px;
-  bottom: 40px;
-}
