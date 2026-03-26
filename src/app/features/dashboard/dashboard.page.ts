@@ -1,5 +1,10 @@
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
-import { ActionSheetController, NavController, ToastController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  NavController,
+  ToastController,
+  ViewWillEnter,
+} from '@ionic/angular';
 
 import { AuthSessionService } from '../../services/auth-session.service';
 
@@ -9,7 +14,7 @@ import { AuthSessionService } from '../../services/auth-session.service';
   styleUrls: ['./dashboard.page.scss'],
   standalone: false,
 })
-export class DashboardPage {
+export class DashboardPage implements ViewWillEnter {
   @ViewChild('galleryFileInput') galleryFileInput?: ElementRef<HTMLInputElement>;
   @ViewChild('documentFileInput') documentFileInput?: ElementRef<HTMLInputElement>;
 
@@ -43,6 +48,13 @@ export class DashboardPage {
   private readonly actionSheetController = inject(ActionSheetController);
   private readonly toastController = inject(ToastController);
   private readonly authSession = inject(AuthSessionService);
+
+  ionViewWillEnter(): void {
+    if (this.authSession.isTokenExpired()) {
+      this.authSession.clear();
+      void this.navController.navigateRoot('/login');
+    }
+  }
 
   /** Nome gravado no login junto com o token (`first_name` + `last_name`). */
   get greetingLine(): string {

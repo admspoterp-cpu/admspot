@@ -90,6 +90,7 @@ export class AuthLoginService {
 
     const res = await fetch(url, {
       method: 'POST',
+      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
       },

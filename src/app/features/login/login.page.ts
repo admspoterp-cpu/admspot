@@ -42,7 +42,7 @@ export class LoginPage {
     const normalizedUser = this.loginUser.replace(/\D/g, '');
     try {
       const { session, user } = await this.authLogin.login(normalizedUser, this.loginPassword);
-      this.authSession.save(session.access_token, user);
+      this.authSession.save(session.access_token, user, session.expires_in);
 
       const skipBiometric = await this.biometricRule.shouldSkipBiometric(
         session.access_token,
