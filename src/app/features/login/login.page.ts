@@ -4,6 +4,7 @@ import { Haptics, NotificationType } from '@capacitor/haptics';
 import { NavController, ToastController } from '@ionic/angular';
 
 import { BiometricAuthService } from '../../services/biometric-auth.service';
+import { BiometricRuleService } from '../../services/biometric-rule.service';
 import { AuthLoginService } from '../../services/auth-login.service';
 import { AuthSessionService } from '../../services/auth-session.service';
 
@@ -17,6 +18,7 @@ export class LoginPage {
   private readonly navController = inject(NavController);
   private readonly toastController = inject(ToastController);
   private readonly biometricAuth = inject(BiometricAuthService);
+  private readonly biometricRule = inject(BiometricRuleService);
   private readonly authLogin = inject(AuthLoginService);
   private readonly authSession = inject(AuthSessionService);
 
@@ -33,13 +35,22 @@ export class LoginPage {
   }
 
   /**
-   * Acesso ao dashboard só após biometria nativa (Face ID / Touch ID / digital).
+   * Após login: consulta `/biometric-rule`; se `is_active === "NO"`, vai ao dashboard sem biometria.
+   * Caso contrário (ou se a API falhar), mantém o fluxo com biometria nativa.
    */
   async onAccess(): Promise<void> {
     const normalizedUser = this.loginUser.replace(/\D/g, '');
     try {
       const { session, user } = await this.authLogin.login(normalizedUser, this.loginPassword);
       this.authSession.save(session.access_token, user);
+
+      const skipBiometric = await this.biometricRule.shouldSkipBiometric(
+        session.access_token,
+      );
+      if (skipBiometric) {
+        await this.navController.navigateRoot('/dashboard');
+        return;
+      }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Não foi possível fazer login.';
       const toast = await this.toastController.create({

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
 
-import { environment } from '../../environments/environment';
+import { getGestorApiUrl } from './api-base-url';
 
 import type { AuthUser } from './auth-session.service';
 
@@ -18,56 +18,13 @@ type LoginApiResponse = {
   user?: AuthUser;
 };
 
-/** Endpoint real da API (sempre este host no upstream). */
-const LOGIN_URL_ABSOLUTE =
-  'https://www.gestor.admspot.com.br/api/central/v1/auth/login';
+const LOGIN_PATH = '/api/central/v1/auth/login';
 
 /** Sessão PHP se o endpoint ainda exigir (mesmo valor que no proxy de dev). */
 const PHPSESSID = 'ba832f1772c56eb7fb76a591cf310f5f';
 
-/** Inclui `www.localhost`, vhosts XAMPP, etc. */
-function isLocalDevBrowserHost(hostname: string): boolean {
-  if (!hostname) {
-    return false;
-  }
-  return (
-    hostname === 'localhost' ||
-    hostname === '127.0.0.1' ||
-    hostname.endsWith('.localhost')
-  );
-}
-
-/**
- * Só usar `/api` com proxy do `ng serve` quando a origem é claramente o dev server
- * (porta explícita, não 80/443). XAMPP em `https://www.localhost/` fica em 443/sem porta
- * e não deve enviar POST para o Apache.
- */
-function isAngularDevServerOrigin(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-  const { hostname, port } = window.location;
-  if (!isLocalDevBrowserHost(hostname)) {
-    return false;
-  }
-  const p = port || '';
-  // URL sem porta visível = HTTP/HTTPS default (80/443) → Apache/XAMPP, não `ng serve`.
-  if (p === '' || p === '80' || p === '443') {
-    return false;
-  }
-  const n = Number.parseInt(p, 10);
-  return Number.isFinite(n) && environment.localDevServerPorts.includes(n);
-}
-
-function loginPathRelative(): string {
-  return '/api/central/v1/auth/login';
-}
-
 function loginUrlForWeb(): string {
-  if (isAngularDevServerOrigin()) {
-    return loginPathRelative();
-  }
-  return LOGIN_URL_ABSOLUTE;
+  return getGestorApiUrl(LOGIN_PATH);
 }
 
 function parseLoginResponse(raw: unknown): LoginApiResponse | null {
@@ -100,8 +57,9 @@ export class AuthLoginService {
     user: string,
     password: string,
   ): Promise<{ session: LoginSession; user: AuthUser }> {
+    const url = getGestorApiUrl(LOGIN_PATH);
     const res = await CapacitorHttp.post({
-      url: LOGIN_URL_ABSOLUTE,
+      url,
       headers: {
         'Content-Type': 'application/json',
         Cookie: `PHPSESSID=${PHPSESSID}`,
