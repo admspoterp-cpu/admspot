@@ -3,7 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  /**
+   * Portas em que o `ng serve` / `ionic serve` costuma correr (proxy em `proxy.conf.js`).
+   * Não incluir 80/443: aí costuma ser XAMPP/Apache — sem proxy Angular.
+   */
+  localDevServerPorts: [4200, 8100, 4201, 4202],
 };
 
 /*
