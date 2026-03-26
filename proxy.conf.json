@@ -1,0 +1,10 @@
+{
+  "/api": {
+    "target": "https://www.gestor.admspot.com.br",
+    "secure": true,
+    "changeOrigin": true,
+    "headers": {
+      "Cookie": "PHPSESSID=ba832f1772c56eb7fb76a591cf310f5f"
+    }
+  }
+}

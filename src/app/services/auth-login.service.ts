@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 
 import type { AuthUser } from './auth-session.service';
 
@@ -15,20 +16,36 @@ type LoginApiResponse = {
   user?: AuthUser;
 };
 
-const LOGIN_URL = 'https://www.gestor.admspot.com.br/api/central/v1/auth/login';
+/** Endpoint real da API (sempre este host no upstream). */
+const LOGIN_URL_ABSOLUTE =
+  'https://www.gestor.admspot.com.br/api/central/v1/auth/login';
 
-// Cookie usado conforme o curl do mockup do endpoint.
-// Se expirar, troque o valor no código (ideal é externalizar para env/secret manager).
-const PHPSESSID = 'ba832f1772c56eb7fb76a591cf310f5f';
+/**
+ * URL usada no `fetch`.
+ *
+ * - **localhost (`ng serve`)**: caminho relativo `/api/...` — o browser só fala com o dev server;
+ *   o **proxy** (`proxy.conf.json`) reencaminha para `LOGIN_URL_ABSOLUTE` (mesmo path em HTTPS).
+ *   Não é outro servidor; evita CORS no browser.
+ * - **Capacitor nativo / outro host**: `LOGIN_URL_ABSOLUTE` direto.
+ */
+function loginUrl(): string {
+  if (Capacitor.isNativePlatform()) {
+    return LOGIN_URL_ABSOLUTE;
+  }
+  const h = typeof window !== 'undefined' ? window.location.hostname : '';
+  if (h === 'localhost' || h === '127.0.0.1') {
+    return '/api/central/v1/auth/login';
+  }
+  return LOGIN_URL_ABSOLUTE;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthLoginService {
   async login(user: string, password: string): Promise<{ session: LoginSession; user: AuthUser }> {
-    const res = await fetch(LOGIN_URL, {
+    const res = await fetch(loginUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Cookie: `PHPSESSID=${PHPSESSID}`,
       },
       body: JSON.stringify({ user, password }),
     });
