@@ -1,6 +1,8 @@
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ActionSheetController, NavController, ToastController } from '@ionic/angular';
 
+import { AuthSessionService } from '../../services/auth-session.service';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -40,6 +42,19 @@ export class DashboardPage {
   private readonly navController = inject(NavController);
   private readonly actionSheetController = inject(ActionSheetController);
   private readonly toastController = inject(ToastController);
+  private readonly authSession = inject(AuthSessionService);
+
+  /** Nome gravado no login junto com o token (`first_name` + `last_name`). */
+  get greetingLine(): string {
+    const user = this.authSession.getUser();
+    if (!user) {
+      return 'Olá!';
+    }
+    const first = (user.first_name ?? '').trim();
+    const last = (user.last_name ?? '').trim();
+    const name = [first, last].filter((p) => p.length > 0).join(' ');
+    return name ? `Olá, ${name}!` : 'Olá!';
+  }
 
   toggleBalance(): void {
     this.balanceHidden = !this.balanceHidden;
