@@ -4,6 +4,8 @@ import { Haptics, NotificationType } from '@capacitor/haptics';
 import { NavController, ToastController } from '@ionic/angular';
 
 import { BiometricAuthService } from '../../services/biometric-auth.service';
+import { AuthLoginService } from '../../services/auth-login.service';
+import { AuthSessionService } from '../../services/auth-session.service';
 
 @Component({
   selector: 'app-login',
@@ -15,8 +17,13 @@ export class LoginPage {
   private readonly navController = inject(NavController);
   private readonly toastController = inject(ToastController);
   private readonly biometricAuth = inject(BiometricAuthService);
+  private readonly authLogin = inject(AuthLoginService);
+  private readonly authSession = inject(AuthSessionService);
 
   showPassword = false;
+
+  loginUser = '23538948879';
+  loginPassword = 'ab31hgTT!@';
 
   /** Pulso visual após biometria incorreta */
   biometricFeedbackError = false;
@@ -29,6 +36,22 @@ export class LoginPage {
    * Acesso ao dashboard só após biometria nativa (Face ID / Touch ID / digital).
    */
   async onAccess(): Promise<void> {
+    const normalizedUser = this.loginUser.replace(/\D/g, '');
+    try {
+      const { session, user } = await this.authLogin.login(normalizedUser, this.loginPassword);
+      this.authSession.save(session.access_token, user);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Não foi possível fazer login.';
+      const toast = await this.toastController.create({
+        message: msg,
+        duration: 3800,
+        position: 'bottom',
+        color: 'danger',
+      });
+      await toast.present();
+      return;
+    }
+
     const outcome = await this.biometricAuth.authenticateForLogin();
 
     switch (outcome.kind) {

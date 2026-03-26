@@ -17,8 +17,9 @@
         <label for="documento">Documento de acesso</label>
         <ion-input
           id="documento"
+          name="loginUser"
           type="text"
-          value="48.864.142-50"
+          [(ngModel)]="loginUser"
           fill="clear"
           class="line-input"
         ></ion-input>
@@ -30,6 +31,8 @@
           <ion-input
             id="senha"
             [type]="showPassword ? 'text' : 'password'"
+            name="loginPassword"
+            [(ngModel)]="loginPassword"
             placeholder="Digite sua senha"
             fill="clear"
             class="line-input"
