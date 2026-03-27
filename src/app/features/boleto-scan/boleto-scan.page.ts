@@ -1,8 +1,10 @@
 import { Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { LoadingController, NavController, ToastController } from '@ionic/angular';
 
 import { AppScreenOrientationService } from '../../services/app-screen-orientation.service';
+import { AuthSessionService } from '../../services/auth-session.service';
+import { ScanCodesService, type ScanCodesData } from '../../services/scan-codes.service';
 import { normalizarCodigoBarrasParaApi } from '../../shared/utils/boleto-barcode.util';
 
 type ScanState = 'idle' | 'scanning' | 'success' | 'error';
@@ -32,6 +34,8 @@ export class BoletoScanPage implements OnDestroy {
   scanState: ScanState = 'idle';
   detectedCode = '';
   statusMessage = 'Aponte o codigo de barras do boleto para a area de leitura.';
+  /** Definido após GET `/scan-code-mode` (fallback: SCAN_ONLY). */
+  scanMode: 'SCAN_ONLY' | 'SCAN_BY_ZIMAGE' = 'SCAN_ONLY';
 
   private scriptLoadPromise?: Promise<void>;
   private quagga?: QuaggaGlobal;
@@ -80,9 +84,32 @@ export class BoletoScanPage implements OnDestroy {
   private readonly navController = inject(NavController);
   private readonly router = inject(Router);
   private readonly screenOrientation = inject(AppScreenOrientationService);
+  private readonly authSession = inject(AuthSessionService);
+  private readonly scanCodesService = inject(ScanCodesService);
+  private readonly loadingController = inject(LoadingController);
+  private readonly toastController = inject(ToastController);
 
   async ionViewDidEnter(): Promise<void> {
     await this.screenOrientation.lockLandscape();
+
+    const access = this.authSession.getAccessToken();
+    if (!access) {
+      await this.presentToast('Sessão inválida. Faça login novamente.', 'warning');
+      await this.navController.navigateRoot('/dashboard');
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Carregando leitor…',
+      spinner: 'crescent',
+    });
+    await loading.present();
+    const modeRes = await this.scanCodesService.getScanCodeMode(access);
+    await loading.dismiss();
+
+    this.scanMode =
+      modeRes?.success === true && modeRes.scan_options === 'SCAN_BY_ZIMAGE' ? 'SCAN_BY_ZIMAGE' : 'SCAN_ONLY';
+
     await this.startScanner();
   }
 
@@ -137,16 +164,25 @@ export class BoletoScanPage implements OnDestroy {
         return;
       }
 
+      const videoConstraints: MediaTrackConstraints =
+        this.scanMode === 'SCAN_BY_ZIMAGE'
+          ? {
+              facingMode: 'environment',
+              width: { ideal: 1920, min: 1280 },
+              height: { ideal: 1080, min: 720 },
+            }
+          : {
+              facingMode: 'environment',
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            };
+
       this.quagga.init(
         {
           inputStream: {
             type: 'LiveStream',
             target: this.scannerViewport.nativeElement,
-            constraints: {
-              facingMode: 'environment',
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-            },
+            constraints: videoConstraints,
             area: {
               top: '31%',
               right: '10%',
@@ -304,7 +340,97 @@ export class BoletoScanPage implements OnDestroy {
     }
 
     this.suppressDetections = true;
+    if (this.scanMode === 'SCAN_BY_ZIMAGE') {
+      await this.onCodeDetectedZImage(apiCode);
+      return;
+    }
     await this.onCodeDetected(apiCode);
+  }
+
+  /**
+   * Após leitura estável no modo servidor: captura frame JPEG, envia a `/reader/scan-codes` e prioriza `data.barcodes`.
+   */
+  private async onCodeDetectedZImage(backupNormalizedCode: string): Promise<void> {
+    this.scanState = 'success';
+    this.statusMessage = 'Capturando imagem nitida…';
+    const file = await this.captureVideoFrameAsJpegFile();
+    this.stopScanner();
+    await this.screenOrientation.lockPortrait();
+
+    const access = this.authSession.getAccessToken();
+    let barcode = backupNormalizedCode;
+
+    if (file && access) {
+      const loading = await this.loadingController.create({
+        message: 'Processando imagem no servidor…',
+        spinner: 'crescent',
+      });
+      await loading.present();
+      const result = await this.scanCodesService.scanCodes(access, file);
+      await loading.dismiss();
+
+      if (result?.success === true && result.data) {
+        const fromApi = this.firstBarcodeFromScanData(result.data);
+        if (fromApi) {
+          barcode = normalizarCodigoBarrasParaApi(fromApi);
+        } else {
+          await this.presentToast(
+            'Leitura do servidor sem código de barras; usando leitura da câmera.',
+            'warning',
+          );
+        }
+      } else {
+        await this.presentToast(
+          (result?.message ?? 'Não foi possível processar a imagem. Usando leitura da câmera.').trim(),
+          'warning',
+        );
+      }
+    } else if (!file) {
+      await this.presentToast('Não foi possível capturar a foto; usando leitura da câmera.', 'warning');
+    }
+
+    this.detectedCode = barcode;
+    this.statusMessage = 'Codigo de barras lido com sucesso.';
+    await this.router.navigate(['/boleto-payment-details'], {
+      state: { barcode, source: 'scan' },
+    });
+  }
+
+  private firstBarcodeFromScanData(data: ScanCodesData): string {
+    const list = data.barcodes;
+    if (!Array.isArray(list) || list.length === 0) {
+      return '';
+    }
+    const raw = list.find((b) => (b ?? '').trim().length > 0);
+    return (raw ?? '').trim();
+  }
+
+  private async captureVideoFrameAsJpegFile(): Promise<File | null> {
+    const video = this.scannerViewport?.nativeElement?.querySelector('video') as HTMLVideoElement | null;
+    if (!video || video.readyState < 2 || video.videoWidth === 0) {
+      return null;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return null;
+    }
+    ctx.drawImage(video, 0, 0);
+    return new Promise((resolve) => {
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(null);
+            return;
+          }
+          resolve(new File([blob], 'boleto-barcode.jpg', { type: 'image/jpeg' }));
+        },
+        'image/jpeg',
+        0.92,
+      );
+    });
   }
 
   private async onCodeDetected(normalizedCode: string): Promise<void> {
@@ -365,6 +491,16 @@ export class BoletoScanPage implements OnDestroy {
     } catch {
       // Sem suporte — continua com parâmetros padrão.
     }
+  }
+
+  private async presentToast(message: string, color: 'warning' | 'danger'): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2800,
+      position: 'bottom',
+      color,
+    });
+    await toast.present();
   }
 
 }
