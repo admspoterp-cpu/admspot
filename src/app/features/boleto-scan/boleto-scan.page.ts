@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 
 import { AppScreenOrientationService } from '../../services/app-screen-orientation.service';
+import { normalizarCodigoBarrasParaApi } from '../../shared/utils/boleto-barcode.util';
 
 type ScanState = 'idle' | 'scanning' | 'success' | 'error';
 type QuaggaDetectedResult = {
@@ -34,14 +35,22 @@ export class BoletoScanPage implements OnDestroy {
 
   private scriptLoadPromise?: Promise<void>;
   private quagga?: QuaggaGlobal;
+  /** Evita múltiplos `onDetected` antes do scanner parar. */
+  private suppressDetections = false;
+
   private readonly onDetectedHandler = (result: QuaggaDetectedResult): void => {
-    const raw = result.codeResult?.code ?? '';
-    const normalized = this.normalizeBoletoNumber(raw);
-    if (!this.isLikelyBoleto(normalized)) {
+    if (this.suppressDetections) {
       return;
     }
+    const raw = result.codeResult?.code ?? '';
+    const digitsOnly = this.normalizeBoletoNumber(raw);
+    if (!this.isLikelyBoleto(digitsOnly)) {
+      return;
+    }
+    const forApi = normalizarCodigoBarrasParaApi(digitsOnly);
 
-    void this.onCodeDetected(normalized);
+    this.suppressDetections = true;
+    void this.onCodeDetected(forApi);
   };
   private readonly navController = inject(NavController);
   private readonly router = inject(Router);
@@ -80,6 +89,7 @@ export class BoletoScanPage implements OnDestroy {
 
   private async startScanner(): Promise<void> {
     this.stopScanner();
+    this.suppressDetections = false;
     this.scanState = 'scanning';
     this.detectedCode = '';
     this.statusMessage = 'Aponte o codigo de barras do boleto para a area de leitura.';

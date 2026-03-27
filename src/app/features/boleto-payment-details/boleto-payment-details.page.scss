@@ -89,7 +89,45 @@ ion-content.boleto-details-content::part(scroll) {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+}
+
+.overdue-row {
+  margin-bottom: 16px;
+}
+
+.overdue-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b4513;
+  background: #fff3e0;
+  border: 1px solid #ffe0b2;
+}
+
+.boleto-loading {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.boleto-loading-spinner {
+  width: 40px;
+  height: 40px;
+  color: var(--brand-blue);
+  --color: var(--brand-blue);
+}
+
+.boleto-loading-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
 }
 
 .field-block {
@@ -100,6 +138,10 @@ ion-content.boleto-details-content::part(scroll) {
   padding: 0 0 10px;
   border-bottom: 1px solid var(--field-border);
   min-height: 48px;
+}
+
+.field-block-static {
+  pointer-events: none;
 }
 
 .field-label {
@@ -189,15 +231,6 @@ ion-content.boleto-details-content::part(scroll) {
   overflow-wrap: anywhere;
   word-break: break-word;
   hyphens: none;
-}
-
-.datetime-modal-content {
-  --background: #ffffff;
-}
-
-.datetime-modal-content ion-datetime {
-  width: 100%;
-  max-width: 100%;
 }
 
 .beneficiary-block {
