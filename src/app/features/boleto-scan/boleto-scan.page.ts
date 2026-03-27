@@ -42,7 +42,6 @@ export class BoletoScanPage implements OnDestroy {
   private bestCandidateScore = -1;
   private stableReads = 0;
   private lastStableApiCode = '';
-  private firstCandidateAtMs = 0;
 
   private readonly onDetectedHandler = (result: QuaggaDetectedResult): void => {
     if (this.suppressDetections) {
@@ -59,9 +58,6 @@ export class BoletoScanPage implements OnDestroy {
     if (score > this.bestCandidateScore) {
       this.bestCandidateScore = score;
       this.bestCandidateDigits = candidate;
-    }
-    if (this.firstCandidateAtMs === 0) {
-      this.firstCandidateAtMs = Date.now();
     }
 
     if (apiCode.length === 44) {
@@ -119,7 +115,6 @@ export class BoletoScanPage implements OnDestroy {
     this.bestCandidateScore = -1;
     this.stableReads = 0;
     this.lastStableApiCode = '';
-    this.firstCandidateAtMs = 0;
     this.scanState = 'scanning';
     this.detectedCode = '';
     this.statusMessage = 'Aponte o codigo de barras do boleto para a area de leitura.';
@@ -144,14 +139,14 @@ export class BoletoScanPage implements OnDestroy {
             target: this.scannerViewport.nativeElement,
             constraints: {
               facingMode: 'environment',
-              width: { ideal: 2560 },
-              height: { ideal: 1440 },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
             },
             area: {
-              top: '30%',
+              top: '34%',
               right: '12%',
               left: '12%',
-              bottom: '30%',
+              bottom: '34%',
             },
           },
           decoder: {
@@ -159,7 +154,7 @@ export class BoletoScanPage implements OnDestroy {
           },
           locator: {
             patchSize: 'medium',
-            halfSample: false,
+            halfSample: true,
           },
           locate: true,
           numOfWorkers: navigator.hardwareConcurrency ? Math.min(4, navigator.hardwareConcurrency) : 2,
@@ -178,7 +173,6 @@ export class BoletoScanPage implements OnDestroy {
           this.quagga?.offDetected(this.onDetectedHandler);
           this.quagga?.onDetected(this.onDetectedHandler);
           this.quagga?.start();
-          void this.tryImproveCameraFocus();
         }
       );
     } catch {
@@ -273,12 +267,11 @@ export class BoletoScanPage implements OnDestroy {
 
   private scheduleFinalizeDetection(): void {
     if (this.settleTimer != null) {
-      return;
+      clearTimeout(this.settleTimer);
     }
     this.settleTimer = setTimeout(() => {
-      this.settleTimer = null;
       void this.finalizeBestDetection();
-    }, 280);
+    }, 420);
   }
 
   private async finalizeBestDetection(): Promise<void> {
@@ -290,14 +283,8 @@ export class BoletoScanPage implements OnDestroy {
       return;
     }
     const apiCode = normalizarCodigoBarrasParaApi(best);
-    const elapsed = this.firstCandidateAtMs > 0 ? Date.now() - this.firstCandidateAtMs : 0;
-    const hasStable44 = apiCode.length === 44 && this.stableReads >= 2;
-    const hasTimed44 = apiCode.length === 44 && elapsed >= 1200;
-    if (!hasStable44 && !hasTimed44) {
-      if (elapsed >= 900) {
-        this.statusMessage = 'Aproxime mais o boleto para capturar todos os dígitos.';
-      }
-      this.scheduleFinalizeDetection();
+    if (apiCode.length !== 44 || this.stableReads < 2) {
+      this.statusMessage = 'Aproxime mais o boleto para capturar todos os dígitos.';
       return;
     }
 
@@ -328,40 +315,6 @@ export class BoletoScanPage implements OnDestroy {
       } catch {
         // Ignore stop errors when scanner was not fully initialized.
       }
-    }
-  }
-
-  /**
-   * Tenta melhorar foco/zoom no navegador (quando suportado pela câmera).
-   * Em muitos devices isso é ignorado, então o fluxo continua normalmente.
-   */
-  private async tryImproveCameraFocus(): Promise<void> {
-    const video = this.scannerViewport?.nativeElement?.querySelector('video');
-    const stream = video?.srcObject as MediaStream | null;
-    const track = stream?.getVideoTracks?.()[0];
-    if (!track) {
-      return;
-    }
-
-    try {
-      const caps = (track.getCapabilities?.() ?? {}) as Record<string, unknown>;
-      const advanced: Record<string, unknown> = {};
-
-      if (Array.isArray(caps['focusMode']) && caps['focusMode'].includes('continuous')) {
-        advanced['focusMode'] = 'continuous';
-      }
-      if (typeof caps['zoom'] === 'object' && caps['zoom'] != null) {
-        const z = caps['zoom'] as { min?: number; max?: number };
-        if (typeof z.min === 'number' && typeof z.max === 'number') {
-          advanced['zoom'] = (z.min + z.max) / 2;
-        }
-      }
-      if (Object.keys(advanced).length === 0) {
-        return;
-      }
-      await track.applyConstraints({ advanced: [advanced] });
-    } catch {
-      // Browser/câmera sem suporte a controles avançados.
     }
   }
 
