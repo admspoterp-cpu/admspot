@@ -42,6 +42,7 @@ export class BoletoScanPage implements OnDestroy {
   private bestCandidateScore = -1;
   private stableReads = 0;
   private lastStableApiCode = '';
+  private firstCandidateAtMs = 0;
 
   private readonly onDetectedHandler = (result: QuaggaDetectedResult): void => {
     if (this.suppressDetections) {
@@ -58,6 +59,9 @@ export class BoletoScanPage implements OnDestroy {
     if (score > this.bestCandidateScore) {
       this.bestCandidateScore = score;
       this.bestCandidateDigits = candidate;
+    }
+    if (this.firstCandidateAtMs === 0) {
+      this.firstCandidateAtMs = Date.now();
     }
 
     if (apiCode.length === 44) {
@@ -115,6 +119,7 @@ export class BoletoScanPage implements OnDestroy {
     this.bestCandidateScore = -1;
     this.stableReads = 0;
     this.lastStableApiCode = '';
+    this.firstCandidateAtMs = 0;
     this.scanState = 'scanning';
     this.detectedCode = '';
     this.statusMessage = 'Aponte o codigo de barras do boleto para a area de leitura.';
@@ -139,18 +144,19 @@ export class BoletoScanPage implements OnDestroy {
             target: this.scannerViewport.nativeElement,
             constraints: {
               facingMode: 'environment',
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
             },
             area: {
-              top: '34%',
-              right: '12%',
-              left: '12%',
-              bottom: '34%',
+              top: '31%',
+              right: '10%',
+              left: '10%',
+              bottom: '31%',
             },
           },
           decoder: {
-            readers: ['i2of5_reader', '2of5_reader', 'code_128_reader', 'code_39_reader'],
+            // Reduz symbologies para diminuir ruído e falso-positivo.
+            readers: ['i2of5_reader', '2of5_reader', 'code_128_reader'],
           },
           locator: {
             patchSize: 'medium',
@@ -173,6 +179,7 @@ export class BoletoScanPage implements OnDestroy {
           this.quagga?.offDetected(this.onDetectedHandler);
           this.quagga?.onDetected(this.onDetectedHandler);
           this.quagga?.start();
+          void this.tryImproveCameraFocus();
         }
       );
     } catch {
@@ -266,12 +273,14 @@ export class BoletoScanPage implements OnDestroy {
   }
 
   private scheduleFinalizeDetection(): void {
+    // Não reinicia a janela o tempo todo para evitar loop infinito sem decisão.
     if (this.settleTimer != null) {
-      clearTimeout(this.settleTimer);
+      return;
     }
     this.settleTimer = setTimeout(() => {
+      this.settleTimer = null;
       void this.finalizeBestDetection();
-    }, 420);
+    }, 260);
   }
 
   private async finalizeBestDetection(): Promise<void> {
@@ -283,8 +292,14 @@ export class BoletoScanPage implements OnDestroy {
       return;
     }
     const apiCode = normalizarCodigoBarrasParaApi(best);
-    if (apiCode.length !== 44 || this.stableReads < 2) {
-      this.statusMessage = 'Aproxime mais o boleto para capturar todos os dígitos.';
+    const elapsed = this.firstCandidateAtMs > 0 ? Date.now() - this.firstCandidateAtMs : 0;
+    const isStable44 = apiCode.length === 44 && this.stableReads >= 2;
+    const isTimed44 = apiCode.length === 44 && elapsed >= 1000;
+    if (!isStable44 && !isTimed44) {
+      if (elapsed >= 900) {
+        this.statusMessage = 'Aproxime mais o boleto para capturar todos os dígitos.';
+      }
+      this.scheduleFinalizeDetection();
       return;
     }
 
@@ -315,6 +330,40 @@ export class BoletoScanPage implements OnDestroy {
       } catch {
         // Ignore stop errors when scanner was not fully initialized.
       }
+    }
+  }
+
+  /**
+   * Tenta foco contínuo e zoom moderado sem forçar desfoque.
+   * Só aplica quando o device/browser suporta os controles.
+   */
+  private async tryImproveCameraFocus(): Promise<void> {
+    const video = this.scannerViewport?.nativeElement?.querySelector('video');
+    const stream = video?.srcObject as MediaStream | null;
+    const track = stream?.getVideoTracks?.()[0];
+    if (!track) {
+      return;
+    }
+    try {
+      const caps = (track.getCapabilities?.() ?? {}) as Record<string, unknown>;
+      const advanced: Record<string, unknown> = {};
+
+      if (Array.isArray(caps['focusMode']) && caps['focusMode'].includes('continuous')) {
+        advanced['focusMode'] = 'continuous';
+      }
+      if (typeof caps['zoom'] === 'object' && caps['zoom'] != null) {
+        const z = caps['zoom'] as { min?: number; max?: number };
+        if (typeof z.min === 'number' && typeof z.max === 'number') {
+          // Zoom leve para não perder foco na lente wide.
+          const zoom = Math.min(z.max, Math.max(z.min, z.min + (z.max - z.min) * 0.22));
+          advanced['zoom'] = zoom;
+        }
+      }
+      if (Object.keys(advanced).length > 0) {
+        await track.applyConstraints({ advanced: [advanced] });
+      }
+    } catch {
+      // Sem suporte — continua com parâmetros padrão.
     }
   }
 
