@@ -1,11 +1,20 @@
 import { Injectable } from '@angular/core';
 
+import {
+  isWalletMarkedDefault,
+  type AuthMeResponse,
+  type AuthMeUserPayload,
+  type WalletItemPayload,
+} from './auth-me.model';
+
 export type AuthUser = {
   id: number;
   email: string;
   first_name: string;
   last_name: string;
   level: number;
+  /** Preenchido após `GET /auth/me`. */
+  document?: string;
 };
 
 type StoredSession = {
@@ -13,6 +22,7 @@ type StoredSession = {
   user: AuthUser;
   /** Expiração absoluta do token (ms desde epoch), alinhada a `expires_in` ou ao `exp` do JWT. */
   expires_at_ms?: number;
+  default_wallet?: WalletItemPayload;
 };
 
 /** Extrai `exp` (segundos) do payload do JWT, se existir. */
@@ -37,6 +47,9 @@ export class AuthSessionService {
   private readonly accessTokenKey = 'admspot_auth_access_token';
   private readonly userKey = 'admspot_auth_user';
   private readonly tokenExpiresAtKey = 'admspot_auth_token_expires_at_ms';
+  private readonly defaultWalletKey = 'admspot_default_wallet';
+  /** Primeira carteira quando nenhuma tem `is_default` como padrão (tela “criar conta digital”). */
+  private readonly pendingFirstWalletKey = 'admspot_wallet_pending_first';
 
   /**
    * Persiste `access_token`, objeto `user` e a validade do token.
@@ -83,11 +96,85 @@ export class AuthSessionService {
     }
   }
 
+  /** Atualiza só o perfil (ex.: após `/auth/me`), sem alterar token nem expiração. */
+  updateUserProfile(user: AuthUser): void {
+    try {
+      localStorage.setItem(this.userKey, JSON.stringify(user));
+    } catch {
+      // ignore
+    }
+  }
+
+  private meUserToAuthUser(u: AuthMeUserPayload): AuthUser {
+    return {
+      id: u.id,
+      email: u.email,
+      first_name: u.first_name,
+      last_name: u.last_name,
+      level: u.level,
+      ...(u.document !== undefined && u.document !== null && String(u.document).length > 0
+        ? { document: String(u.document) }
+        : {}),
+    };
+  }
+
+  /**
+   * Persiste utilizador e carteiras conforme `/auth/me`.
+   * `true` = existe item com `is_default` truthy (1 ou true no DB).
+   */
+  applyAuthMeResponse(data: AuthMeResponse): { hasDefaultWallet: boolean } {
+    const user = this.meUserToAuthUser(data.user);
+    this.updateUserProfile(user);
+
+    const items = data.wallets?.items ?? [];
+    const defaultItem = items.find((w) => isWalletMarkedDefault(w.is_default)) ?? null;
+
+    try {
+      if (defaultItem) {
+        localStorage.setItem(this.defaultWalletKey, JSON.stringify(defaultItem));
+        localStorage.removeItem(this.pendingFirstWalletKey);
+        return { hasDefaultWallet: true };
+      }
+      localStorage.removeItem(this.defaultWalletKey);
+      if (items.length > 0) {
+        localStorage.setItem(this.pendingFirstWalletKey, JSON.stringify(items[0]));
+      } else {
+        localStorage.removeItem(this.pendingFirstWalletKey);
+      }
+    } catch {
+      // ignore
+    }
+    return { hasDefaultWallet: false };
+  }
+
+  getDefaultWallet(): WalletItemPayload | null {
+    try {
+      const raw = localStorage.getItem(this.defaultWalletKey);
+      if (!raw) return null;
+      return JSON.parse(raw) as WalletItemPayload;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Primeira carteira da lista quando não há padrão (para UI “criar conta digital”). */
+  getPendingFirstWallet(): WalletItemPayload | null {
+    try {
+      const raw = localStorage.getItem(this.pendingFirstWalletKey);
+      if (!raw) return null;
+      return JSON.parse(raw) as WalletItemPayload;
+    } catch {
+      return null;
+    }
+  }
+
   clear(): void {
     try {
       localStorage.removeItem(this.accessTokenKey);
       localStorage.removeItem(this.userKey);
       localStorage.removeItem(this.tokenExpiresAtKey);
+      localStorage.removeItem(this.defaultWalletKey);
+      localStorage.removeItem(this.pendingFirstWalletKey);
     } catch {
       // ignore
     }
@@ -129,7 +216,8 @@ export class AuthSessionService {
     const user = this.getUser();
     if (!access_token || !user) return null;
     const expires_at_ms = this.getTokenExpiresAtMs() ?? undefined;
-    return { access_token, user, expires_at_ms };
+    const default_wallet = this.getDefaultWallet() ?? undefined;
+    return { access_token, user, expires_at_ms, default_wallet };
   }
 }
 

@@ -1,0 +1,47 @@
+<ion-content [fullscreen]="true" class="wds-content">
+  <div class="wds-screen">
+    <button type="button" class="wds-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </button>
+
+    <header class="wds-header">
+      <h1>Conta digital</h1>
+      <p class="wds-lead">
+        Nenhuma carteira está definida como padrão. Confira os dados da sua primeira carteira ou crie uma conta
+        digital.
+      </p>
+    </header>
+
+    <section class="wds-card" *ngIf="wallet">
+      <h2 class="wds-card-title">{{ wallet.wallet }}</h2>
+      <p class="wds-fantasia" *ngIf="wallet.nome_fantasia">{{ wallet.nome_fantasia }}</p>
+
+      <dl class="wds-dl">
+        <div class="wds-row" *ngIf="wallet.email">
+          <dt>E-mail</dt>
+          <dd>{{ wallet.email }}</dd>
+        </div>
+        <div class="wds-row" *ngIf="wallet.contact">
+          <dt>Contato</dt>
+          <dd>{{ wallet.contact }}</dd>
+        </div>
+        <div class="wds-row">
+          <dt>Conta digital ativa</dt>
+          <dd>{{ wallet.conta_digital_asaas_ativa ? 'Sim' : 'Não' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="wds-empty" *ngIf="!wallet">
+      <p>Nenhuma carteira foi encontrada na sua conta.</p>
+    </section>
+
+    <ion-button expand="block" class="wds-cta" (click)="openCreateDigitalAccount()">
+      Criar conta digital
+    </ion-button>
+
+    <ion-button expand="block" fill="clear" class="wds-secondary" (click)="checkAgain()">
+      Verificar novamente
+    </ion-button>
+  </div>
+</ion-content>

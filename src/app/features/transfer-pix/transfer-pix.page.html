@@ -26,7 +26,7 @@
           <p class="tp-balance-label">Saldo disponível</p>
           <div class="tp-balance-row">
             <span class="tp-currency">{{ amountReais }}</span>
-            <span class="tp-amount">{{ amountValue }}</span>
+            <span class="tp-amount">{{ balanceLoading ? '…' : amountValue }}</span>
           </div>
           <p class="tp-account-name">{{ accountName }}</p>
         </div>
@@ -57,7 +57,9 @@
         </div>
       </button>
 
-      <button type="button" class="tp-continue tap-highlight-none" (click)="onContinue()">Continuar</button>
+      <button type="button" class="tp-continue tap-highlight-none" [disabled]="continuing" (click)="onContinue()">
+        {{ continuing ? 'Validando...' : 'Continuar' }}
+      </button>
     </main>
   </div>
 </ion-content>

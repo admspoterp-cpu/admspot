@@ -1,0 +1,31 @@
+:host {
+  --brand-text: #3a3c4c;
+  --brand-subtext: #7d7c93;
+}
+
+ion-content.sb-content {
+  --background: #ffffff;
+}
+
+.sb-wrap {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  gap: 16px;
+}
+
+.sb-spinner {
+  --color: #235697;
+  width: 40px;
+  height: 40px;
+}
+
+.sb-text {
+  margin: 0;
+  font-size: 15px;
+  color: var(--brand-subtext);
+  text-align: center;
+}

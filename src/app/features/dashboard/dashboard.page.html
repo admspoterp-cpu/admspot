@@ -46,9 +46,11 @@
         <p class="balance-label">Saldo total</p>
         <div class="balance-row">
           <span class="currency-symbol">R$</span>
-          <span class="balance-value">{{ balanceHidden ? '*******' : '20.000,00' }}</span>
+          <span class="balance-value">{{
+            balanceHidden ? '*******' : (balanceLoading ? '…' : balanceAmountFormatted)
+          }}</span>
         </div>
-        <p class="balance-updated">Última atualização 2 minutos atrás.</p>
+        <p class="balance-updated">{{ balanceUpdatedText }}</p>
         <button type="button" class="balance-more tap-highlight-none">
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319598-8f3df41d-f60a-447f-9812-dce44f41bdef.svg"

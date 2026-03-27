@@ -174,12 +174,15 @@ ion-content.pay-transfer-pix-content::part(scroll) {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  background: #1f5fa8;
 }
 
-.pt-beneficiary-avatar img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+.pt-bank-short {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
 }
 
 .pt-beneficiary-text {
@@ -351,4 +354,104 @@ ion-content.pay-transfer-pix-content::part(scroll) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.pt-pay-btn:disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* Bottom sheet — senha de transferência */
+.transfer-pwd-sheet {
+  --border-radius: 20px 20px 0 0;
+  --backdrop-opacity: 0.45;
+}
+
+.transfer-pwd-sheet::part(content) {
+  border-radius: 20px 20px 0 0;
+}
+
+.pwd-sheet {
+  position: relative;
+  padding: calc(8px + env(safe-area-inset-top)) 24px calc(28px + env(safe-area-inset-bottom));
+  background: #fff;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.pwd-sheet-back {
+  border: 0;
+  background: transparent;
+  padding: 8px 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.pwd-sheet-back img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.pwd-sheet-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--pt-text);
+  letter-spacing: -0.02em;
+}
+
+.pwd-sheet-sub {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--pt-muted);
+}
+
+.pwd-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 40px 0 24px;
+}
+
+.pwd-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e2e4e8;
+  transition: background 0.15s ease;
+}
+
+.pwd-dot--filled {
+  background: #313131;
+}
+
+.pwd-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+}
+
+.pwd-sheet-confirm {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(270deg, var(--pt-blue) 0%, var(--pt-blue-dark) 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
 }

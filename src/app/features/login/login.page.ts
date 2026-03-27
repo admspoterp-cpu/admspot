@@ -35,7 +35,7 @@ export class LoginPage {
   }
 
   /**
-   * Após login: consulta `/biometric-rule`; se `is_active === "NO"`, vai ao dashboard sem biometria.
+   * Após login: consulta `/biometric-rule`; se `is_active === "NO"`, segue para `/session-bootstrap` sem biometria.
    * Caso contrário (ou se a API falhar), mantém o fluxo com biometria nativa.
    */
   async onAccess(): Promise<void> {
@@ -48,7 +48,7 @@ export class LoginPage {
         session.access_token,
       );
       if (skipBiometric) {
-        await this.navController.navigateRoot('/dashboard');
+        await this.navController.navigateRoot('/session-bootstrap');
         return;
       }
     } catch (e: unknown) {
@@ -67,7 +67,7 @@ export class LoginPage {
 
     switch (outcome.kind) {
       case 'success':
-        await this.navController.navigateRoot('/dashboard');
+        await this.navController.navigateRoot('/session-bootstrap');
         return;
 
       case 'not_native': {

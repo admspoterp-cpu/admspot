@@ -6,7 +6,9 @@ import {
   ViewWillEnter,
 } from '@ionic/angular';
 
+import { BalanceService } from '../../services/balance.service';
 import { AuthSessionService } from '../../services/auth-session.service';
+import { formatBrlNumber, normalizeMoneyValue } from '../../utils/brl-format';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,6 +21,11 @@ export class DashboardPage implements ViewWillEnter {
   @ViewChild('documentFileInput') documentFileInput?: ElementRef<HTMLInputElement>;
 
   balanceHidden = false;
+  /** Valor formatado pt-BR (sem "R$"); mock substituído pela API `/balance`. */
+  balanceAmountFormatted = '—';
+  balanceLoading = false;
+  /** Texto da linha "Última atualização…". */
+  balanceUpdatedText = '';
   activeTab: 'Home' | 'Send' | 'Pagar' | 'Cards' | 'More' = 'Home';
   paymentSheetOpen = false;
   transferSheetOpen = false;
@@ -48,12 +55,60 @@ export class DashboardPage implements ViewWillEnter {
   private readonly actionSheetController = inject(ActionSheetController);
   private readonly toastController = inject(ToastController);
   private readonly authSession = inject(AuthSessionService);
+  private readonly balanceService = inject(BalanceService);
 
   ionViewWillEnter(): void {
     if (this.authSession.isTokenExpired()) {
       this.authSession.clear();
       void this.navController.navigateRoot('/login');
+      return;
     }
+    void this.loadBalanceFromApi();
+  }
+
+  private async loadBalanceFromApi(): Promise<void> {
+    const access = this.authSession.getAccessToken();
+    if (!access) {
+      return;
+    }
+
+    const wallet = this.authSession.getDefaultWallet();
+    const sourceToken = wallet?.asaas_api_token?.trim();
+    if (!sourceToken) {
+      this.balanceAmountFormatted = '—';
+      this.balanceUpdatedText = 'Saldo indisponível: configure a carteira padrão com conta digital.';
+      return;
+    }
+
+    this.balanceLoading = true;
+    this.balanceUpdatedText = 'Atualizando saldo…';
+
+    const data = await this.balanceService.fetchBalance(access, sourceToken);
+    this.balanceLoading = false;
+
+    if (!data || data.success !== true) {
+      this.balanceAmountFormatted = '—';
+      this.balanceUpdatedText = 'Não foi possível carregar o saldo.';
+      return;
+    }
+
+    const raw =
+      data.balance !== undefined && data.balance !== null
+        ? data.balance
+        : data.asaas?.balance;
+    if (raw === undefined || raw === null) {
+      this.balanceAmountFormatted = '—';
+      this.balanceUpdatedText = 'Saldo não informado pela API.';
+      return;
+    }
+
+    const amount = normalizeMoneyValue(raw);
+    this.balanceAmountFormatted = formatBrlNumber(amount);
+    const now = new Date();
+    this.balanceUpdatedText = `Atualizado às ${now.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })}`;
   }
 
   /** Nome gravado no login junto com o token (`first_name` + `last_name`). */

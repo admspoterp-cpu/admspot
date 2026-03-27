@@ -240,3 +240,8 @@ ion-content.transfer-pix-content::part(scroll) {
   align-items: center;
   justify-content: center;
 }
+
+.tp-continue:disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}

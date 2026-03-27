@@ -26,7 +26,7 @@
           <p class="pt-balance-label">Saldo disponível</p>
           <div class="pt-balance-row">
             <span class="pt-currency">{{ amountReais }}</span>
-            <span class="pt-amount">{{ balanceValue }}</span>
+            <span class="pt-amount">{{ balanceLoading ? '…' : balanceValue }}</span>
           </div>
           <p class="pt-account-name">{{ accountName }}</p>
         </div>
@@ -34,10 +34,7 @@
 
       <section class="pt-beneficiary" aria-label="Destinatário">
         <div class="pt-beneficiary-avatar">
-          <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319675-f03823ad-b746-42ea-b2f4-1aa844866cd9.svg"
-            alt=""
-          />
+          <span class="pt-bank-short">{{ bankShortName }}</span>
         </div>
         <div class="pt-beneficiary-text">
           <p class="pt-beneficiary-name">{{ beneficiaryName }}</p>
@@ -87,13 +84,69 @@
             <span class="pt-fee-cents">{{ feeValue }}</span>
           </div>
         </div>
-        <p class="pt-fee-disclaimer">
-          Você possui 30 transferências gratuitas por mês, após esse limite<br />
-          será descontado R$0,40 por transferência.
-        </p>
+        <p class="pt-fee-disclaimer">{{ transferInfoText }}</p>
       </section>
 
-      <button type="button" class="pt-pay-btn tap-highlight-none" (click)="onPay()">Pagar</button>
+      <button
+        type="button"
+        class="pt-pay-btn tap-highlight-none"
+        [disabled]="payButtonDisabled"
+        (click)="onPay()"
+      >
+        Pagar
+      </button>
     </main>
   </div>
 </ion-content>
+
+<ion-modal
+  class="transfer-pwd-sheet"
+  [isOpen]="transferPasswordSheetOpen"
+  [initialBreakpoint]="0.48"
+  [breakpoints]="[0, 0.48, 0.6]"
+  handle="true"
+  [backdropDismiss]="true"
+  (didDismiss)="onTransferPasswordSheetDismiss()"
+  (didPresent)="onTransferPasswordModalPresent()"
+>
+  <ng-template>
+    <div class="pwd-sheet">
+      <button
+        type="button"
+        class="pwd-sheet-back tap-highlight-none"
+        (click)="closeTransferPasswordSheet()"
+        aria-label="Voltar"
+      >
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-dfe7531e-80eb-4668-aa39-5254c3aa8401.svg"
+          alt=""
+        />
+      </button>
+      <h2 class="pwd-sheet-title">Digite sua senha de transferência</h2>
+      <p class="pwd-sheet-sub">
+        Use a senha de 4 dígitos configurada para transferências na sua conta.
+      </p>
+      <div class="pwd-dots" (click)="transferPwdInput.focus()">
+        <span
+          *ngFor="let i of transferPwdDots"
+          class="pwd-dot"
+          [class.pwd-dot--filled]="i < transferPassword.length"
+        ></span>
+      </div>
+      <input
+        #transferPwdInput
+        class="pwd-hidden-input"
+        type="password"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="4"
+        [ngModel]="transferPassword"
+        (ngModelChange)="onTransferPasswordInput($event)"
+        aria-label="Senha de transferência de 4 dígitos"
+      />
+      <button type="button" class="pwd-sheet-confirm tap-highlight-none" (click)="confirmTransferPasswordTap()">
+        Confirmar
+      </button>
+    </div>
+  </ng-template>
+</ion-modal>

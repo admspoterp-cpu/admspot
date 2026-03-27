@@ -16,6 +16,20 @@ const routes: Routes = [
     loadChildren: () => import('./features/login/login.module').then( m => m.LoginPageModule)
   },
   {
+    path: 'session-bootstrap',
+    loadChildren: () =>
+      import('./features/session-bootstrap/session-bootstrap.module').then(
+        (m) => m.SessionBootstrapPageModule
+      ),
+  },
+  {
+    path: 'wallet-digital-setup',
+    loadChildren: () =>
+      import('./features/wallet-digital-setup/wallet-digital-setup.module').then(
+        (m) => m.WalletDigitalSetupPageModule
+      ),
+  },
+  {
     path: 'dashboard',
     loadChildren: () => import('./features/dashboard/dashboard.module').then( m => m.DashboardPageModule)
   },
