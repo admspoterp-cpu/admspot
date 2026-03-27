@@ -377,6 +377,30 @@ ion-content.pay-transfer-pix-content::part(scroll) {
   background: #fff;
   min-height: 100%;
   box-sizing: border-box;
+  transition: box-shadow 0.2s ease;
+}
+
+.pwd-sheet--shake {
+  animation: pwd-sheet-shake 0.45s ease;
+}
+
+.pwd-sheet--busy .pwd-dots {
+  opacity: 0.75;
+}
+
+@keyframes pwd-sheet-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  18%,
+  54% {
+    transform: translateX(-10px);
+  }
+  36%,
+  72% {
+    transform: translateX(10px);
+  }
 }
 
 .pwd-sheet-back {
@@ -454,4 +478,19 @@ ion-content.pay-transfer-pix-content::part(scroll) {
   color: #fff;
   font-size: 15px;
   font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pwd-sheet-confirm:disabled {
+  opacity: 0.85;
+}
+
+.pwd-sheet-spinner {
+  width: 22px;
+  height: 22px;
+  color: #fff;
+  --color: #fff;
 }

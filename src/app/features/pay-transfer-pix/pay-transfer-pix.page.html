@@ -100,6 +100,7 @@
 </ion-content>
 
 <ion-modal
+  #transferPwdModal
   class="transfer-pwd-sheet"
   [isOpen]="transferPasswordSheetOpen"
   [initialBreakpoint]="0.48"
@@ -110,7 +111,11 @@
   (didPresent)="onTransferPasswordModalPresent()"
 >
   <ng-template>
-    <div class="pwd-sheet">
+    <div
+      class="pwd-sheet"
+      [class.pwd-sheet--shake]="pwdSheetShake"
+      [class.pwd-sheet--busy]="transferPasswordVerifying"
+    >
       <button
         type="button"
         class="pwd-sheet-back tap-highlight-none"
@@ -126,7 +131,7 @@
       <p class="pwd-sheet-sub">
         Use a senha de 4 dígitos configurada para transferências na sua conta.
       </p>
-      <div class="pwd-dots" (click)="transferPwdInput.focus()">
+      <div class="pwd-dots" (click)="transferPwdInput?.focus()">
         <span
           *ngFor="let i of transferPwdDots"
           class="pwd-dot"
@@ -142,10 +147,17 @@
         maxlength="4"
         [ngModel]="transferPassword"
         (ngModelChange)="onTransferPasswordInput($event)"
+        [readonly]="transferPasswordVerifying"
         aria-label="Senha de transferência de 4 dígitos"
       />
-      <button type="button" class="pwd-sheet-confirm tap-highlight-none" (click)="confirmTransferPasswordTap()">
-        Confirmar
+      <button
+        type="button"
+        class="pwd-sheet-confirm tap-highlight-none"
+        [disabled]="transferPasswordVerifying"
+        (click)="confirmTransferPasswordTap()"
+      >
+        <ion-spinner *ngIf="transferPasswordVerifying" class="pwd-sheet-spinner" name="crescent"></ion-spinner>
+        <span>{{ transferPasswordVerifying ? 'Validando…' : 'Confirmar' }}</span>
       </button>
     </div>
   </ng-template>

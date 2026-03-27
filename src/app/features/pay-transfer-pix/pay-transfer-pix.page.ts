@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
-import { NavController, ToastController } from '@ionic/angular';
+import { IonModal, NavController, ToastController } from '@ionic/angular';
 
 import { BRL_ZERO_DISPLAY, brlStringToCents } from '../../shared/utils/brl-currency.util';
 import { AuthSessionService } from '../../services/auth-session.service';
@@ -7,6 +7,7 @@ import { BalanceService } from '../../services/balance.service';
 import { BiometricAuthService } from '../../services/biometric-auth.service';
 import { BiometricRuleService } from '../../services/biometric-rule.service';
 import type { DictValidationData } from '../../services/dict.service';
+import { TransferPassVerifyService } from '../../services/transfer-pass-verify.service';
 import { formatBrlNumber, normalizeMoneyValue } from '../../utils/brl-format';
 import type { ComprovantePaymentNavState } from '../comprovante-payment/comprovante-payment.page';
 
@@ -25,6 +26,7 @@ export interface PayTransferPixNavState {
 })
 export class PayTransferPixPage implements OnInit {
   @ViewChild('transferPwdInput') transferPwdInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('transferPwdModal') transferPwdModal?: IonModal;
 
   private readonly navController = inject(NavController);
   private readonly toastController = inject(ToastController);
@@ -32,6 +34,7 @@ export class PayTransferPixPage implements OnInit {
   private readonly balanceService = inject(BalanceService);
   private readonly biometricRule = inject(BiometricRuleService);
   private readonly biometricAuth = inject(BiometricAuthService);
+  private readonly transferPassVerify = inject(TransferPassVerifyService);
 
   /** Da etapa anterior (chave informada) */
   pixKey = '';
@@ -60,6 +63,12 @@ export class PayTransferPixPage implements OnInit {
   transferPassword = '';
   private transferPasswordResolve: ((ok: boolean) => void) | null = null;
   private transferPasswordSheetHandled = false;
+
+  /** Enquanto a API `/transfer-pass/verify` está em curso. */
+  transferPasswordVerifying = false;
+
+  /** Animação de erro (código incorreto). */
+  pwdSheetShake = false;
 
   /** Índices 0–3 para os indicadores da senha. */
   readonly transferPwdDots = [0, 1, 2, 3];
@@ -232,6 +241,8 @@ export class PayTransferPixPage implements OnInit {
   }
 
   onTransferPasswordSheetDismiss(): void {
+    this.transferPasswordSheetOpen = false;
+    this.transferPasswordVerifying = false;
     if (this.transferPasswordSheetHandled) {
       return;
     }
@@ -242,14 +253,16 @@ export class PayTransferPixPage implements OnInit {
 
   onTransferPasswordModalPresent(): void {
     this.transferPassword = '';
+    this.transferPasswordVerifying = false;
+    this.pwdSheetShake = false;
     setTimeout(() => this.transferPwdInput?.nativeElement?.focus(), 100);
   }
 
   onTransferPasswordInput(raw: string): void {
     const digits = String(raw ?? '').replace(/\D/g, '').slice(0, 4);
     this.transferPassword = digits;
-    if (digits.length === 4) {
-      void this.finishTransferPasswordSheet(true);
+    if (digits.length === 4 && !this.transferPasswordVerifying) {
+      void this.verifyTransferPassword();
     }
   }
 
@@ -257,20 +270,103 @@ export class PayTransferPixPage implements OnInit {
     void this.finishTransferPasswordSheet(false);
   }
 
-  confirmTransferPasswordTap(): void {
+  async confirmTransferPasswordTap(): Promise<void> {
     const digits = this.transferPassword.replace(/\D/g, '');
     if (digits.length !== 4) {
-      void this.toastController
-        .create({
-          message: 'Informe a senha de transferência com 4 dígitos.',
-          duration: 2200,
-          position: 'bottom',
-          color: 'warning',
-        })
-        .then((t) => t.present());
+      const toast = await this.toastController.create({
+        message: 'Informe a senha de transferência com 4 dígitos.',
+        duration: 2200,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
       return;
     }
-    void this.finishTransferPasswordSheet(true);
+    await this.verifyTransferPassword();
+  }
+
+  private triggerPwdSheetShake(): void {
+    this.pwdSheetShake = true;
+    setTimeout(() => {
+      this.pwdSheetShake = false;
+    }, 480);
+  }
+
+  private async verifyTransferPassword(): Promise<void> {
+    if (this.transferPasswordVerifying || this.transferPasswordSheetHandled) {
+      return;
+    }
+    const digits = this.transferPassword.replace(/\D/g, '');
+    if (digits.length !== 4) {
+      return;
+    }
+
+    const access = this.authSession.getAccessToken();
+    const wallet = this.authSession.getDefaultWallet();
+    const walletToken =
+      wallet?.wallet_token_account?.trim() || wallet?.asaas_api_token?.trim() || '';
+    if (!access || !walletToken) {
+      const toast = await this.toastController.create({
+        message: !access
+          ? 'Sessão expirada. Faça login novamente.'
+          : 'Carteira não encontrada. Verifique sua conta.',
+        duration: 2600,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
+
+    this.transferPasswordVerifying = true;
+    try {
+      const res = await this.transferPassVerify.verify(access, walletToken, digits);
+      if (this.transferPasswordSheetHandled) {
+        return;
+      }
+
+      if (!res) {
+        const toast = await this.toastController.create({
+          message: 'Não foi possível validar a senha. Verifique sua conexão e tente novamente.',
+          duration: 2800,
+          position: 'bottom',
+          color: 'danger',
+        });
+        await toast.present();
+        return;
+      }
+
+      if (res.match === true) {
+        await this.finishTransferPasswordSheet(true);
+        return;
+      }
+
+      if (res.match === false) {
+        this.triggerPwdSheetShake();
+        this.transferPassword = '';
+        setTimeout(() => this.transferPwdInput?.nativeElement?.focus(), 150);
+        const toast = await this.toastController.create({
+          message: 'Código incorreto, tente novamente.',
+          duration: 2800,
+          position: 'bottom',
+          color: 'warning',
+        });
+        await toast.present();
+        return;
+      }
+
+      const msg =
+        res.message?.trim() || 'Não foi possível validar a senha de transferência.';
+      const toast = await this.toastController.create({
+        message: msg,
+        duration: 2600,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+    } finally {
+      this.transferPasswordVerifying = false;
+    }
   }
 
   private async requestTransferPasswordSheet(): Promise<boolean> {
@@ -282,13 +378,28 @@ export class PayTransferPixPage implements OnInit {
     });
   }
 
+  /**
+   * Em sucesso, aguarda o `dismiss()` do sheet para a animação terminar antes de liberar a navegação.
+   */
   private async finishTransferPasswordSheet(success: boolean): Promise<void> {
     if (this.transferPasswordSheetHandled) {
       return;
     }
     this.transferPasswordSheetHandled = true;
+
+    if (success) {
+      if (this.transferPwdModal) {
+        await this.transferPwdModal.dismiss();
+      } else {
+        this.transferPasswordSheetOpen = false;
+      }
+      this.transferPasswordResolve?.(true);
+      this.transferPasswordResolve = null;
+      return;
+    }
+
     this.transferPasswordSheetOpen = false;
-    this.transferPasswordResolve?.(success);
+    this.transferPasswordResolve?.(false);
     this.transferPasswordResolve = null;
   }
 }
