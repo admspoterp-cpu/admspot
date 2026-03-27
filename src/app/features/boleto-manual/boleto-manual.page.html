@@ -1,14 +1,35 @@
 <ion-content [fullscreen]="true" class="manual-content">
   <div class="manual-page">
-    <header>
-      <button type="button" (click)="goBack()" aria-label="Voltar">
-        <ion-icon name="chevron-back-outline"></ion-icon>
+    <header class="manual-header">
+      <button type="button" class="manual-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
       </button>
       <h1>Digitar codigo manualmente</h1>
     </header>
 
-    <section>
-      <p>Essa etapa sera implementada no proximo passo.</p>
+    <section class="manual-card">
+      <label class="manual-field">
+        <span class="manual-label">Linha digitável</span>
+        <textarea
+          class="manual-input"
+          inputmode="numeric"
+          autocomplete="off"
+          rows="2"
+          placeholder="Digite os números do boleto"
+          [ngModel]="linhaDigitavelDisplay"
+          (ngModelChange)="onLinhaDigitavelInput($event)"
+        ></textarea>
+      </label>
+      <p class="manual-hint">Aceita 44, 47 ou 48 dígitos.</p>
+
+      <button
+        type="button"
+        class="manual-continue tap-highlight-none"
+        [disabled]="continueDisabled"
+        (click)="onContinue()"
+      >
+        {{ submitting ? 'Carregando…' : 'Continuar' }}
+      </button>
     </section>
   </div>
 </ion-content>

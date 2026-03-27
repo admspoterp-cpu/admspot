@@ -5,6 +5,7 @@ import { normalizarCodigoBarrasParaApi } from '../shared/utils/boleto-barcode.ut
 import { getGestorApiUrl } from './api-base-url';
 
 const BOLETO_BARCODE_PATH = '/api/central/v1/boleto/barcode';
+const BOLETO_LINHA_DIGITAVEL_PATH = '/api/central/v1/boleto/linha-digitavel';
 
 const PHPSESSID = 'ba832f1772c56eb7fb76a591cf310f5f';
 
@@ -54,18 +55,41 @@ export class BoletoBarcodeService {
     barcode: string,
   ): Promise<BoletoBarcodeResponse | null> {
     const payload = normalizarCodigoBarrasParaApi(barcode);
+    return this.postLookup(accessToken, sourceToken, BOLETO_BARCODE_PATH, {
+      barcode: payload,
+    });
+  }
+
+  async fetchByLinhaDigitavel(
+    accessToken: string,
+    sourceToken: string,
+    linhaDigitavel: string,
+  ): Promise<BoletoBarcodeResponse | null> {
+    const payload = String(linhaDigitavel ?? '').replace(/\D/g, '');
+    return this.postLookup(accessToken, sourceToken, BOLETO_LINHA_DIGITAVEL_PATH, {
+      linha_digitavel: payload,
+    });
+  }
+
+  private async postLookup(
+    accessToken: string,
+    sourceToken: string,
+    path: string,
+    boletoField: { barcode?: string; linha_digitavel?: string },
+  ): Promise<BoletoBarcodeResponse | null> {
     if (Capacitor.isNativePlatform()) {
-      return this.fetchNative(accessToken, sourceToken, payload);
+      return this.fetchNative(accessToken, sourceToken, path, boletoField);
     }
-    return this.fetchWeb(accessToken, sourceToken, payload);
+    return this.fetchWeb(accessToken, sourceToken, path, boletoField);
   }
 
   private async fetchNative(
     accessToken: string,
     sourceToken: string,
-    barcode: string,
+    path: string,
+    boletoField: { barcode?: string; linha_digitavel?: string },
   ): Promise<BoletoBarcodeResponse | null> {
-    const url = getGestorApiUrl(BOLETO_BARCODE_PATH);
+    const url = getGestorApiUrl(path);
     const res = await CapacitorHttp.post({
       url,
       headers: {
@@ -75,7 +99,7 @@ export class BoletoBarcodeService {
       },
       data: {
         source_token: sourceToken,
-        barcode,
+        ...boletoField,
       },
     });
     return this.normalizeBody(res.data);
@@ -84,9 +108,10 @@ export class BoletoBarcodeService {
   private async fetchWeb(
     accessToken: string,
     sourceToken: string,
-    barcode: string,
+    path: string,
+    boletoField: { barcode?: string; linha_digitavel?: string },
   ): Promise<BoletoBarcodeResponse | null> {
-    const url = getGestorApiUrl(BOLETO_BARCODE_PATH);
+    const url = getGestorApiUrl(path);
     let res: Response;
     try {
       res = await fetch(url, {
@@ -98,7 +123,7 @@ export class BoletoBarcodeService {
         },
         body: JSON.stringify({
           source_token: sourceToken,
-          barcode,
+          ...boletoField,
         }),
       });
     } catch {

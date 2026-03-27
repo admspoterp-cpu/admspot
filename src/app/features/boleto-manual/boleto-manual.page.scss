@@ -1,46 +1,107 @@
 ion-content.manual-content {
-  --background: #f5f7fb;
+  --background: #ffffff;
 }
 
 .manual-page {
   min-height: 100%;
+  max-width: 430px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  padding: calc(16px + env(safe-area-inset-top)) 16px 24px;
+  padding: calc(13px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
 }
 
-.manual-page header {
+.manual-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  border-bottom: 1px solid #f3f3f3;
+  padding-bottom: 13px;
 }
 
-.manual-page header button {
-  width: 36px;
-  height: 36px;
+.manual-back {
+  width: 24px;
+  height: 24px;
   border: 0;
-  border-radius: 10px;
-  background: #e8ecf5;
-  color: #10325f;
+  background: transparent;
+  color: #162d4c;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
 }
 
-.manual-page header h1 {
+.manual-header h1 {
   margin: 0;
-  font-size: 18px;
-  color: #1d2a3d;
+  font-size: 15px;
+  font-weight: 400;
+  color: #3a3c4c;
 }
 
-.manual-page section {
-  margin-top: 18px;
-  border-radius: 16px;
-  background: #fff;
-  padding: 16px;
+.manual-card {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.manual-page section p {
+.manual-field {
+  display: block;
+}
+
+.manual-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #777777;
+}
+
+.manual-input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #e5e5e5;
+  border-radius: 0;
+  padding: 0 0 10px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #313131;
+  background: transparent;
+  outline: none;
+  resize: none;
+  white-space: pre-wrap;
+  overflow: hidden;
+  min-height: 52px;
+}
+
+.manual-input::placeholder {
+  color: #a09fa4;
+}
+
+.manual-hint {
   margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
   color: #5c6574;
+}
+
+.manual-continue {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(270deg, #235697 0%, #114080 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.manual-continue:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
 }

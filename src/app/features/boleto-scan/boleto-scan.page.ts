@@ -37,6 +37,11 @@ export class BoletoScanPage implements OnDestroy {
   private quagga?: QuaggaGlobal;
   /** Evita múltiplos `onDetected` antes do scanner parar. */
   private suppressDetections = false;
+  private settleTimer: ReturnType<typeof setTimeout> | null = null;
+  private bestCandidateDigits = '';
+  private bestCandidateScore = -1;
+  private stableReads = 0;
+  private lastStableApiCode = '';
 
   private readonly onDetectedHandler = (result: QuaggaDetectedResult): void => {
     if (this.suppressDetections) {
@@ -44,13 +49,29 @@ export class BoletoScanPage implements OnDestroy {
     }
     const raw = result.codeResult?.code ?? '';
     const digitsOnly = this.normalizeBoletoNumber(raw);
-    if (!this.isLikelyBoleto(digitsOnly)) {
+    const candidate = this.extractCandidateDigits(digitsOnly);
+    if (!candidate) {
       return;
     }
-    const forApi = normalizarCodigoBarrasParaApi(digitsOnly);
+    const apiCode = normalizarCodigoBarrasParaApi(candidate);
+    const score = this.scoreCandidate(candidate, apiCode);
+    if (score > this.bestCandidateScore) {
+      this.bestCandidateScore = score;
+      this.bestCandidateDigits = candidate;
+    }
 
-    this.suppressDetections = true;
-    void this.onCodeDetected(forApi);
+    if (apiCode.length === 44) {
+      if (apiCode === this.lastStableApiCode) {
+        this.stableReads += 1;
+      } else {
+        this.lastStableApiCode = apiCode;
+        this.stableReads = 1;
+      }
+    }
+
+    this.detectedCode = this.bestCandidateDigits;
+    this.statusMessage = `Lendo codigo… ${this.bestCandidateDigits.length} dígitos`;
+    this.scheduleFinalizeDetection();
   };
   private readonly navController = inject(NavController);
   private readonly router = inject(Router);
@@ -90,6 +111,10 @@ export class BoletoScanPage implements OnDestroy {
   private async startScanner(): Promise<void> {
     this.stopScanner();
     this.suppressDetections = false;
+    this.bestCandidateDigits = '';
+    this.bestCandidateScore = -1;
+    this.stableReads = 0;
+    this.lastStableApiCode = '';
     this.scanState = 'scanning';
     this.detectedCode = '';
     this.statusMessage = 'Aponte o codigo de barras do boleto para a area de leitura.';
@@ -125,7 +150,7 @@ export class BoletoScanPage implements OnDestroy {
             },
           },
           decoder: {
-            readers: ['i2of5_reader', 'code_128_reader', 'code_39_reader'],
+            readers: ['i2of5_reader', '2of5_reader', 'code_128_reader', 'code_39_reader'],
           },
           locator: {
             patchSize: 'medium',
@@ -214,6 +239,59 @@ export class BoletoScanPage implements OnDestroy {
     return digitsOnly.length === 44 || digitsOnly.length === 47 || digitsOnly.length === 48;
   }
 
+  private extractCandidateDigits(digitsOnly: string): string {
+    if (!digitsOnly) {
+      return '';
+    }
+    if (this.isLikelyBoleto(digitsOnly)) {
+      return digitsOnly;
+    }
+    // Quando vem ruído, prioriza maior janela possível (48 > 47 > 44).
+    if (digitsOnly.length > 48) {
+      for (const n of [48, 47, 44]) {
+        for (let i = 0; i + n <= digitsOnly.length; i += 1) {
+          const part = digitsOnly.slice(i, i + n);
+          if (this.isLikelyBoleto(part)) {
+            return part;
+          }
+        }
+      }
+    }
+    return '';
+  }
+
+  private scoreCandidate(candidate: string, apiCode: string): number {
+    // Prioriza mais dígitos capturados e, em empate, código API válido (44).
+    return candidate.length * 10 + (apiCode.length === 44 ? 5 : 0);
+  }
+
+  private scheduleFinalizeDetection(): void {
+    if (this.settleTimer != null) {
+      clearTimeout(this.settleTimer);
+    }
+    this.settleTimer = setTimeout(() => {
+      void this.finalizeBestDetection();
+    }, 420);
+  }
+
+  private async finalizeBestDetection(): Promise<void> {
+    if (this.suppressDetections) {
+      return;
+    }
+    const best = this.bestCandidateDigits;
+    if (!best) {
+      return;
+    }
+    const apiCode = normalizarCodigoBarrasParaApi(best);
+    if (apiCode.length !== 44 || this.stableReads < 2) {
+      this.statusMessage = 'Aproxime mais o boleto para capturar todos os dígitos.';
+      return;
+    }
+
+    this.suppressDetections = true;
+    await this.onCodeDetected(apiCode);
+  }
+
   private async onCodeDetected(normalizedCode: string): Promise<void> {
     this.scanState = 'success';
     this.detectedCode = normalizedCode;
@@ -221,11 +299,15 @@ export class BoletoScanPage implements OnDestroy {
     this.stopScanner();
     await this.screenOrientation.lockPortrait();
     await this.router.navigate(['/boleto-payment-details'], {
-      state: { barcode: normalizedCode },
+      state: { barcode: normalizedCode, source: 'scan' },
     });
   }
 
   private stopScanner(): void {
+    if (this.settleTimer != null) {
+      clearTimeout(this.settleTimer);
+      this.settleTimer = null;
+    }
     if (this.quagga) {
       this.quagga.offDetected(this.onDetectedHandler);
       try {

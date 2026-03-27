@@ -13,6 +13,8 @@ import { formatBrlNumber, normalizeMoneyValue } from '../../utils/brl-format';
 /** Navigation state key for barcode passed from boleto scanner ou digitação. */
 export interface BoletoPaymentDetailsNavState {
   barcode?: string;
+  linhaDigitavel?: string;
+  source?: 'scan' | 'manual';
 }
 
 @Component({
@@ -54,6 +56,7 @@ export class BoletoPaymentDetailsPage implements OnInit {
   beneficiaryCpfCnpj = '';
 
   detailLoading = true;
+  private detailsSource: 'scan' | 'manual' = 'scan';
 
   private readonly navController = inject(NavController);
   private readonly router = inject(Router);
@@ -63,7 +66,10 @@ export class BoletoPaymentDetailsPage implements OnInit {
 
   ngOnInit(): void {
     const state = history.state as BoletoPaymentDetailsNavState;
-    const raw = (state?.barcode ?? '').replace(/\D/g, '');
+    const barcodeRaw = (state?.barcode ?? '').replace(/\D/g, '');
+    const linhaRaw = (state?.linhaDigitavel ?? '').replace(/\D/g, '');
+    this.detailsSource = state?.source === 'manual' ? 'manual' : 'scan';
+    const raw = this.detailsSource === 'manual' ? linhaRaw : barcodeRaw;
 
     if (!raw) {
       void this.navController.navigateRoot('/dashboard');
@@ -72,11 +78,13 @@ export class BoletoPaymentDetailsPage implements OnInit {
 
     this.barcodeDigits = raw;
     this.barcodeDisplay = this.formatBarcodeForDisplay(raw);
-    void this.loadBoletoDetails(raw);
+    void this.loadBoletoDetails(raw, this.detailsSource);
   }
 
   goBack(): void {
-    void this.navController.navigateBack('/boleto-scan');
+    void this.navController.navigateBack(
+      this.detailsSource === 'manual' ? '/boleto-manual' : '/boleto-scan',
+    );
   }
 
   onPay(): void {
@@ -100,7 +108,7 @@ export class BoletoPaymentDetailsPage implements OnInit {
     return this.formatDateBrFromIso(this.dueDateIso);
   }
 
-  private async loadBoletoDetails(barcode: string): Promise<void> {
+  private async loadBoletoDetails(input: string, source: 'scan' | 'manual'): Promise<void> {
     this.detailLoading = true;
     const access = this.authSession.getAccessToken();
     const sourceToken = this.authSession.getDefaultWallet()?.asaas_api_token?.trim();
@@ -118,12 +126,15 @@ export class BoletoPaymentDetailsPage implements OnInit {
       return;
     }
 
-    const data = await this.boletoBarcode.fetchByBarcode(access, sourceToken, barcode);
+    const data =
+      source === 'manual'
+        ? await this.boletoBarcode.fetchByLinhaDigitavel(access, sourceToken, input)
+        : await this.boletoBarcode.fetchByBarcode(access, sourceToken, input);
     this.detailLoading = false;
 
     if (!data) {
       await this.presentErrorToast('Não foi possível consultar o boleto. Verifique sua conexão.');
-      void this.navController.navigateBack('/boleto-scan');
+      void this.navController.navigateBack(source === 'manual' ? '/boleto-manual' : '/boleto-scan');
       return;
     }
 
@@ -131,14 +142,14 @@ export class BoletoPaymentDetailsPage implements OnInit {
       await this.presentErrorToast(
         data.message?.trim() || 'Não foi possível consultar o boleto.',
       );
-      void this.navController.navigateBack('/boleto-scan');
+      void this.navController.navigateBack(source === 'manual' ? '/boleto-manual' : '/boleto-scan');
       return;
     }
 
     const slip = this.pickBankSlip(data);
     if (!slip) {
       await this.presentErrorToast('Resposta do boleto incompleta.');
-      void this.navController.navigateBack('/boleto-scan');
+      void this.navController.navigateBack(source === 'manual' ? '/boleto-manual' : '/boleto-scan');
       return;
     }
 
