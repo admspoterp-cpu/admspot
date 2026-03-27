@@ -1,0 +1,36 @@
+<ion-content [fullscreen]="true" class="charge-scan-content">
+  <div class="charge-scan-page">
+    <header class="charge-scan-header">
+      <button type="button" class="charge-scan-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
+      </button>
+      <h1>Resultado da leitura</h1>
+    </header>
+
+    <p class="charge-scan-message" *ngIf="apiMessage">{{ apiMessage }}</p>
+
+    <p class="charge-scan-hint">Selecione uma opção e toque em Continuar.</p>
+
+    <ion-radio-group [(ngModel)]="selectedId" name="charge-scan-choice" class="charge-scan-group">
+      <ion-item
+        *ngFor="let opt of options"
+        lines="full"
+        detail="false"
+        class="charge-scan-item"
+        (click)="onRowSelect(opt.id)"
+      >
+        <ion-radio slot="start" [value]="opt.id"></ion-radio>
+        <ion-label class="ion-text-wrap charge-scan-label">{{ opt.label }}</ion-label>
+      </ion-item>
+    </ion-radio-group>
+
+    <button
+      type="button"
+      class="charge-scan-continue tap-highlight-none"
+      [disabled]="continueDisabled"
+      (click)="onContinue()"
+    >
+      Continuar
+    </button>
+  </div>
+</ion-content>

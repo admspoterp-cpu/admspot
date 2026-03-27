@@ -34,6 +34,13 @@ const routes: Routes = [
     loadChildren: () => import('./features/dashboard/dashboard.module').then( m => m.DashboardPageModule)
   },
   {
+    path: 'charge-scan-results',
+    loadChildren: () =>
+      import('./features/charge-scan-results/charge-scan-results.module').then(
+        (m) => m.ChargeScanResultsPageModule
+      ),
+  },
+  {
     path: 'depositar',
     loadChildren: () =>
       import('./features/depositar/depositar.module').then((m) => m.DepositarPageModule),

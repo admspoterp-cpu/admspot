@@ -1,6 +1,8 @@
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   ActionSheetController,
+  LoadingController,
   NavController,
   ToastController,
   ViewWillEnter,
@@ -8,6 +10,7 @@ import {
 
 import { BalanceService } from '../../services/balance.service';
 import { AuthSessionService } from '../../services/auth-session.service';
+import { ScanCodesService } from '../../services/scan-codes.service';
 import { formatBrlNumber, normalizeMoneyValue } from '../../utils/brl-format';
 
 @Component({
@@ -52,10 +55,13 @@ export class DashboardPage implements ViewWillEnter {
     { initials: 'AL', name: 'Ana Luiza Pinto', bank: 'NU PAGAMENTOS - IP' },
   ];
   private readonly navController = inject(NavController);
+  private readonly router = inject(Router);
   private readonly actionSheetController = inject(ActionSheetController);
   private readonly toastController = inject(ToastController);
+  private readonly loadingController = inject(LoadingController);
   private readonly authSession = inject(AuthSessionService);
   private readonly balanceService = inject(BalanceService);
+  private readonly scanCodesService = inject(ScanCodesService);
 
   ionViewWillEnter(): void {
     if (this.authSession.isTokenExpired()) {
@@ -341,15 +347,60 @@ export class DashboardPage implements ViewWillEnter {
     }
 
     this.selectedChargeFileName = file.name;
-    const toast = await this.toastController.create({
-      message: `Arquivo selecionado: ${file.name}`,
-      duration: 1800,
-      position: 'bottom',
-    });
-    await toast.present();
 
     // Reset value to allow selecting the same file again.
     input.value = '';
+
+    const access = this.authSession.getAccessToken();
+    if (!access) {
+      const toast = await this.toastController.create({
+        message: 'Sessão expirada. Faça login novamente.',
+        duration: 2400,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
+
+    const loading = await this.loadingController.create({
+      message: 'Enviando arquivo…',
+      spinner: 'crescent',
+    });
+    await loading.present();
+
+    let result;
+    try {
+      result = await this.scanCodesService.scanCodes(access, file);
+    } finally {
+      await loading.dismiss();
+    }
+
+    if (!result) {
+      const toast = await this.toastController.create({
+        message: 'Não foi possível enviar o arquivo. Verifique a conexão e tente novamente.',
+        duration: 3200,
+        position: 'bottom',
+        color: 'danger',
+      });
+      await toast.present();
+      return;
+    }
+
+    if (result.success !== true) {
+      const toast = await this.toastController.create({
+        message: (result.message ?? 'Não foi possível ler o arquivo.').trim() || 'Leitura indisponível.',
+        duration: 3200,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
+
+    await this.router.navigate(['/charge-scan-results'], {
+      state: { scanResult: result },
+    });
   }
 
   private openFilePicker(inputRef?: ElementRef<HTMLInputElement>): void {
