@@ -285,11 +285,38 @@ ion-content.comprovante-content::part(scroll) {
   gap: 12px;
 }
 
-.cp-bank-logo {
-  width: 20px;
-  height: 21px;
-  object-fit: contain;
+.cp-bank-avatar {
   flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #1f5fa8;
+}
+
+.cp-bank-short {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.cp-identifier-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cp-inline-spinner {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--cp-accent);
+  --color: var(--cp-accent);
 }
 
 .cp-status-row {
@@ -301,6 +328,21 @@ ion-content.comprovante-content::part(scroll) {
 .cp-status-row img {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
+}
+
+.cp-status-spinner {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--cp-accent);
+  --color: var(--cp-accent);
+}
+
+.cp-status-wait-icon,
+.cp-status-error-icon {
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
 }
 
@@ -362,4 +404,217 @@ ion-content.comprovante-content::part(scroll) {
   height: 14px;
   flex-shrink: 0;
   opacity: 0.85;
+}
+
+/* Bottom sheet — senha de transferência (mesmo padrão de pay-transfer-pix) */
+.transfer-pwd-sheet {
+  --border-radius: 20px 20px 0 0;
+  --backdrop-opacity: 0.45;
+}
+
+.transfer-pwd-sheet::part(content) {
+  border-radius: 20px 20px 0 0;
+}
+
+.pwd-sheet {
+  position: relative;
+  padding: calc(8px + env(safe-area-inset-top)) 24px calc(28px + env(safe-area-inset-bottom));
+  background: #fff;
+  min-height: 100%;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease;
+}
+
+.pwd-sheet--shake {
+  animation: cp-pwd-sheet-shake 0.45s ease;
+}
+
+.pwd-sheet--busy .pwd-dots {
+  opacity: 0.75;
+}
+
+@keyframes cp-pwd-sheet-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  18%,
+  54% {
+    transform: translateX(-10px);
+  }
+  36%,
+  72% {
+    transform: translateX(10px);
+  }
+}
+
+.pwd-sheet-back {
+  border: 0;
+  background: transparent;
+  padding: 8px 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.pwd-sheet-back img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.pwd-sheet-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--cp-text);
+  letter-spacing: -0.02em;
+}
+
+.pwd-sheet-sub {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--cp-muted);
+}
+
+.pwd-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 40px 0 24px;
+}
+
+.pwd-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e2e4e8;
+  transition: background 0.15s ease;
+}
+
+.pwd-dot--filled {
+  background: #313131;
+}
+
+.pwd-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+}
+
+.pwd-sheet-confirm {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(270deg, #235697 0%, #114080 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pwd-sheet-confirm:disabled {
+  opacity: 0.85;
+}
+
+.pwd-sheet-spinner {
+  width: 22px;
+  height: 22px;
+  color: #fff;
+  --color: #fff;
+}
+
+/* Sheet — reportar transação */
+.cp-report-sheet {
+  --border-radius: 20px 20px 0 0;
+  --backdrop-opacity: 0.45;
+}
+
+.cp-report-sheet::part(content) {
+  border-radius: 20px 20px 0 0;
+}
+
+.cp-report-inner {
+  padding: calc(12px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.cp-report-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--cp-text);
+  letter-spacing: -0.02em;
+}
+
+.cp-report-lead {
+  margin: 8px 0 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--cp-muted);
+}
+
+.cp-report-select-item {
+  --background: #f7f8fa;
+  --border-radius: 12px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --inner-padding-end: 0;
+  margin: 0 0 16px;
+}
+
+.cp-report-disclaimer {
+  margin: 0 0 24px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--cp-muted);
+}
+
+.cp-report-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.cp-report-btn {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+}
+
+.cp-report-btn-outline {
+  background: #fff;
+  color: var(--cp-text);
+  border: 1px solid #e2e4e8;
+}
+
+.cp-report-btn-primary {
+  background: linear-gradient(270deg, #235697 0%, #114080 100%);
+  color: #fff;
+}
+
+.cp-report-btn:disabled {
+  opacity: 0.65;
+  pointer-events: none;
 }

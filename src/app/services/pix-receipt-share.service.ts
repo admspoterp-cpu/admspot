@@ -15,6 +15,10 @@ export interface PixTransferReceiptData {
   statusText: string;
   /** Quando TED, títulos do PDF seguem transferência TED */
   transferKind?: 'pix' | 'ted';
+  /** Carteira padrão (origem) — mesmo critério da tela Depositar */
+  originFullName?: string;
+  originAgency?: string;
+  originAccount?: string;
 }
 
 /** Opções do sheet nativo / título da Web Share API */
@@ -96,6 +100,31 @@ export class PixReceiptShareService {
       y += Math.max(lines.length * 4.8, 5) + 5;
     };
 
+    const hasOrigin =
+      Boolean(data.originFullName?.trim()) ||
+      Boolean(data.originAgency?.trim()) ||
+      Boolean(data.originAccount?.trim());
+
+    if (hasOrigin) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(22, 45, 76);
+      doc.text('Conta de origem', margin, y);
+      y += 6;
+      if (data.originFullName?.trim()) {
+        addField('Nome completo', data.originFullName.trim());
+      }
+      if (data.originAgency?.trim()) {
+        addField('Agência', data.originAgency.trim());
+      }
+      if (data.originAccount?.trim()) {
+        addField('Conta', data.originAccount.trim());
+      }
+      doc.setDrawColor(230, 230, 230);
+      doc.line(margin, y, pageW - margin, y);
+      y += 8;
+    }
+
     addField('Valor', `- R$ ${data.amountDisplay}`);
     addField('Beneficiário', data.beneficiaryName);
     addField('Instituição', data.beneficiaryBank);
@@ -111,10 +140,9 @@ export class PixReceiptShareService {
     y += 6;
     doc.setFontSize(7);
     doc.setTextColor(150, 150, 150);
-    const footer = doc.splitTextToSize(
-      'Documento gerado pelo aplicativo Admspot Finance. Guarde este comprovante para sua referência.',
-      contentW
-    );
+    const year = new Date().getFullYear();
+    const footerText = `Documento gerado pelo aplicativo Admspot Finance. Guarde este comprovante para sua referência. intermediada por © ${year} ADMSPOT TECNOLOGIA EM GESTÃO , sob tecnologias de ASAAS GESTÃO FINANCEIRA INSTITUIÇÃO DE PAGAMENTO S.A..`;
+    const footer = doc.splitTextToSize(footerText, contentW);
     doc.text(footer, margin, y);
 
     return doc;

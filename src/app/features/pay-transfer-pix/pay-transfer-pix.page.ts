@@ -6,7 +6,8 @@ import { AuthSessionService } from '../../services/auth-session.service';
 import { BalanceService } from '../../services/balance.service';
 import { BiometricAuthService } from '../../services/biometric-auth.service';
 import { BiometricRuleService } from '../../services/biometric-rule.service';
-import type { DictValidationData } from '../../services/dict.service';
+import type { DictKeyType, DictValidationData } from '../../services/dict.service';
+import { PixTransferService } from '../../services/pix-transfer.service';
 import { TransferPassVerifyService } from '../../services/transfer-pass-verify.service';
 import { formatBrlNumber, normalizeMoneyValue } from '../../utils/brl-format';
 import type { ComprovantePaymentNavState } from '../comprovante-payment/comprovante-payment.page';
@@ -35,10 +36,14 @@ export class PayTransferPixPage implements OnInit {
   private readonly biometricRule = inject(BiometricRuleService);
   private readonly biometricAuth = inject(BiometricAuthService);
   private readonly transferPassVerify = inject(TransferPassVerifyService);
+  private readonly pixTransfer = inject(PixTransferService);
 
   /** Da etapa anterior (chave informada) */
   pixKey = '';
-  keyType = '';
+  keyType: DictKeyType = 'CPF';
+
+  /** Enquanto `POST /pix-transfer` está em curso. */
+  payExecuting = false;
 
   accountName = 'Conta digital';
   readonly amountReais = 'R$';
@@ -78,7 +83,7 @@ export class PayTransferPixPage implements OnInit {
     if (typeof s?.pixKey === 'string') {
       this.pixKey = s.pixKey;
     }
-    if (typeof s?.keyType === 'string') {
+    if (typeof s?.keyType === 'string' && this.isDictKeyType(s.keyType)) {
       this.keyType = s.keyType;
     }
     this.accountName = this.authSession.getDefaultWallet()?.wallet?.trim() || this.accountName;
@@ -90,6 +95,10 @@ export class PayTransferPixPage implements OnInit {
       this.bankShortName = this.extractBankShortName(this.beneficiaryBank);
       this.freeTransfers = Number.isFinite(Number(data.free_transfers)) ? Number(data.free_transfers) : 0;
       this.feeValue = this.normalizeFeeDisplay(data.transfer_fee);
+      const kt = data.chave_type ?? data.key_type;
+      if (kt && this.isDictKeyType(kt)) {
+        this.keyType = kt;
+      }
     }
     void this.loadBalance();
   }
@@ -135,17 +144,88 @@ export class PayTransferPixPage implements OnInit {
       return;
     }
 
-    const amount = this.transferAmount.trim();
+    const access = this.authSession.getAccessToken();
+    const sourceToken = this.authSession.getDefaultWallet()?.asaas_api_token?.trim();
+    if (!access || !sourceToken) {
+      const toast = await this.toastController.create({
+        message: !access
+          ? 'Sessão expirada. Faça login novamente.'
+          : 'Token da carteira indisponível. Verifique sua conta.',
+        duration: 2600,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
 
-    const state: ComprovantePaymentNavState = {
-      amountDisplay: amount,
-      beneficiaryName: this.beneficiaryName,
-      beneficiaryBank: this.beneficiaryBank,
-      documentMasked: this.documentMasked,
-      pixKey: this.pixKey,
-    };
+    const key = this.pixKey.trim();
+    if (!key) {
+      const toast = await this.toastController.create({
+        message: 'Chave PIX não encontrada. Volte e informe a chave novamente.',
+        duration: 2600,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
 
-    await this.navController.navigateForward('/comprovante-payment', { state });
+    const amountApi = (cents / 100).toFixed(2);
+
+    this.payExecuting = true;
+    try {
+      const result = await this.pixTransfer.executeTransfer(
+        access,
+        sourceToken,
+        amountApi,
+        key,
+        this.keyType,
+      );
+
+      if (!result) {
+        const toast = await this.toastController.create({
+          message: 'Não foi possível concluir a transferência. Verifique sua conexão.',
+          duration: 2800,
+          position: 'bottom',
+          color: 'danger',
+        });
+        await toast.present();
+        return;
+      }
+
+      if (result.success !== true) {
+        const toast = await this.toastController.create({
+          message: result.message?.trim() || 'Não foi possível concluir a transferência PIX.',
+          duration: 3200,
+          position: 'bottom',
+          color: 'warning',
+        });
+        await toast.present();
+        return;
+      }
+
+      const amount = this.transferAmount.trim();
+      const state: ComprovantePaymentNavState = {
+        amountDisplay: amount,
+        beneficiaryName: this.beneficiaryName,
+        beneficiaryBank: this.beneficiaryBank,
+        documentMasked: this.documentMasked,
+        pixKey: key,
+        pixKeyType: this.keyType,
+        transferKind: 'pix',
+        pixTransferId: result.transfer_id ?? result.asaas?.id,
+        pixReference: result.reference,
+      };
+
+      await this.navController.navigateForward('/comprovante-payment', { state });
+    } finally {
+      this.payExecuting = false;
+    }
+  }
+
+  private isDictKeyType(v: string): v is DictKeyType {
+    return ['CPF', 'CNPJ', 'EMAIL', 'PHONE', 'EVP'].includes(v);
   }
 
   get transferInfoText(): string {
@@ -153,6 +233,7 @@ export class PayTransferPixPage implements OnInit {
   }
 
   get payButtonDisabled(): boolean {
+    if (this.payExecuting) return true;
     if (this.balanceLoading) return true;
     const valueCents = brlStringToCents(this.transferAmount);
     if (this.availableBalanceCents <= 0) return true;

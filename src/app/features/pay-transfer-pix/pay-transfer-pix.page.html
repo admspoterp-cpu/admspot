@@ -93,7 +93,7 @@
         [disabled]="payButtonDisabled"
         (click)="onPay()"
       >
-        Pagar
+        {{ payExecuting ? 'Enviando…' : 'Pagar' }}
       </button>
     </main>
   </div>

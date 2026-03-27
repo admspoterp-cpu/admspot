@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -7,7 +8,7 @@ import { ComprovantePaymentPageRoutingModule } from './comprovante-payment-routi
 import { ComprovantePaymentPage } from './comprovante-payment.page';
 
 @NgModule({
-  imports: [CommonModule, IonicModule, ComprovantePaymentPageRoutingModule],
+  imports: [CommonModule, FormsModule, IonicModule, ComprovantePaymentPageRoutingModule],
   declarations: [ComprovantePaymentPage],
 })
 export class ComprovantePaymentPageModule {}
