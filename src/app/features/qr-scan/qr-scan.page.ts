@@ -158,54 +158,14 @@ export class QrScanPage implements OnDestroy {
 
     this.uploadState = 'uploading';
     this.detectedCode = rawValue;
-    this.statusMessage = 'QR detectado. Capturando foto e enviando...';
-
-    const imageBlob = await this.captureFrameBlob();
-    if (!imageBlob) {
-      this.uploadState = 'error';
-      this.statusMessage = 'Falha ao capturar imagem da camera.';
-      return;
-    }
+    this.statusMessage = 'QR detectado. Processando dados...';
 
     this.stopScanner();
-    await this.simulateUpload(imageBlob, rawValue);
     this.uploadState = 'success';
-    this.statusMessage = 'QR lido. Abrindo detalhes do pagamento...';
-    void this.router.navigate(['/pix-qr-payment-details'], {
+    this.statusMessage = 'QR lido. Processando payload...';
+    void this.router.navigate(['/pix-qr-processing'], {
       state: { qrPayload: rawValue },
     });
-  }
-
-  private async captureFrameBlob(): Promise<Blob | null> {
-    const video = this.videoElement?.nativeElement;
-    if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
-      return null;
-    }
-
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    if (!context) {
-      return null;
-    }
-
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    return await new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.9);
-    });
-  }
-
-  private async simulateUpload(imageBlob: Blob, qrCode: string): Promise<void> {
-    const fakePayload = {
-      qrCode,
-      imageBytes: imageBlob.size,
-      mimeType: imageBlob.type || 'image/jpeg',
-      endpoint: '/api/payments/qr/upload',
-    };
-
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    console.log('Simulated upload payload:', fakePayload);
   }
 
   private stopScanner(): void {

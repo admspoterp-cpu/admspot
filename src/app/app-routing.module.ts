@@ -81,6 +81,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'pix-qr-processing',
+    loadChildren: () =>
+      import('./features/pix-qr-processing/pix-qr-processing.module').then(
+        (m) => m.PixQrProcessingPageModule
+      ),
+  },
+  {
     path: 'transfer-pix',
     loadChildren: () =>
       import('./features/transfer-pix/transfer-pix.module').then((m) => m.TransferPixPageModule),
