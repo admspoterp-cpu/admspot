@@ -186,64 +186,57 @@
         </div>
       </section> -->
 
-      <section class="transactions-section">
-        <div class="transaction-group">
+      <section
+        class="transactions-section"
+        *ngIf="extratoLoading || todayExtrato.length || previousDayExtrato.length"
+      >
+        <p class="extrato-loading" *ngIf="extratoLoading">Carregando movimentações…</p>
+
+        <div class="transaction-group" *ngIf="todayExtrato.length">
           <p class="group-title">HOJE</p>
-          <button type="button" class="transaction-item tap-highlight-none">
+          <button
+            type="button"
+            class="transaction-item tap-highlight-none"
+            [class.transaction-item--link]="row.pixTransferId"
+            *ngFor="let row of todayExtrato"
+            (click)="onExtratoItemTap(row)"
+          >
             <div class="transaction-left">
-              <img
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319569-c0651c54-8dd7-450b-8d3b-3796de0b8107.svg"
-                alt="UBA"
-              />
+              <div class="tx-avatar" [style.background-color]="row.avatarColor">{{ row.initials }}</div>
               <div class="transaction-text">
-                <p class="tx-name">Ngozi Uche</p>
-                <p class="tx-time">12:35 PM</p>
+                <p class="tx-name">{{ row.displayName }}</p>
+                <p class="tx-time">{{ row.timeLabel }}</p>
               </div>
             </div>
-            <div class="tx-amount">- R$ 2.500,00</div>
-          </button>
-          <button type="button" class="transaction-item tap-highlight-none">
-            <div class="transaction-left">
-              <img
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319601-1ced95db-5d53-41e2-bac5-e4ff797fd969.svg"
-                alt="Carbon"
-              />
-              <div class="transaction-text">
-                <p class="tx-name">Oluwaseun Adeyemi</p>
-                <p class="tx-time">11:37 AM</p>
-              </div>
+            <div class="transaction-right">
+              <span class="tx-amount" [class.positive]="row.isCredit" [class.debit]="!row.isCredit">{{
+                row.amountLine
+              }}</span>
             </div>
-            <div class="tx-amount">- R$ 78,60</div>
           </button>
         </div>
 
-        <div class="transaction-group">
-          <p class="group-title">TERÇA-FEIRA 23 DE MAIO</p>
-          <button type="button" class="transaction-item tap-highlight-none">
+        <div class="transaction-group" *ngIf="previousDayExtrato.length && previousDayExtratoTitle">
+          <p class="group-title">{{ previousDayExtratoTitle }}</p>
+          <button
+            type="button"
+            class="transaction-item tap-highlight-none"
+            [class.transaction-item--link]="row.pixTransferId"
+            *ngFor="let row of previousDayExtrato"
+            (click)="onExtratoItemTap(row)"
+          >
             <div class="transaction-left">
-              <img
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319569-c1bf8303-c19d-4ac2-8504-c0e24370fa86.svg"
-                alt="Bank"
-              />
+              <div class="tx-avatar" [style.background-color]="row.avatarColor">{{ row.initials }}</div>
               <div class="transaction-text">
-                <p class="tx-name">Adeola Balogun</p>
-                <p class="tx-time">7:50 PM</p>
+                <p class="tx-name">{{ row.displayName }}</p>
+                <p class="tx-time">{{ row.timeLabel }}</p>
               </div>
             </div>
-            <div class="tx-amount positive">+ R$ 1.234,00</div>
-          </button>
-          <button type="button" class="transaction-item tap-highlight-none">
-            <div class="transaction-left">
-              <img
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319649-0b56e6b1-590c-4eb3-bc86-32c86d5feb25.svg"
-                alt="Heritage"
-              />
-              <div class="transaction-text">
-                <p class="tx-name">Coca Cola Industries</p>
-                <p class="tx-time">5:40 PM</p>
-              </div>
+            <div class="transaction-right">
+              <span class="tx-amount" [class.positive]="row.isCredit" [class.debit]="!row.isCredit">{{
+                row.amountLine
+              }}</span>
             </div>
-            <div class="tx-amount">- R$ 2.000,00</div>
           </button>
         </div>
       </section>

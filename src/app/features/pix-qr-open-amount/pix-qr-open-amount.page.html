@@ -1,4 +1,4 @@
-<ion-content [fullscreen]="true" class="pix-details-content" [forceOverscroll]="false">
+<ion-content [fullscreen]="true" class="pix-details-content pqo-content" [forceOverscroll]="false">
   <div class="details-page" *ngIf="qrPayload">
     <div class="sheet">
       <header class="sheet-toolbar">
@@ -20,18 +20,29 @@
           </div>
         </section>
 
-        <div class="amount-block">
-          <div class="amount-row">
-            <span class="currency">{{ amountCurrency }}</span>
-            <span class="amount">{{ amountValue }}</span>
+        <label class="pqo-amount-field">
+          <span class="field-label muted">Valor do pagamento</span>
+          <div class="pqo-value-row">
+            <span class="pqo-value-prefix">R$</span>
+            <input
+              class="pqo-value-input"
+              type="text"
+              name="qrOpenAmount"
+              [(ngModel)]="transferAmount"
+              appBrlCurrency
+              inputmode="numeric"
+              autocomplete="off"
+              aria-label="Valor do pagamento em reais"
+            />
           </div>
-          <p class="payee-short">{{ payeeShort }}</p>
-          <img
-            class="divider"
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-765728bf-e84b-42b4-8102-3f22d507486c.svg"
-            alt=""
-          />
-        </div>
+        </label>
+
+        <p class="payee-short">{{ payeeShort }}</p>
+        <img
+          class="divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-765728bf-e84b-42b4-8102-3f22d507486c.svg"
+          alt=""
+        />
 
         <div class="info-row identifier-row">
           <p class="field-label muted">{{ identifierLabel }}</p>

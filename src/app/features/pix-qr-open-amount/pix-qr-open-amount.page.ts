@@ -2,8 +2,8 @@ import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core'
 import { Router } from '@angular/router';
 import { IonModal, NavController, ToastController, ViewWillEnter } from '@ionic/angular';
 
+import { BRL_ZERO_DISPLAY, brlStringToCents } from '../../shared/utils/brl-currency.util';
 import { isPixQrOpenAmountDecode } from '../../shared/utils/pix-qr-open-amount.util';
-
 import { AuthSessionService } from '../../services/auth-session.service';
 import { BalanceService } from '../../services/balance.service';
 import { BiometricAuthService } from '../../services/biometric-auth.service';
@@ -13,37 +13,33 @@ import { PixQrPayService } from '../../services/pix-qr-pay.service';
 import { TransferPassVerifyService } from '../../services/transfer-pass-verify.service';
 import { formatBrlNumber, normalizeMoneyValue } from '../../utils/brl-format';
 import type { ComprovantePaymentNavState } from '../comprovante-payment/comprovante-payment.page';
-
-export interface PixQrPaymentDetailsNavState {
-  qrPayload?: string;
-  decodeData?: PixQrDecodeResponse;
-}
+import type { PixQrPaymentDetailsNavState } from '../pix-qr-payment-details/pix-qr-payment-details.page';
 
 @Component({
-  selector: 'app-pix-qr-payment-details',
-  templateUrl: './pix-qr-payment-details.page.html',
-  styleUrls: ['./pix-qr-payment-details.page.scss'],
+  selector: 'app-pix-qr-open-amount',
+  templateUrl: './pix-qr-open-amount.page.html',
+  styleUrls: ['./pix-qr-open-amount.page.scss'],
   standalone: false,
 })
-export class PixQrPaymentDetailsPage implements OnInit, ViewWillEnter {
+export class PixQrOpenAmountPage implements OnInit, ViewWillEnter {
   @ViewChild('transferPwdInput') transferPwdInput?: ElementRef<HTMLInputElement>;
   @ViewChild('transferPwdModal') transferPwdModal?: IonModal;
 
-  /** Conteúdo bruto lido do QR (ex.: copia-e-cola PIX). Exibido em Identificador. */
   qrPayload = '';
 
-  amountCurrency = 'R$';
-  amountValue = '1.000,00';
-  payeeShort = 'CPFLEnergia';
+  /** Campo monetário (mesmo padrão de transferência PIX). */
+  transferAmount = BRL_ZERO_DISPLAY;
+
+  payeeShort = 'Recebedor';
 
   institutionLabel = 'Instituição';
-  institutionName = 'NU PAGAMENTOS - IP';
+  institutionName = '—';
 
   beneficiaryLabel = 'Para / beneficiário';
-  beneficiaryName = 'Cpfl Cia Paulista D Forca Luz';
+  beneficiaryName = '—';
 
   documentLabel = 'Documento';
-  documentValue = '18.236.120/0001-50';
+  documentValue = '—';
 
   messageLabel = 'Descrição';
   messageValue = 'Descrição não informada';
@@ -64,9 +60,6 @@ export class PixQrPaymentDetailsPage implements OnInit, ViewWillEnter {
   conciliationValue = '—';
 
   identifierLabel = 'Identificador';
-
-  /** Valor numérico enviado à API de pagamento (reais). */
-  private paymentValueReais = 0;
 
   balanceValue = '—';
   balanceLoading = false;
@@ -103,20 +96,21 @@ export class PixQrPaymentDetailsPage implements OnInit, ViewWillEnter {
     }
 
     const data = state?.decodeData;
-    if (data && isPixQrOpenAmountDecode(data)) {
-      void this.router.navigate(['/pix-qr-open-amount'], {
+    if (data && !isPixQrOpenAmountDecode(data)) {
+      void this.router.navigate(['/pix-qr-payment-details'], {
         replaceUrl: true,
         state: { qrPayload: raw, decodeData: data },
       });
       return;
     }
 
+    this.applyDecodeData(data ?? undefined);
+  }
+
+  private applyDecodeData(data: PixQrDecodeResponse | undefined): void {
     const summary = data?.summary;
     const asaas = data?.asaas;
     if (summary || asaas) {
-      const total = normalizeMoneyValue(asaas?.totalValue ?? summary?.valor ?? 0);
-      this.paymentValueReais = total;
-      this.amountValue = formatBrlNumber(total);
       this.payeeShort = (
         summary?.nome_recebedor ??
         asaas?.receiver?.name ??
@@ -163,7 +157,7 @@ export class PixQrPaymentDetailsPage implements OnInit, ViewWillEnter {
     if (this.payExecuting || this.balanceLoading) {
       return true;
     }
-    const cents = Math.round(this.paymentValueReais * 100);
+    const cents = brlStringToCents(this.transferAmount);
     if (cents <= 0) {
       return true;
     }
@@ -174,10 +168,10 @@ export class PixQrPaymentDetailsPage implements OnInit, ViewWillEnter {
   }
 
   async onPay(): Promise<void> {
-    const cents = Math.round(this.paymentValueReais * 100);
+    const cents = brlStringToCents(this.transferAmount);
     if (cents <= 0) {
       const toast = await this.toastController.create({
-        message: 'Valor do pagamento inválido.',
+        message: 'Informe um valor maior que zero.',
         duration: 2200,
         position: 'bottom',
         color: 'warning',
@@ -221,6 +215,7 @@ export class PixQrPaymentDetailsPage implements OnInit, ViewWillEnter {
       return;
     }
 
+    const paymentValueReais = cents / 100;
     const description = this.buildPayDescription();
 
     this.payExecuting = true;
@@ -229,7 +224,7 @@ export class PixQrPaymentDetailsPage implements OnInit, ViewWillEnter {
         access,
         sourceToken,
         payload,
-        Number(this.paymentValueReais.toFixed(2)),
+        Number(paymentValueReais.toFixed(2)),
         description,
       );
 
@@ -267,8 +262,9 @@ export class PixQrPaymentDetailsPage implements OnInit, ViewWillEnter {
         return;
       }
 
+      const amountDisplay = formatBrlNumber(paymentValueReais);
       const state: ComprovantePaymentNavState = {
-        amountDisplay: this.amountValue.trim(),
+        amountDisplay: amountDisplay.trim(),
         beneficiaryName: this.payeeShort || this.beneficiaryName,
         beneficiaryBank: this.institutionName,
         documentMasked: this.documentValue,

@@ -14,7 +14,9 @@ export interface PixTransferReceiptData {
   identifier: string;
   statusText: string;
   /** Quando TED, títulos do PDF seguem transferência TED */
-  transferKind?: 'pix' | 'ted';
+  transferKind?: 'pix' | 'ted' | 'pix_qr' | 'boleto';
+  /** Boleto: `bill_payment_id` — “ID da operação” no PDF */
+  boletoOperationId?: string;
   /** Carteira padrão (origem) — mesmo critério da tela Depositar */
   originFullName?: string;
   originAgency?: string;
@@ -50,6 +52,8 @@ export class PixReceiptShareService {
 
   private buildPdf(data: PixTransferReceiptData, jsPDF: typeof import('jspdf').jsPDF): import('jspdf').jsPDF {
     const isTed = data.transferKind === 'ted';
+    const isPixQr = data.transferKind === 'pix_qr';
+    const isBoleto = data.transferKind === 'boleto';
     const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
     const pageW = doc.internal.pageSize.getWidth();
     const margin = 18;
@@ -60,7 +64,13 @@ export class PixReceiptShareService {
     doc.setFontSize(14);
     doc.setTextColor(22, 45, 76);
     doc.text(
-      isTed ? 'Comprovante de transferência TED' : 'Comprovante de transferência PIX',
+      isTed
+        ? 'Comprovante de transferência TED'
+        : isBoleto
+          ? 'Comprovante de pagamento de boleto'
+          : isPixQr
+            ? 'Comprovante de pagamento PIX QR'
+            : 'Comprovante de transferência PIX',
       margin,
       y
     );
@@ -74,7 +84,17 @@ export class PixReceiptShareService {
 
     doc.setFontSize(11);
     doc.setTextColor(27, 77, 140);
-    doc.text(isTed ? 'Transferência TED realizada' : 'Transferência Pix realizada', margin, y);
+    doc.text(
+      isTed
+        ? 'Transferência TED realizada'
+        : isBoleto
+          ? 'Pagamento de boleto registrado'
+          : isPixQr
+            ? 'Pagamento Pix realizado'
+            : 'Transferência Pix realizada',
+      margin,
+      y
+    );
     y += 6;
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
@@ -127,11 +147,19 @@ export class PixReceiptShareService {
 
     addField('Valor', `- R$ ${data.amountDisplay}`);
     addField('Beneficiário', data.beneficiaryName);
-    addField('Instituição', data.beneficiaryBank);
+    if (!isBoleto) {
+      addField('Instituição', data.beneficiaryBank);
+    }
     addField('Documento do beneficiário', data.documentMasked);
     addField('Tipo de transação', data.transactionType);
     addField('ID da transação', data.transactionId);
-    addField('Identificador', data.identifier);
+    if (isBoleto && data.boletoOperationId?.trim()) {
+      addField('ID da operação', data.boletoOperationId.trim());
+    }
+    const identifierForPdf = isBoleto
+      ? data.identifier.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
+      : data.identifier;
+    addField(isBoleto ? 'Linha digitável (boleto)' : 'Identificador', identifierForPdf);
     addField('Estatus', data.statusText);
 
     y += 4;
@@ -175,7 +203,14 @@ export class PixReceiptShareService {
 
     const summary = `Transferência de R$ ${data.amountDisplay} para ${data.beneficiaryName}`;
     const shareTitle =
-      options?.shareTitle ?? (data.transferKind === 'ted' ? 'Comprovante TED' : 'Comprovante PIX');
+      options?.shareTitle ??
+      (data.transferKind === 'ted'
+        ? 'Comprovante TED'
+        : data.transferKind === 'boleto'
+          ? 'Comprovante boleto'
+          : data.transferKind === 'pix_qr'
+            ? 'Comprovante PIX QR'
+            : 'Comprovante PIX');
     const dialogTitle = options?.dialogTitle ?? 'Compartilhar comprovante';
     const optionsBase = {
       title: shareTitle,
@@ -215,7 +250,14 @@ export class PixReceiptShareService {
     const blob = doc.output('blob');
     const file = new File([blob], fileName, { type: 'application/pdf' });
     const shareTitle =
-      options?.shareTitle ?? (data.transferKind === 'ted' ? 'Comprovante TED' : 'Comprovante PIX');
+      options?.shareTitle ??
+      (data.transferKind === 'ted'
+        ? 'Comprovante TED'
+        : data.transferKind === 'boleto'
+          ? 'Comprovante boleto'
+          : data.transferKind === 'pix_qr'
+            ? 'Comprovante PIX QR'
+            : 'Comprovante PIX');
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {

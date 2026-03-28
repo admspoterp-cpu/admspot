@@ -63,7 +63,7 @@
         />
       </section>
 
-      <section class="cp-detail-row cp-detail-padded">
+      <section class="cp-detail-row cp-detail-padded" *ngIf="transferKind !== 'boleto'">
         <span class="cp-label">Instituição</span>
         <div class="cp-institution-row">
           <span class="cp-value">{{ beneficiaryBank }}</span>
@@ -108,10 +108,26 @@
         />
       </section>
 
+      <section class="cp-detail-row cp-detail-padded" *ngIf="transferKind === 'boleto'">
+        <span class="cp-label">ID da operação</span>
+        <span class="cp-value cp-value-wrap">{{ boletoOperationId }}</span>
+        <img
+          class="cp-row-divider"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-69791452-1a56-4461-bdc8-cc564a621b23.svg"
+          alt=""
+        />
+      </section>
+
       <section class="cp-detail-row cp-detail-padded">
-        <span class="cp-label">Identificador</span>
-        <div class="cp-identifier-row">
-          <span class="cp-value cp-value-wrap">{{ identifier }}</span>
+        <span class="cp-label">{{ identifierFieldLabel }}</span>
+        <div
+          class="cp-identifier-row"
+          [class.cp-identifier-row--boleto]="transferKind === 'boleto'"
+        >
+          <span
+            class="cp-value cp-value-wrap"
+            [class.cp-value-boleto-linha]="transferKind === 'boleto'"
+            >{{ identifier }}</span>
           <ion-spinner
             *ngIf="identifierPending"
             class="cp-inline-spinner"
@@ -164,7 +180,12 @@
 
       <p class="cp-more-actions">Mais ações</p>
 
-      <button type="button" class="cp-list-action tap-highlight-none" (click)="onRepeatTransaction()">
+      <button
+        type="button"
+        class="cp-list-action tap-highlight-none"
+        *ngIf="transferKind === 'pix'"
+        (click)="onRepeatTransaction()"
+      >
         <img
           src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319595-813473d5-8bf2-4c2c-ac0c-ec63d39101db.svg"
           alt=""

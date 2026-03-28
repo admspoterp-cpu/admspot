@@ -88,6 +88,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'pix-qr-open-amount',
+    loadChildren: () =>
+      import('./features/pix-qr-open-amount/pix-qr-open-amount.module').then(
+        (m) => m.PixQrOpenAmountPageModule
+      ),
+  },
+  {
     path: 'pix-qr-processing',
     loadChildren: () =>
       import('./features/pix-qr-processing/pix-qr-processing.module').then(

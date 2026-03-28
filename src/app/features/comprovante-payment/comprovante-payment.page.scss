@@ -241,6 +241,8 @@ ion-content.comprovante-content::part(scroll) {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow: visible;
+  min-width: 0;
 }
 
 .cp-detail-padded {
@@ -278,6 +280,16 @@ ion-content.comprovante-content::part(scroll) {
   word-break: break-all;
 }
 
+/* Linha digitável do boleto: preserva quebras do formato xx.xxx … */
+.cp-value-boleto-linha {
+  display: block;
+  white-space: pre-line;
+  word-break: break-all;
+  overflow: visible;
+  max-width: 100%;
+  min-width: 0;
+}
+
 .cp-institution-row {
   display: flex;
   align-items: center;
@@ -309,6 +321,15 @@ ion-content.comprovante-content::part(scroll) {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Evita truncamento com reticências em linha (flex + WebView): coluna e largura total */
+.cp-identifier-row--boleto {
+  flex-direction: column;
+  align-items: stretch;
+  align-self: stretch;
 }
 
 .cp-inline-spinner {

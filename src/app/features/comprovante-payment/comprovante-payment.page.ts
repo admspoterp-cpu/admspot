@@ -14,8 +14,13 @@ import {
   PixTransferInfoService,
   type PixTransferInfoResponse,
 } from '../../services/pix-transfer-info.service';
+import {
+  PixTransactionInfoService,
+  type PixTransactionInfoResponse,
+} from '../../services/pix-transaction-info.service';
 import { PixReceiptShareService, type PixTransferReceiptData } from '../../services/pix-receipt-share.service';
 import { WalletAccountService } from '../../services/wallet-account.service';
+import { formatBoletoIdentificationDisplay } from '../../shared/utils/boleto-linha-digitavel-display.util';
 
 /** Estado enviado por `pay-transfer-pix` ou `transfer-ted-info` ao concluir pagamento */
 export interface ComprovantePaymentNavState {
@@ -27,9 +32,21 @@ export interface ComprovantePaymentNavState {
   /** CPF | CNPJ | EMAIL | PHONE | EVP — necessário para repetir PIX */
   pixKeyType?: string;
   /** Afeta título na tela e texto do PDF em Compartilhar */
-  transferKind?: 'pix' | 'ted';
+  transferKind?: 'pix' | 'ted' | 'pix_qr' | 'boleto';
+  /** Comprovante de pagamento de boleto (pós `/boleto/pay`). */
+  boletoBillPaymentId?: string;
+  boletoStatus?: string;
+  boletoScheduleDate?: string | null;
+  boletoMessage?: string;
+  /** Linha digitável / identificationField formatado por completo (multilinha). */
+  boletoLinhaResumo?: string;
+  /** Apenas dígitos — preferido para reformatar a linha no comprovante (evita truncamento no estado). */
+  boletoLinhaDigitavelDigits?: string;
+  boletoExternalReference?: string;
   /** UUID da transferência — dispara consulta a `/pix/transfers/info` até `status === DONE` */
   pixTransferId?: string;
+  /** ID da transação Asaas — consulta `/pix/transactions/info` (pagamento Pix QR) */
+  pixTransactionId?: string;
   pixReference?: string;
   /** Legado: quando não há `pixTransferId` (fluxos antigos) */
   pixEndToEnd?: string | null;
@@ -53,6 +70,7 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
   private readonly walletAccountService = inject(WalletAccountService);
   private readonly authSession = inject(AuthSessionService);
   private readonly pixTransferInfo = inject(PixTransferInfoService);
+  private readonly pixTransactionInfo = inject(PixTransactionInfoService);
   private readonly ngZone = inject(NgZone);
   private readonly balanceService = inject(BalanceService);
   private readonly biometricRule = inject(BiometricRuleService);
@@ -73,8 +91,16 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
 
   receiptSubtitle = '';
 
-  /** Origem do fluxo — define rótulos “PIX” vs “TED” */
-  transferKind: 'pix' | 'ted' = 'pix';
+  /** Origem do fluxo — define rótulos “PIX” vs “TED” vs Pix QR vs Boleto */
+  transferKind: 'pix' | 'ted' | 'pix_qr' | 'boleto' = 'pix';
+
+  boletoStatusRaw = '';
+
+  /** `bill_payment_id` — exibido em “ID da operação” (boleto). */
+  boletoOperationId = '';
+
+  /** Polling: transferência com chave vs transação Pix QR (cobrança QR). */
+  private pixInfoPollKind: 'transfer' | 'qr_transaction' | null = null;
 
   /** Fluxo PIX com `pixTransferId`: polling até `DONE`. */
   pixPollScheduled = false;
@@ -114,7 +140,50 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
     this.receiptSubtitle = this.buildReceiptDateTime();
 
     const s = history.state as ComprovantePaymentNavState & Record<string, unknown>;
-    if (s?.transferKind === 'ted' || s?.transferKind === 'pix') {
+
+    if (s?.transferKind === 'boleto') {
+      this.transferKind = 'boleto';
+      if (typeof s?.amountDisplay === 'string' && s.amountDisplay.trim()) {
+        this.amountDisplay = s.amountDisplay.trim();
+      }
+      if (typeof s?.beneficiaryName === 'string' && s.beneficiaryName.trim()) {
+        this.beneficiaryName = s.beneficiaryName.trim();
+      }
+      if (typeof s?.beneficiaryBank === 'string' && s.beneficiaryBank.trim()) {
+        this.beneficiaryBank = s.beneficiaryBank.trim();
+      }
+      if (typeof s?.documentMasked === 'string' && s.documentMasked.trim()) {
+        this.documentMasked = s.documentMasked.trim();
+      }
+      this.transactionType = 'Boleto';
+      const billId = (s?.boletoBillPaymentId as string)?.trim() || '';
+      this.boletoOperationId = billId || '—';
+      const extRef = (s?.boletoExternalReference as string)?.trim() || '';
+      this.transactionId = extRef || '—';
+      this.boletoStatusRaw = (s?.boletoStatus as string)?.trim() || '';
+      const linhaDigits = String(s?.boletoLinhaDigitavelDigits ?? '')
+        .replace(/\D/g, '')
+        .trim();
+      this.identifier = linhaDigits
+        ? formatBoletoIdentificationDisplay(linhaDigits)
+        : (s?.boletoLinhaResumo as string)?.trim() || '—';
+      const msg = (s?.boletoMessage as string)?.trim();
+      const sched = s?.boletoScheduleDate as string | null | undefined;
+      if (sched && String(sched).trim()) {
+        this.receiptSubtitle = this.formatBoletoScheduleSubtitle(String(sched).trim());
+      }
+      this.statusText =
+        msg ||
+        (this.boletoStatusRaw === 'PENDING' ? 'Pagamento agendado' : this.boletoStatusRaw || 'Registrado');
+      this.syncBankShort();
+      return;
+    }
+
+    if (
+      s?.transferKind === 'ted' ||
+      s?.transferKind === 'pix' ||
+      s?.transferKind === 'pix_qr'
+    ) {
       this.transferKind = s.transferKind;
     }
     if (typeof s?.amountDisplay === 'string' && s.amountDisplay.trim()) {
@@ -141,19 +210,30 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
     }
 
     const pixTid = typeof s?.pixTransferId === 'string' ? s.pixTransferId.trim() : '';
+    const pixTxnId = typeof s?.pixTransactionId === 'string' ? s.pixTransactionId.trim() : '';
 
-    if (pixTid) {
+    if (this.transferKind === 'pix_qr' && pixTxnId) {
+      this.transactionId = pixTxnId;
+      this.transactionType = 'PIX QR Code';
+      this.pixPollScheduled = true;
+      this.pixInfoPollKind = 'qr_transaction';
+      this.identifier = '—';
+      this.statusText = 'Em processamento';
+      this.pixTransferIdInternal = pixTxnId;
+      void this.startPixTransferInfoPolling();
+    } else if (pixTid) {
       this.transactionId = pixTid;
       this.transactionType = 'PIX';
     }
 
     if (this.transferKind === 'pix' && pixTid) {
       this.pixPollScheduled = true;
+      this.pixInfoPollKind = 'transfer';
       this.identifier = '—';
       this.statusText = 'Em processamento';
       this.pixTransferIdInternal = pixTid;
       void this.startPixTransferInfoPolling();
-    } else {
+    } else if (this.transferKind !== 'pix_qr' || !pixTxnId) {
       this.applyLegacyPixStateFromNav(s);
     }
   }
@@ -166,9 +246,30 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
     void this.navController.navigateRoot('/dashboard');
   }
 
+  /** Rótulo do campo: boleto exibe linha digitável completa; PIX/TED o identificador da transação. */
+  get identifierFieldLabel(): string {
+    return this.transferKind === 'boleto' ? 'Linha digitável (boleto)' : 'Identificador';
+  }
+
   get successHeroTitle(): string {
     if (this.transferKind === 'ted') {
       return 'Transferência TED Realizada';
+    }
+    if (this.transferKind === 'boleto') {
+      const st = this.boletoStatusRaw.toUpperCase();
+      if (st === 'PENDING' || st === 'SCHEDULED' || st === 'AWAITING') {
+        return 'Pagamento de boleto agendado';
+      }
+      return 'Pagamento de boleto';
+    }
+    if (this.transferKind === 'pix_qr') {
+      if (this.pixPollScheduled && this.pixTransferFailed) {
+        return 'Pagamento Pix não concluído';
+      }
+      if (this.pixPollScheduled && !this.pixTransferDone) {
+        return 'Pagamento Pix em processamento';
+      }
+      return 'Pagamento Pix realizado';
     }
     if (this.pixPollScheduled && this.pixTransferFailed) {
       return 'Transferência Pix não concluída';
@@ -245,13 +346,20 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
   }
 
   private shareOptionsForKind(): { shareTitle: string } {
-    return {
-      shareTitle: this.transferKind === 'ted' ? 'Comprovante TED' : 'Comprovante PIX',
-    };
+    if (this.transferKind === 'ted') {
+      return { shareTitle: 'Comprovante TED' };
+    }
+    if (this.transferKind === 'boleto') {
+      return { shareTitle: 'Comprovante boleto' };
+    }
+    if (this.transferKind === 'pix_qr') {
+      return { shareTitle: 'Comprovante PIX QR' };
+    }
+    return { shareTitle: 'Comprovante PIX' };
   }
 
   private getReceiptPayload(): PixTransferReceiptData {
-    return {
+    const base: PixTransferReceiptData = {
       receiptSubtitle: this.receiptSubtitle,
       amountDisplay: this.amountDisplay,
       beneficiaryName: this.beneficiaryName,
@@ -263,6 +371,10 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
       statusText: this.statusText,
       transferKind: this.transferKind,
     };
+    if (this.transferKind === 'boleto') {
+      base.boletoOperationId = this.boletoOperationId;
+    }
+    return base;
   }
 
   /** PDF: inclui conta de origem (carteira padrão), como na tela Depositar. */
@@ -778,38 +890,73 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
 
     this.pixInfoFetchInFlight = true;
     try {
-      const data = await this.pixTransferInfo.fetchInfo(
-        access,
-        sourceToken,
-        this.pixTransferIdInternal,
-      );
-      this.ngZone.run(() => {
-        if (!data) {
-          return;
-        }
-        if (data.success !== true) {
-          return;
-        }
-        this.applyPixTransferInfo(data);
-        const st = this.resolveTransferStatus(data);
-        if (st === 'DONE') {
-          this.pixTransferDone = true;
-          this.statusText = 'Transferência concluída';
-          this.stopPixInfoPolling();
-          return;
-        }
-        if (this.isFailureStatus(st)) {
-          const reason =
-            (data.summary?.fail_reason ?? data.asaas?.failReason ?? '').trim() ||
-            'Transferência não concluída.';
-          this.statusText = reason;
-          this.pixTransferFailed = true;
-          this.pixTransferDone = true;
-          this.stopPixInfoPolling();
-          return;
-        }
-        this.statusText = 'Em processamento';
-      });
+      if (this.pixInfoPollKind === 'qr_transaction') {
+        const data = await this.pixTransactionInfo.fetchInfo(
+          access,
+          sourceToken,
+          this.pixTransferIdInternal,
+        );
+        this.ngZone.run(() => {
+          if (!data) {
+            return;
+          }
+          if (data.success !== true) {
+            return;
+          }
+          this.applyPixTransactionInfo(data);
+          const st = this.resolveTransactionStatus(data);
+          if (st === 'DONE') {
+            this.pixTransferDone = true;
+            this.statusText = 'Pagamento concluído';
+            this.stopPixInfoPolling();
+            return;
+          }
+          if (this.isFailureStatus(st)) {
+            const reason =
+              (data.summary?.fail_reason ?? data.asaas?.failReason ?? '').trim() ||
+              'Pagamento não concluído.';
+            this.statusText = reason;
+            this.pixTransferFailed = true;
+            this.pixTransferDone = true;
+            this.stopPixInfoPolling();
+            return;
+          }
+          this.statusText = 'Em processamento';
+        });
+      } else {
+        const data = await this.pixTransferInfo.fetchInfo(
+          access,
+          sourceToken,
+          this.pixTransferIdInternal,
+        );
+        this.ngZone.run(() => {
+          if (!data) {
+            return;
+          }
+          if (data.success !== true) {
+            return;
+          }
+          this.applyPixTransferInfo(data);
+          const st = this.resolveTransferStatus(data);
+          if (st === 'DONE') {
+            this.pixTransferDone = true;
+            this.statusText = 'Transferência concluída';
+            this.stopPixInfoPolling();
+            return;
+          }
+          if (this.isFailureStatus(st)) {
+            const reason =
+              (data.summary?.fail_reason ?? data.asaas?.failReason ?? '').trim() ||
+              'Transferência não concluída.';
+            this.statusText = reason;
+            this.pixTransferFailed = true;
+            this.pixTransferDone = true;
+            this.stopPixInfoPolling();
+            return;
+          }
+          this.statusText = 'Em processamento';
+        });
+      }
     } finally {
       this.pixInfoFetchInFlight = false;
     }
@@ -827,8 +974,61 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
     return b;
   }
 
+  private resolveTransactionStatus(data: PixTransactionInfoResponse): string {
+    const a = (data.summary?.status ?? '').trim().toUpperCase();
+    const b = (data.asaas?.status ?? '').trim().toUpperCase();
+    if (a === 'DONE' || b === 'DONE') {
+      return 'DONE';
+    }
+    if (a) {
+      return a;
+    }
+    return b;
+  }
+
   private isFailureStatus(st: string): boolean {
-    return ['FAILED', 'CANCELLED', 'CANCELED', 'REFUSED', 'ERROR'].includes(st);
+    return [
+      'FAILED',
+      'CANCELLED',
+      'CANCELED',
+      'REFUSED',
+      'ERROR',
+      'REFUNDED',
+      'REFOUND',
+    ].includes(st);
+  }
+
+  private applyPixTransactionInfo(data: PixTransactionInfoResponse): void {
+    const e2e = data.summary?.end_to_end_identifier ?? data.asaas?.endToEndIdentifier;
+    if (typeof e2e === 'string' && e2e.trim()) {
+      this.identifier = e2e.trim();
+    }
+    const effRaw = data.summary?.payment_date ?? data.asaas?.effectiveDate;
+    if (typeof effRaw === 'string' && effRaw.trim()) {
+      const parsed = this.parseEffectiveDateTime(effRaw.trim());
+      if (parsed) {
+        this.receiptSubtitle = this.formatReceiptSubtitle(parsed);
+      }
+    } else {
+      const eff2 = data.asaas?.effectiveDate;
+      if (typeof eff2 === 'string' && eff2.trim()) {
+        const parsed = this.parseEffectiveDateTime(eff2.trim());
+        if (parsed) {
+          this.receiptSubtitle = this.formatReceiptSubtitle(parsed);
+        }
+      }
+    }
+    const ext = data.asaas?.externalAccount;
+    if (ext?.name?.trim()) {
+      this.beneficiaryName = ext.name.trim();
+    }
+    if (ext?.ispbName?.trim()) {
+      this.beneficiaryBank = ext.ispbName.trim();
+    }
+    if (ext?.cpfCnpj?.trim()) {
+      this.documentMasked = ext.cpfCnpj.trim();
+    }
+    this.syncBankShort();
   }
 
   private applyPixTransferInfo(data: PixTransferInfoResponse): void {
@@ -908,5 +1108,24 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
 
   private buildReceiptDateTime(): string {
     return this.formatReceiptSubtitle(new Date());
+  }
+
+  /** Ex.: `2026-03-30 09:00:00` → texto legível em pt-BR. */
+  private formatBoletoScheduleSubtitle(raw: string): string {
+    const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    if (!m) {
+      return raw;
+    }
+    const d = new Date(
+      Number(m[1]),
+      Number(m[2]) - 1,
+      Number(m[3]),
+      Number(m[4]),
+      Number(m[5]),
+    );
+    if (Number.isNaN(d.getTime())) {
+      return raw;
+    }
+    return this.formatReceiptSubtitle(d);
   }
 }

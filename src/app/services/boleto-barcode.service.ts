@@ -41,6 +41,7 @@ export type BoletoBarcodeResponse = {
   asaas_field?: string;
   bank_slip?: BoletoBankSlipInfo;
   asaas?: {
+    /** Data mínima (YYYY-MM-DD) para agendar pagamento de boleto vencido. */
     minimumScheduleDate?: string;
     fee?: number;
     bankSlipInfo?: BoletoBankSlipInfo;

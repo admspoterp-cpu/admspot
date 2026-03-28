@@ -10,8 +10,14 @@ import {
 
 import { BalanceService } from '../../services/balance.service';
 import { AuthSessionService } from '../../services/auth-session.service';
+import { ExtratoGeralService } from '../../services/extrato-geral.service';
 import { ScanCodesService } from '../../services/scan-codes.service';
+import {
+  buildDashboardExtratoGroups,
+  type DashboardExtratoRow,
+} from '../../shared/utils/dashboard-extrato.util';
 import { formatBrlNumber, normalizeMoneyValue } from '../../utils/brl-format';
+import type { ComprovantePaymentNavState } from '../comprovante-payment/comprovante-payment.page';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +33,11 @@ export class DashboardPage implements ViewWillEnter {
   /** Valor formatado pt-BR (sem "R$"); mock substituído pela API `/balance`. */
   balanceAmountFormatted = '—';
   balanceLoading = false;
+
+  extratoLoading = false;
+  todayExtrato: DashboardExtratoRow[] = [];
+  previousDayExtrato: DashboardExtratoRow[] = [];
+  previousDayExtratoTitle = '';
   /** Texto da linha "Última atualização…". */
   balanceUpdatedText = '';
   activeTab: 'Home' | 'Send' | 'Pagar' | 'Cards' | 'More' = 'Home';
@@ -61,6 +72,7 @@ export class DashboardPage implements ViewWillEnter {
   private readonly loadingController = inject(LoadingController);
   private readonly authSession = inject(AuthSessionService);
   private readonly balanceService = inject(BalanceService);
+  private readonly extratoGeralService = inject(ExtratoGeralService);
   private readonly scanCodesService = inject(ScanCodesService);
 
   ionViewWillEnter(): void {
@@ -70,6 +82,7 @@ export class DashboardPage implements ViewWillEnter {
       return;
     }
     void this.loadBalanceFromApi();
+    void this.loadExtratoResumo();
   }
 
   private async loadBalanceFromApi(): Promise<void> {
@@ -115,6 +128,56 @@ export class DashboardPage implements ViewWillEnter {
       hour: '2-digit',
       minute: '2-digit',
     })}`;
+  }
+
+  private async loadExtratoResumo(): Promise<void> {
+    const access = this.authSession.getAccessToken();
+    const wallet = this.authSession.getDefaultWallet();
+    const walletToken = wallet?.wallet_token_account?.trim();
+    if (!access || !walletToken) {
+      this.todayExtrato = [];
+      this.previousDayExtrato = [];
+      this.previousDayExtratoTitle = '';
+      return;
+    }
+
+    this.extratoLoading = true;
+    const data = await this.extratoGeralService.fetchExtrato(access, walletToken);
+    this.extratoLoading = false;
+
+    if (!data || data.success !== true || !Array.isArray(data.operacoes)) {
+      this.todayExtrato = [];
+      this.previousDayExtrato = [];
+      this.previousDayExtratoTitle = '';
+      return;
+    }
+
+    const groups = buildDashboardExtratoGroups(data.operacoes);
+    this.todayExtrato = groups.today;
+    this.previousDayExtrato = groups.previousDay;
+    this.previousDayExtratoTitle = groups.previousDayTitle;
+  }
+
+  /**
+   * Transferências PIX no extrato: abre `comprovante-payment`, que consulta
+   * `/api/central/v1/pix/transfers/info` pelo `trasnfer_id`.
+   */
+  async onExtratoItemTap(row: DashboardExtratoRow): Promise<void> {
+    const id = row.pixTransferId?.trim();
+    if (!id) {
+      return;
+    }
+
+    const state: ComprovantePaymentNavState = {
+      transferKind: 'pix',
+      pixTransferId: id,
+      amountDisplay: row.amountDisplay,
+      beneficiaryName: row.displayName,
+      beneficiaryBank: row.beneficiaryBank,
+      documentMasked: '—',
+    };
+
+    await this.navController.navigateForward('/comprovante-payment', { state });
   }
 
   /** Nome gravado no login junto com o token (`first_name` + `last_name`). */

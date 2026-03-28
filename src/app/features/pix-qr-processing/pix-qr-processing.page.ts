@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 
 import { AuthSessionService } from '../../services/auth-session.service';
 import { PixQrDecodeService } from '../../services/pix-qr-decode.service';
+import { isPixQrOpenAmountDecode } from '../../shared/utils/pix-qr-open-amount.util';
 
 type PixQrProcessingNavState = {
   qrPayload?: string;
@@ -58,7 +59,8 @@ export class PixQrProcessingPage implements OnInit {
     }
 
     this.statusText = 'Abrindo detalhes do pagamento...';
-    await this.router.navigate(['/pix-qr-payment-details'], {
+    const target = isPixQrOpenAmountDecode(data) ? '/pix-qr-open-amount' : '/pix-qr-payment-details';
+    await this.router.navigate([target], {
       state: {
         qrPayload: payload,
         decodeData: data,

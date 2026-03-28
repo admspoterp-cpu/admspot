@@ -35,6 +35,19 @@
           <span class="overdue-badge">Vencido</span>
         </div>
 
+        <div class="schedule-pick" *ngIf="isOverdue && scheduleDatetimeIso">
+          <p class="section-label">Agendar pagamento</p>
+          <p class="schedule-hint">Escolha data e hora. O débito segue as regras do banco e do horário comercial.</p>
+          <ion-datetime
+            class="boleto-datetime"
+            presentation="date-time"
+            hourCycle="h23"
+            locale="pt-BR"
+            [(ngModel)]="scheduleDatetimeIso"
+            [min]="scheduleMinIso || undefined"
+          ></ion-datetime>
+        </div>
+
         <div class="amount-block">
           <div class="amount-row">
             <span class="currency">{{ amountCurrency }}</span>
@@ -49,7 +62,7 @@
         </div>
 
         <div class="barcode-block" *ngIf="identificationDisplay">
-          <p class="field-label muted">Linha digitável / identificação</p>
+          <p class="field-label muted">Linha digitável (boleto)</p>
           <p class="barcode-value">{{ identificationDisplay }}</p>
           <img
             class="divider"
@@ -88,8 +101,79 @@
           />
         </div>
 
-        <button type="button" class="pay-btn tap-highlight-none" (click)="onPay()">PAGAR</button>
+        <button
+          type="button"
+          class="pay-btn tap-highlight-none"
+          [disabled]="payButtonDisabled"
+          (click)="onPay()"
+        >
+          {{ payExecuting ? 'Processando…' : 'PAGAR' }}
+        </button>
       </div>
     </div>
   </div>
 </ion-content>
+
+<ion-modal
+  #transferPwdModal
+  class="transfer-pwd-sheet boleto-pwd-modal"
+  [isOpen]="transferPasswordSheetOpen"
+  [initialBreakpoint]="0.48"
+  [breakpoints]="[0, 0.48, 0.6]"
+  handle="true"
+  [backdropDismiss]="true"
+  (didDismiss)="onTransferPasswordSheetDismiss()"
+  (didPresent)="onTransferPasswordModalPresent()"
+>
+  <ng-template>
+    <div
+      class="pwd-sheet"
+      [class.pwd-sheet--shake]="pwdSheetShake"
+      [class.pwd-sheet--busy]="transferPasswordVerifying"
+    >
+      <button
+        type="button"
+        class="pwd-sheet-back tap-highlight-none"
+        (click)="closeTransferPasswordSheet()"
+        aria-label="Voltar"
+      >
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-dfe7531e-80eb-4668-aa39-5254c3aa8401.svg"
+          alt=""
+        />
+      </button>
+      <h2 class="pwd-sheet-title">Digite sua senha de transferência</h2>
+      <p class="pwd-sheet-sub">
+        Use a senha de 4 dígitos configurada para transferências na sua conta.
+      </p>
+      <div class="pwd-dots" (click)="transferPwdInput?.focus()">
+        <span
+          *ngFor="let i of transferPwdDots"
+          class="pwd-dot"
+          [class.pwd-dot--filled]="i < transferPassword.length"
+        ></span>
+      </div>
+      <input
+        #transferPwdInput
+        class="pwd-hidden-input"
+        type="password"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="4"
+        [ngModel]="transferPassword"
+        (ngModelChange)="onTransferPasswordInput($event)"
+        [readonly]="transferPasswordVerifying"
+        aria-label="Senha de transferência de 4 dígitos"
+      />
+      <button
+        type="button"
+        class="pwd-sheet-confirm tap-highlight-none"
+        [disabled]="transferPasswordVerifying"
+        (click)="confirmTransferPasswordTap()"
+      >
+        <ion-spinner *ngIf="transferPasswordVerifying" class="pwd-sheet-spinner" name="crescent"></ion-spinner>
+        <span>{{ transferPasswordVerifying ? 'Validando…' : 'Confirmar' }}</span>
+      </button>
+    </div>
+  </ng-template>
+</ion-modal>
