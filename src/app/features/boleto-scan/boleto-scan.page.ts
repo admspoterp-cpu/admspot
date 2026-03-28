@@ -35,10 +35,12 @@ export class BoletoScanPage implements OnDestroy {
   detectedCode = '';
   statusMessage = 'Aponte o codigo de barras do boleto para a area de leitura.';
   /** Definido após GET `/scan-code-mode` (fallback: SCAN_ONLY). */
-  scanMode: 'SCAN_ONLY' | 'SCAN_BY_ZIMAGE' = 'SCAN_ONLY';
+  scanMode: 'SCAN_ONLY' | 'SCAN_BY_ZIMAGE' | 'SCAN_BY_ZIMAGE_QUICK' = 'SCAN_ONLY';
 
   private scriptLoadPromise?: Promise<void>;
   private quagga?: QuaggaGlobal;
+  /** Só para `SCAN_BY_ZIMAGE_QUICK`: evita múltiplos envios. */
+  private quickCaptureTriggered = false;
   /** Evita múltiplos `onDetected` antes do scanner parar. */
   private suppressDetections = false;
   private settleTimer: ReturnType<typeof setTimeout> | null = null;
@@ -54,6 +56,20 @@ export class BoletoScanPage implements OnDestroy {
     }
     const raw = result.codeResult?.code ?? '';
     const digitsOnly = this.normalizeBoletoNumber(raw);
+
+    /** Primeiro dígito decodificado → captura + API imediata (sem esperar 44 estável). */
+    if (this.scanMode === 'SCAN_BY_ZIMAGE_QUICK' && !this.quickCaptureTriggered && digitsOnly.length >= 1) {
+      this.quickCaptureTriggered = true;
+      this.suppressDetections = true;
+      if (this.settleTimer != null) {
+        clearTimeout(this.settleTimer);
+        this.settleTimer = null;
+      }
+      const backup = this.quickBackupFromDigits(digitsOnly);
+      void this.onCodeDetectedZImage(backup, { quick: true });
+      return;
+    }
+
     const candidate = this.extractCandidateDigits(digitsOnly);
     if (!candidate) {
       return;
@@ -107,8 +123,17 @@ export class BoletoScanPage implements OnDestroy {
     const modeRes = await this.scanCodesService.getScanCodeMode(access);
     await loading.dismiss();
 
-    this.scanMode =
-      modeRes?.success === true && modeRes.scan_options === 'SCAN_BY_ZIMAGE' ? 'SCAN_BY_ZIMAGE' : 'SCAN_ONLY';
+    if (modeRes?.success === true) {
+      if (modeRes.scan_options === 'SCAN_BY_ZIMAGE_QUICK') {
+        this.scanMode = 'SCAN_BY_ZIMAGE_QUICK';
+      } else if (modeRes.scan_options === 'SCAN_BY_ZIMAGE') {
+        this.scanMode = 'SCAN_BY_ZIMAGE';
+      } else {
+        this.scanMode = 'SCAN_ONLY';
+      }
+    } else {
+      this.scanMode = 'SCAN_ONLY';
+    }
 
     await this.startScanner();
   }
@@ -142,6 +167,7 @@ export class BoletoScanPage implements OnDestroy {
   private async startScanner(): Promise<void> {
     this.stopScanner();
     this.suppressDetections = false;
+    this.quickCaptureTriggered = false;
     this.bestCandidateDigits = '';
     this.bestCandidateScore = -1;
     this.stableReads = 0;
@@ -164,18 +190,19 @@ export class BoletoScanPage implements OnDestroy {
         return;
       }
 
-      const videoConstraints: MediaTrackConstraints =
-        this.scanMode === 'SCAN_BY_ZIMAGE'
-          ? {
-              facingMode: 'environment',
-              width: { ideal: 1920, min: 1280 },
-              height: { ideal: 1080, min: 720 },
-            }
-          : {
-              facingMode: 'environment',
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-            };
+      const useHighResCamera =
+        this.scanMode === 'SCAN_BY_ZIMAGE' || this.scanMode === 'SCAN_BY_ZIMAGE_QUICK';
+      const videoConstraints: MediaTrackConstraints = useHighResCamera
+        ? {
+            facingMode: 'environment',
+            width: { ideal: 1920, min: 1280 },
+            height: { ideal: 1080, min: 720 },
+          }
+        : {
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          };
 
       this.quagga.init(
         {
@@ -282,6 +309,15 @@ export class BoletoScanPage implements OnDestroy {
     return digitsOnly.length === 44 || digitsOnly.length === 47 || digitsOnly.length === 48;
   }
 
+  /** Fallback local no modo rápido, só quando já há 44/47/48 dígitos na leitura parcial. */
+  private quickBackupFromDigits(digitsOnly: string): string {
+    const c = this.extractCandidateDigits(digitsOnly);
+    if (!c) {
+      return '';
+    }
+    return normalizarCodigoBarrasParaApi(c);
+  }
+
   private extractCandidateDigits(digitsOnly: string): string {
     if (!digitsOnly) {
       return '';
@@ -348,11 +384,16 @@ export class BoletoScanPage implements OnDestroy {
   }
 
   /**
-   * Após leitura estável no modo servidor: captura frame JPEG, envia a `/reader/scan-codes` e prioriza `data.barcodes`.
+   * Captura frame JPEG, envia a `/reader/scan-codes` e prioriza `data.barcodes`.
+   * `quick`: disparado no primeiro dígito (SCAN_BY_ZIMAGE_QUICK), sem esperar código estável.
    */
-  private async onCodeDetectedZImage(backupNormalizedCode: string): Promise<void> {
+  private async onCodeDetectedZImage(
+    backupNormalizedCode: string,
+    options?: { quick?: boolean },
+  ): Promise<void> {
+    const quick = options?.quick === true;
     this.scanState = 'success';
-    this.statusMessage = 'Capturando imagem nitida…';
+    this.statusMessage = quick ? 'Enviando imagem…' : 'Capturando imagem nitida…';
     const file = await this.captureVideoFrameAsJpegFile();
     this.stopScanner();
     await this.screenOrientation.lockPortrait();
@@ -362,7 +403,7 @@ export class BoletoScanPage implements OnDestroy {
 
     if (file && access) {
       const loading = await this.loadingController.create({
-        message: 'Processando imagem no servidor…',
+        message: quick ? 'Processando…' : 'Processando imagem no servidor…',
         spinner: 'crescent',
       });
       await loading.present();
@@ -387,6 +428,14 @@ export class BoletoScanPage implements OnDestroy {
       }
     } else if (!file) {
       await this.presentToast('Não foi possível capturar a foto; usando leitura da câmera.', 'warning');
+    }
+
+    const barcodeDigits = barcode.replace(/\D/g, '');
+    if (!barcodeDigits) {
+      await this.presentToast('Não foi possível identificar o boleto. Tente novamente.', 'warning');
+      await this.screenOrientation.lockLandscape();
+      await this.restartScanner();
+      return;
     }
 
     this.detectedCode = barcode;

@@ -7,7 +7,7 @@ const SCAN_CODES_PATH = '/api/central/v1/reader/scan-codes';
 const SCAN_CODE_MODE_PATH = '/api/central/v1/scan-code-mode';
 const PHPSESSID = 'ba832f1772c56eb7fb76a591cf310f5f';
 
-export type ScanCodeModeOption = 'SCAN_ONLY' | 'SCAN_BY_ZIMAGE' | string;
+export type ScanCodeModeOption = 'SCAN_ONLY' | 'SCAN_BY_ZIMAGE' | 'SCAN_BY_ZIMAGE_QUICK' | string;
 
 export type ScanCodeModeResponse = {
   success: boolean;
