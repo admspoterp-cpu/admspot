@@ -27,6 +27,10 @@ export type DashboardExtratoRow = {
   beneficiaryBank: string;
   /** Só transferências PIX com `trasnfer_id` abrem detalhe via `/pix/transfers/info` */
   pixTransferId?: string;
+  /** PIX recebido no extrato (`operacao_subtipo` recebido / objeto receiver): comprovante sem Identificador. */
+  pixExtratoRecebido?: boolean;
+  /** Valor de `o_status` no extrato para o detalhe (ex.: RECEIVED). */
+  extratoPixOStatus?: string;
   /** Dígitos do documento do beneficiário (para filtro), quando a API enviar */
   documentDigits?: string;
   /** Exibição mascarada na lista */
@@ -150,6 +154,16 @@ function amountCentsFromOperacao(op: ExtratoOperacaoRaw): number {
   return Math.round(n);
 }
 
+/** Entrada de dinheiro na conta (extrato: `operacao_subtipo` ou `trasnfer_object`). */
+function isOperacaoRecebido(op: ExtratoOperacaoRaw): boolean {
+  const sub = String(op.operacao_subtipo ?? '').toLowerCase().trim();
+  if (sub === 'recebido') {
+    return true;
+  }
+  const obj = String(op.trasnfer_object ?? '').toUpperCase().trim();
+  return obj === 'RECEIVER';
+}
+
 function isCreditOperation(op: ExtratoOperacaoRaw): boolean {
   const obj = String(op.trasnfer_object ?? '')
     .toUpperCase()
@@ -160,6 +174,9 @@ function isCreditOperation(op: ExtratoOperacaoRaw): boolean {
   const act = String(op.atividade ?? '')
     .toLowerCase()
     .trim();
+  if (isOperacaoRecebido(op)) {
+    return true;
+  }
   if (obj === 'CREDIT') {
     return true;
   }
@@ -170,6 +187,14 @@ function isCreditOperation(op: ExtratoOperacaoRaw): boolean {
     return true;
   }
   return false;
+}
+
+function extratoOStatusRaw(op: ExtratoOperacaoRaw): string | undefined {
+  const v = op.o_status;
+  if (typeof v === 'string' && v.trim()) {
+    return v.trim();
+  }
+  return undefined;
 }
 
 function displayNameFromOperacao(op: ExtratoOperacaoRaw): string {
@@ -212,6 +237,18 @@ function pixTransferIdFromOperacao(op: ExtratoOperacaoRaw): string | undefined {
   }
   const id = String(op.trasnfer_id ?? '').trim();
   return id.length > 0 ? id : undefined;
+}
+
+function isPixExtratoRecebidoRow(op: ExtratoOperacaoRaw): boolean {
+  const tid = pixTransferIdFromOperacao(op);
+  if (!tid) {
+    return false;
+  }
+  return (
+    String(op.tipo_registro ?? '').trim() === 'app_real_transfer' &&
+    String(op.trasnfer_operationType ?? '').toUpperCase().trim() === 'PIX' &&
+    isOperacaoRecebido(op)
+  );
 }
 
 function pickDocumentRaw(op: ExtratoOperacaoRaw): string {
@@ -288,6 +325,7 @@ export function mapOperacaoToDashboardRow(op: ExtratoOperacaoRaw): DashboardExtr
   const mo = String(when.getMonth() + 1).padStart(2, '0');
   const da = String(when.getDate()).padStart(2, '0');
   const dateIso = `${y}-${mo}-${da}`;
+  const pixExtratoRecebido = isPixExtratoRecebidoRow(op);
   return {
     displayName: name,
     initials: initialsFromDisplayName(name),
@@ -302,6 +340,7 @@ export function mapOperacaoToDashboardRow(op: ExtratoOperacaoRaw): DashboardExtr
     documentMasked: docMasked || undefined,
     kindTag: kindTagFromOperacao(op),
     dateIso,
+    ...(pixExtratoRecebido ? { pixExtratoRecebido: true, extratoPixOStatus: extratoOStatusRaw(op) } : {}),
   };
 }
 

@@ -188,6 +188,13 @@ ion-content.comprovante-content::part(scroll) {
   padding: 16px 20px 0;
 }
 
+.cp-amount-block--incoming .cp-amount-minus,
+.cp-amount-block--incoming .cp-amount-plus,
+.cp-amount-block--incoming .cp-amount-rs,
+.cp-amount-block--incoming .cp-amount-value {
+  color: #15803d;
+}
+
 .cp-amount-row {
   display: flex;
   align-items: baseline;

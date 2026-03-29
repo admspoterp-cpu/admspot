@@ -181,6 +181,12 @@ export class DashboardPage implements ViewWillEnter {
       beneficiaryName: row.displayName,
       beneficiaryBank: row.beneficiaryBank,
       documentMasked: '—',
+      ...(row.pixExtratoRecebido
+        ? {
+            pixExtratoIncoming: true,
+            extratoPixOStatus: row.extratoPixOStatus,
+          }
+        : {}),
     };
 
     await this.navController.navigateForward('/comprovante-payment', { state });

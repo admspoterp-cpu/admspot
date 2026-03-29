@@ -49,9 +49,9 @@
         alt=""
       />
 
-      <section class="cp-amount-block">
+      <section class="cp-amount-block" [class.cp-amount-block--incoming]="pixExtratoIncoming">
         <div class="cp-amount-row">
-          <span class="cp-amount-minus">-</span>
+          <span class="cp-amount-minus" [class.cp-amount-plus]="pixExtratoIncoming">{{ amountDetailSign }}</span>
           <span class="cp-amount-rs">R$</span>
           <span class="cp-amount-value">{{ amountDisplay }}</span>
         </div>
@@ -78,7 +78,7 @@
         />
       </section>
 
-      <section class="cp-detail-row cp-detail-padded">
+      <section class="cp-detail-row cp-detail-padded" *ngIf="!pixExtratoIncoming">
         <span class="cp-label">Documento do Beneficiário</span>
         <span class="cp-value">{{ documentMasked }}</span>
         <img
@@ -118,7 +118,7 @@
         />
       </section>
 
-      <section class="cp-detail-row cp-detail-padded">
+      <section class="cp-detail-row cp-detail-padded" *ngIf="transferKind === 'boleto' || !pixExtratoIncoming">
         <span class="cp-label">{{ identifierFieldLabel }}</span>
         <div
           class="cp-identifier-row"
@@ -183,7 +183,7 @@
       <button
         type="button"
         class="cp-list-action tap-highlight-none"
-        *ngIf="transferKind === 'pix'"
+        *ngIf="transferKind === 'pix' && !pixExtratoIncoming"
         (click)="onRepeatTransaction()"
       >
         <img

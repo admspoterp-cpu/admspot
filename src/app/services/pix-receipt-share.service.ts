@@ -21,6 +21,8 @@ export interface PixTransferReceiptData {
   originFullName?: string;
   originAgency?: string;
   originAccount?: string;
+  /** PIX recebido (extrato): PDF sem Identificador, valor com + */
+  pixIncoming?: boolean;
 }
 
 /** Opções do sheet nativo / título da Web Share API */
@@ -54,6 +56,7 @@ export class PixReceiptShareService {
     const isTed = data.transferKind === 'ted';
     const isPixQr = data.transferKind === 'pix_qr';
     const isBoleto = data.transferKind === 'boleto';
+    const isPixReceived = data.pixIncoming === true;
     const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
     const pageW = doc.internal.pageSize.getWidth();
     const margin = 18;
@@ -70,7 +73,9 @@ export class PixReceiptShareService {
           ? 'Comprovante de pagamento de boleto'
           : isPixQr
             ? 'Comprovante de pagamento PIX QR'
-            : 'Comprovante de transferência PIX',
+            : isPixReceived
+              ? 'Comprovante de PIX recebido'
+              : 'Comprovante de transferência PIX',
       margin,
       y
     );
@@ -91,7 +96,9 @@ export class PixReceiptShareService {
           ? 'Pagamento de boleto registrado'
           : isPixQr
             ? 'Pagamento Pix realizado'
-            : 'Transferência Pix realizada',
+            : isPixReceived
+              ? 'PIX recebido na conta'
+              : 'Transferência Pix realizada',
       margin,
       y
     );
@@ -145,21 +152,25 @@ export class PixReceiptShareService {
       y += 8;
     }
 
-    addField('Valor', `- R$ ${data.amountDisplay}`);
+    addField('Valor', isPixReceived ? `+ R$ ${data.amountDisplay}` : `- R$ ${data.amountDisplay}`);
     addField('Beneficiário', data.beneficiaryName);
     if (!isBoleto) {
       addField('Instituição', data.beneficiaryBank);
     }
-    addField('Documento do beneficiário', data.documentMasked);
+    if (!isPixReceived) {
+      addField('Documento do beneficiário', data.documentMasked);
+    }
     addField('Tipo de transação', data.transactionType);
     addField('ID da transação', data.transactionId);
     if (isBoleto && data.boletoOperationId?.trim()) {
       addField('ID da operação', data.boletoOperationId.trim());
     }
-    const identifierForPdf = isBoleto
-      ? data.identifier.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
-      : data.identifier;
-    addField(isBoleto ? 'Linha digitável (boleto)' : 'Identificador', identifierForPdf);
+    if (!isPixReceived) {
+      const identifierForPdf = isBoleto
+        ? data.identifier.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
+        : data.identifier;
+      addField(isBoleto ? 'Linha digitável (boleto)' : 'Identificador', identifierForPdf);
+    }
     addField('Estatus', data.statusText);
 
     y += 4;

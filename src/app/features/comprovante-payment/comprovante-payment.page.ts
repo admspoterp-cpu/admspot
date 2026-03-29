@@ -45,6 +45,10 @@ export interface ComprovantePaymentNavState {
   boletoExternalReference?: string;
   /** UUID da transferência — dispara consulta a `/pix/transfers/info` até `status === DONE` */
   pixTransferId?: string;
+  /** Aberto a partir do extrato: PIX recebido (sem Identificador, status por `extratoPixOStatus`). */
+  pixExtratoIncoming?: boolean;
+  /** Valor de `o_status` no item do extrato (ex.: RECEIVED). */
+  extratoPixOStatus?: string;
   /** ID da transação Asaas — consulta `/pix/transactions/info` (pagamento Pix QR) */
   pixTransactionId?: string;
   pixReference?: string;
@@ -136,6 +140,9 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
   reportMotivo: '' | 'wrong_amount' | 'wrong_person' = '';
   reportSubmitting = false;
 
+  /** PIX recebido via extrato: não polling, sem identificador E2E, valor com +. */
+  pixExtratoIncoming = false;
+
   ngOnInit(): void {
     this.receiptSubtitle = this.buildReceiptDateTime();
 
@@ -211,6 +218,21 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
 
     const pixTid = typeof s?.pixTransferId === 'string' ? s.pixTransferId.trim() : '';
     const pixTxnId = typeof s?.pixTransactionId === 'string' ? s.pixTransactionId.trim() : '';
+    const extratoIncoming = s?.pixExtratoIncoming === true;
+
+    if (this.transferKind === 'pix' && pixTid && extratoIncoming) {
+      this.pixExtratoIncoming = true;
+      this.transactionId = pixTid;
+      this.transactionType = 'PIX';
+      this.pixTransferDone = true;
+      this.pixPollScheduled = false;
+      this.identifier = '';
+      this.statusText = this.formatExtratoOStatus(
+        typeof s?.extratoPixOStatus === 'string' ? s.extratoPixOStatus : '',
+      );
+      this.syncBankShort();
+      return;
+    }
 
     if (this.transferKind === 'pix_qr' && pixTxnId) {
       this.transactionId = pixTxnId;
@@ -251,7 +273,15 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
     return this.transferKind === 'boleto' ? 'Linha digitável (boleto)' : 'Identificador';
   }
 
+  /** Sinal antes do valor no detalhe (- envio, + recebimento). */
+  get amountDetailSign(): string {
+    return this.pixExtratoIncoming ? '+' : '-';
+  }
+
   get successHeroTitle(): string {
+    if (this.pixExtratoIncoming) {
+      return 'PIX recebido';
+    }
     if (this.transferKind === 'ted') {
       return 'Transferência TED Realizada';
     }
@@ -355,6 +385,9 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
     if (this.transferKind === 'pix_qr') {
       return { shareTitle: 'Comprovante PIX QR' };
     }
+    if (this.pixExtratoIncoming) {
+      return { shareTitle: 'Comprovante PIX recebido' };
+    }
     return { shareTitle: 'Comprovante PIX' };
   }
 
@@ -370,6 +403,7 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
       identifier: this.identifier,
       statusText: this.statusText,
       transferKind: this.transferKind,
+      ...(this.pixExtratoIncoming ? { pixIncoming: true } : {}),
     };
     if (this.transferKind === 'boleto') {
       base.boletoOperationId = this.boletoOperationId;
@@ -412,6 +446,16 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
 
   async onRepeatTransaction(): Promise<void> {
     if (this.repeatExecuting) {
+      return;
+    }
+    if (this.pixExtratoIncoming) {
+      const toast = await this.toastController.create({
+        message: 'Repetir envio não se aplica a PIX recebido.',
+        duration: 2600,
+        position: 'bottom',
+        color: 'medium',
+      });
+      await toast.present();
       return;
     }
     if (this.transferKind !== 'pix') {
@@ -1060,6 +1104,24 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
 
   private syncBankShort(): void {
     this.beneficiaryBankShort = this.extractBankShortName(this.beneficiaryBank);
+  }
+
+  /** Mapeia `o_status` do extrato para texto amigável no detalhe. */
+  private formatExtratoOStatus(raw: string): string {
+    const u = raw.trim().toUpperCase();
+    if (!u) {
+      return 'Recebido com sucesso';
+    }
+    if (u === 'RECEIVED' || u === 'DONE' || u === 'CONFIRMED') {
+      return 'Recebido com sucesso';
+    }
+    if (u === 'PENDING' || u === 'PROCESSING' || u === 'WAITING') {
+      return 'Em processamento';
+    }
+    if (u === 'FAILED' || u === 'CANCELLED' || u === 'CANCELED' || u === 'REFUSED') {
+      return 'Não concluído';
+    }
+    return raw.trim();
   }
 
   /** Duas letras a partir do nome da instituição (ex.: NU PAGAMENTOS → NU). */

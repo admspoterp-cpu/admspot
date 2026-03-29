@@ -26,6 +26,10 @@ export type ExtratoOperacaoRaw = Record<string, unknown> & {
   trasnfer_bank_name?: string;
   atividade?: string;
   banco_recebedor?: string | null;
+  /** Crédito PIX recebido — ex.: `recebido`. */
+  operacao_subtipo?: string;
+  /** Status da operação no extrato — ex.: `RECEIVED` (PIX recebido). */
+  o_status?: string;
   /** Campos opcionais conforme retorno do extrato — usados em filtros / exibição. */
   trasnfer_bank_ownerCPF?: string;
   trasnfer_bank_ownerCnpj?: string;
