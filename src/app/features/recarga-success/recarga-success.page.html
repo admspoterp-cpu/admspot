@@ -17,14 +17,26 @@
     </header>
 
     <main class="recarga-success-main">
-      <img
-        class="recarga-success-icon"
-        src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319718-b8560c31-18a6-4f45-8635-8f0b5e5ffe72.svg"
-        alt="Sucesso"
-      />
+      <ng-container *ngIf="uiMode === 'success'">
+        <img
+          class="recarga-success-icon"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319718-b8560c31-18a6-4f45-8635-8f0b5e5ffe72.svg"
+          alt=""
+        />
+      </ng-container>
 
-      <h2 class="recarga-success-heading">Recarga Feita!</h2>
-      <p class="recarga-success-sub">Sua recarga foi realizada com sucesso!</p>
+      <div *ngIf="uiMode === 'pending'" class="recarga-success-icon-wrap recarga-success-icon-wrap--pending" aria-hidden="true">
+        <ion-icon name="time-outline" class="recarga-success-ion-icon"></ion-icon>
+      </div>
+
+      <div *ngIf="uiMode === 'failed'" class="recarga-success-icon-wrap recarga-success-icon-wrap--failed" aria-hidden="true">
+        <ion-icon name="close-circle-outline" class="recarga-success-ion-icon"></ion-icon>
+      </div>
+
+      <h2 class="recarga-success-heading" [class.recarga-success-heading--muted]="uiMode !== 'success'">
+        {{ headingText }}
+      </h2>
+      <p class="recarga-success-sub">{{ subText }}</p>
 
       <section class="recarga-success-card" aria-label="Resumo da recarga">
         <img class="recarga-success-operator-icon" [src]="operatorImage" [alt]="operatorName" />

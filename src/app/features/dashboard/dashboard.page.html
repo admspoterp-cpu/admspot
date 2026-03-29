@@ -251,7 +251,7 @@
         />
         <span [class.active-tab]="activeTab === 'Home'" [class.inactive-tab]="activeTab !== 'Home'">Início</span>
       </button>
-      <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('Send')">
+      <button type="button" class="nav-item tap-highlight-none" (click)="goToTransacoes()">
         <img
           src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/PaperPlaneTilt-c347db57-e8ab-4dc4-9bd3-4b90c7ad1694.svg"
           alt="Send"
@@ -507,8 +507,13 @@
             </div>
           </div>
 
-          <button type="button" class="recarga-submit tap-highlight-none" (click)="onRecargaSubmit()">
-            Recarregar
+          <button
+            type="button"
+            class="recarga-submit tap-highlight-none"
+            [disabled]="recargaSubmitting"
+            (click)="onRecargaSubmit()"
+          >
+            {{ recargaSubmitting ? 'Aguarde…' : 'Recarregar' }}
           </button>
         </div>
       </div>

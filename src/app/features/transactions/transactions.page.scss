@@ -1,3 +1,178 @@
-ion-list {
-  margin-top: 8px;
+@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@500&family=Poppins:wght@400;500;600&display=swap');
+
+@import '../cartoes/cartoes.page.scss';
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+/**
+ * Extrato geral: margens laterais maiores + safe-area (evita colar na borda da tela
+ * e dá espaço para valor + tag “pix” à direita).
+ */
+.cartoes-page--transacoes-only {
+  min-height: 100%;
+  box-sizing: border-box;
+  --tx-pad-start: max(24px, env(safe-area-inset-left, 0px));
+  --tx-pad-end: max(24px, env(safe-area-inset-right, 0px));
+}
+
+.cartoes-page--transacoes-only .cartoes-header {
+  padding-left: var(--tx-pad-start);
+  padding-right: var(--tx-pad-end);
+}
+
+.cartoes-page--transacoes-only .cartoes-tx-head {
+  padding-left: var(--tx-pad-start);
+  padding-right: var(--tx-pad-end);
+}
+
+.cartoes-page--transacoes-only .cartoes-tx-scroll {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.cartoes-page--transacoes-only .cartoes-tx-group-label {
+  padding-left: var(--tx-pad-start);
+  padding-right: var(--tx-pad-end);
+}
+
+.cartoes-page--transacoes-only .cartoes-tx-row {
+  padding-top: 12px;
+  padding-bottom: 0;
+  padding-left: var(--tx-pad-start);
+  padding-right: var(--tx-pad-end);
+}
+
+.cartoes-page--transacoes-only .cartoes-tx-line {
+  left: var(--tx-pad-start);
+  right: var(--tx-pad-end);
+}
+
+.cartoes-page--transacoes-only .cartoes-tx-empty {
+  padding-left: var(--tx-pad-start);
+  padding-right: var(--tx-pad-end);
+}
+
+/* Valor + tipo empilhados à direita (sem posição absoluta) */
+.cartoes-tx-body--extrato-split {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cartoes-tx-body-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.cartoes-tx-body-main .cartoes-tx-name--block {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.extrato-tx-value-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 3px;
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.cartoes-page--transacoes-only .extrato-tx-kind {
+  position: static;
+  right: auto;
+  top: auto;
+}
+
+.extrato-tx-amount {
+  line-height: 1.25;
+}
+
+.cartoes-header-spacer {
+  width: 40px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.extrato-loading-line {
+  margin: 0;
+  padding: 4px var(--tx-pad-end) 0 var(--tx-pad-start);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #7d7c93;
+}
+
+.cartoes-tx-doc {
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.25;
+  color: #7d7c93;
+}
+
+.cartoes-tx-row--extrato {
+  width: 100%;
+  margin: 0;
+  /* Não usar padding: 0 — preserva o recuo de `.cartoes-tx-row` + overrides em `.cartoes-page--transacoes-only` */
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  display: flex;
+  align-items: flex-start;
+}
+
+.cartoes-tx-row--link {
+  cursor: pointer;
+}
+
+.cartoes-tx-row--extrato:not(.cartoes-tx-row--link) {
+  cursor: default;
+}
+
+.cartoes-filter-text-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--cartoes-border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--cartoes-text-dark);
+  background: #fff;
+}
+
+.cartoes-filter-text-input::placeholder {
+  color: var(--cartoes-muted);
+}
+
+.cartoes-filter-text-input:focus {
+  outline: none;
+  border-color: var(--cartoes-blue);
+}
+
+.cartoes-page--transacoes-only .cartoes-filter-header {
+  padding-left: max(12px, var(--tx-pad-start));
+  padding-right: max(8px, var(--tx-pad-end));
+}
+
+.cartoes-page--transacoes-only .cartoes-filter-body {
+  padding-left: var(--tx-pad-start);
+  padding-right: var(--tx-pad-end);
+}
+
+.cartoes-page--transacoes-only .cartoes-filter-footer {
+  padding-left: var(--tx-pad-start);
+  padding-right: var(--tx-pad-end);
 }

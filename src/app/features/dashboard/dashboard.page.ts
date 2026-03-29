@@ -11,6 +11,10 @@ import {
 import { BalanceService } from '../../services/balance.service';
 import { AuthSessionService } from '../../services/auth-session.service';
 import { ExtratoGeralService } from '../../services/extrato-geral.service';
+import {
+  MobilePhoneRechargeService,
+  recargaResultUiMode,
+} from '../../services/mobile-phone-recharge.service';
 import { ScanCodesService } from '../../services/scan-codes.service';
 import {
   buildDashboardExtratoGroups,
@@ -45,6 +49,7 @@ export class DashboardPage implements ViewWillEnter {
   transferSheetOpen = false;
   notificationsSheetOpen = false;
   recargaSheetOpen = false;
+  recargaSubmitting = false;
   selectedChargeFileName = '';
   recargaPhone = '';
   selectedRecargaAmount = 50;
@@ -73,6 +78,7 @@ export class DashboardPage implements ViewWillEnter {
   private readonly authSession = inject(AuthSessionService);
   private readonly balanceService = inject(BalanceService);
   private readonly extratoGeralService = inject(ExtratoGeralService);
+  private readonly mobilePhoneRechargeService = inject(MobilePhoneRechargeService);
   private readonly scanCodesService = inject(ScanCodesService);
 
   ionViewWillEnter(): void {
@@ -316,6 +322,12 @@ export class DashboardPage implements ViewWillEnter {
     void this.navController.navigateForward('/cartoes');
   }
 
+  goToTransacoes(): void {
+    this.activeTab = 'Send';
+    this.closeOverlaySheets();
+    void this.navController.navigateForward('/transacoes');
+  }
+
   goToBoletoScanner(): void {
     this.closeOverlaySheets();
     this.navController.navigateForward('/boleto-scan');
@@ -338,6 +350,10 @@ export class DashboardPage implements ViewWillEnter {
 
 
   async onRecargaSubmit(): Promise<void> {
+    if (this.recargaSubmitting) {
+      return;
+    }
+
     const digits = this.recargaPhone.replace(/\D/g, '');
     if (digits.length !== 11) {
       const toast = await this.toastController.create({
@@ -350,17 +366,99 @@ export class DashboardPage implements ViewWillEnter {
       return;
     }
 
+    const access = this.authSession.getAccessToken();
+    if (!access) {
+      const toast = await this.toastController.create({
+        message: 'Sessão expirada. Faça login novamente.',
+        duration: 2400,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
+
+    const wallet = this.authSession.getDefaultWallet();
+    const sourceToken = wallet?.asaas_api_token?.trim();
+    if (!sourceToken) {
+      const toast = await this.toastController.create({
+        message: 'Configure a conta digital e o token Asaas da carteira padrão para recarregar.',
+        duration: 3600,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
+
     const selectedOperator =
-      this.recargaOperators.find((operator) => operator.name === this.selectedRecargaOperator) ?? this.recargaOperators[0];
+      this.recargaOperators.find((operator) => operator.name === this.selectedRecargaOperator) ??
+      this.recargaOperators[0];
+
+    this.recargaSubmitting = true;
+    const loading = await this.loadingController.create({
+      message: 'Processando recarga…',
+      spinner: 'crescent',
+    });
+    await loading.present();
+
+    let result;
+    try {
+      result = await this.mobilePhoneRechargeService.requestRecharge(access, {
+        source_token: sourceToken,
+        value: this.selectedRecargaAmount,
+        phoneNumber: digits,
+      });
+    } finally {
+      await loading.dismiss();
+      this.recargaSubmitting = false;
+    }
+
+    if (!result) {
+      const toast = await this.toastController.create({
+        message: 'Não foi possível conectar ao serviço de recarga. Tente novamente.',
+        duration: 3200,
+        position: 'bottom',
+        color: 'danger',
+      });
+      await toast.present();
+      return;
+    }
+
+    if (!result.success) {
+      const toast = await this.toastController.create({
+        message: (result.message ?? 'Recarga não autorizada.').trim() || 'Recarga não autorizada.',
+        duration: 3600,
+        position: 'bottom',
+        color: 'warning',
+      });
+      await toast.present();
+      return;
+    }
+
+    const status = result.asaas?.status;
+    const uiMode = recargaResultUiMode(status);
+    const operatorName =
+      result.asaas?.operatorName?.trim() ||
+      selectedOperator.name;
+    const amount =
+      typeof result.value === 'number' && Number.isFinite(result.value)
+        ? result.value
+        : typeof result.asaas?.value === 'number' && Number.isFinite(result.asaas.value)
+          ? result.asaas.value
+          : this.selectedRecargaAmount;
 
     this.closeRecargaSheet();
 
     await this.navController.navigateForward('/recarga-success', {
       state: {
-        operatorName: selectedOperator.name,
+        operatorName,
         operatorImage: selectedOperator.image,
         phone: this.recargaPhone.trim(),
-        amount: this.selectedRecargaAmount,
+        amount,
+        rechargeStatus: status,
+        apiMessage: result.message,
+        uiMode,
       },
     });
   }

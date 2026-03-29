@@ -1,32 +1,212 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Transacoes</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="cartoes-content" [scrollY]="false" [forceOverscroll]="false">
+  <div class="cartoes-page cartoes-page--transacoes-only">
+    <header class="cartoes-header">
+      <button type="button" class="cartoes-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretLeft-6cbcca83-94cc-46db-b86e-fbf3f2c9b127.svg"
+          alt=""
+        />
+      </button>
+      <h1 class="cartoes-title">Transações</h1>
+      <span class="cartoes-header-spacer" aria-hidden="true"></span>
+    </header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Transacoes</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <section class="cartoes-transactions" aria-label="Extrato geral">
+      <div class="cartoes-tx-head">
+        <h2 class="cartoes-tx-title">Extrato geral</h2>
+        <div class="cartoes-tx-tools">
+          <button
+            *ngIf="!txSearchOpen"
+            type="button"
+            class="cartoes-tx-tool tap-highlight-none"
+            (click)="openTxSearch()"
+            aria-label="Buscar"
+          >
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/MagnifyingGlass-a94a80e0-b199-43dc-8e26-7685998be524.svg"
+              alt=""
+            />
+          </button>
+          <div *ngIf="txSearchOpen" class="cartoes-tx-search">
+            <input
+              #txSearchInput
+              type="search"
+              class="cartoes-tx-search-input"
+              [(ngModel)]="txSearchQuery"
+              name="extratoTxSearch"
+              placeholder="Buscar por nome ou documento"
+              autocomplete="off"
+              enterkeyhint="search"
+              inputmode="search"
+              aria-label="Buscar transação"
+            />
+            <button type="button" class="cartoes-tx-search-close tap-highlight-none" (click)="closeTxSearch()" aria-label="Cancelar busca">
+              <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
+          <button type="button" class="cartoes-tx-tool tap-highlight-none" (click)="openFilterSheet()" aria-label="Filtros">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319712-d0220d86-78e1-4044-a961-4bea864963f9.svg"
+              alt=""
+            />
+          </button>
+        </div>
+      </div>
 
-  <ion-list inset="true">
-    <ion-item *ngFor="let transaction of transactions">
-      <ion-label>
-        <h2>{{ transaction.description }}</h2>
-        <p>{{ transaction.category }} - {{ transaction.date | date:'dd/MM/yyyy' }}</p>
-      </ion-label>
-      <ion-note
-        slot="end"
-        [color]="transaction.type === 'income' ? 'success' : 'danger'"
-      >
-        {{ transaction.type === 'income' ? '+' : '-' }}
-        {{ transaction.amount | currency:'BRL':'symbol-narrow':'1.2-2' }}
-      </ion-note>
-    </ion-item>
-  </ion-list>
+      <p class="extrato-loading-line" *ngIf="extratoLoading">Carregando movimentações…</p>
+
+      <div class="cartoes-tx-scroll">
+        <p *ngIf="!extratoLoading && filteredGroups.length === 0" class="cartoes-tx-empty">{{ emptyListMessage }}</p>
+        <ng-container *ngFor="let group of filteredGroups">
+          <p class="cartoes-tx-group-label">{{ group.title }}</p>
+          <button
+            type="button"
+            class="cartoes-tx-row cartoes-tx-row--extrato tap-highlight-none"
+            [class.cartoes-tx-row--link]="!!row.pixTransferId"
+            *ngFor="let row of group.rows"
+            (click)="onRowTap(row)"
+          >
+            <div class="cartoes-tx-icon" *ngIf="rowUsesFrameIcon(row)">
+              <img [src]="frameIconSrc" alt="" />
+            </div>
+            <div
+              class="cartoes-tx-avatar"
+              *ngIf="!rowUsesFrameIcon(row)"
+              [style.background]="row.avatarColor"
+            >
+              {{ row.initials }}
+            </div>
+            <div class="cartoes-tx-body cartoes-tx-body--extrato-split">
+              <div class="cartoes-tx-body-main">
+                <p class="cartoes-tx-name cartoes-tx-name--block">{{ row.displayName }}</p>
+                <p class="cartoes-tx-doc" *ngIf="row.documentMasked">{{ row.documentMasked }}</p>
+                <p class="cartoes-tx-time">{{ row.timeLabel }}</p>
+              </div>
+              <div class="extrato-tx-value-col">
+                <span
+                  class="cartoes-tx-amount extrato-tx-amount"
+                  [class.cartoes-tx-amount--neg]="!row.isCredit"
+                  [class.cartoes-tx-amount--pos]="row.isCredit"
+                >
+                  {{ row.amountLine }}
+                </span>
+                <span
+                  class="cartoes-tx-tag extrato-tx-kind"
+                  [class.cartoes-tx-tag--neg]="!row.isCredit"
+                  [class.cartoes-tx-tag--pos]="row.isCredit"
+                >
+                  {{ row.kindTag }}
+                </span>
+              </div>
+            </div>
+            <div class="cartoes-tx-line" aria-hidden="true"></div>
+          </button>
+        </ng-container>
+      </div>
+    </section>
+
+    <button
+      type="button"
+      class="cartoes-filter-backdrop tap-highlight-none"
+      [class.open]="filterSheetOpen"
+      [attr.aria-hidden]="filterSheetOpen ? 'false' : 'true'"
+      (click)="closeFilterSheet()"
+      aria-label="Fechar filtros"
+    ></button>
+    <section
+      class="cartoes-filter-sheet"
+      [class.open]="filterSheetOpen"
+      (click)="$event.stopPropagation()"
+      aria-label="Filtros de transações"
+      [attr.aria-hidden]="filterSheetOpen ? 'false' : 'true'"
+    >
+      <div class="cartoes-filter-handle" aria-hidden="true"></div>
+      <header class="cartoes-filter-header">
+        <h2 class="cartoes-filter-title">Filtros</h2>
+        <button type="button" class="cartoes-filter-close tap-highlight-none" (click)="closeFilterSheet()" aria-label="Fechar">
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+      </header>
+
+      <div class="cartoes-filter-body">
+        <div class="cartoes-filter-field">
+          <span class="cartoes-filter-label">Período</span>
+          <div class="cartoes-filter-dates">
+            <label class="cartoes-filter-date">
+              <span class="cartoes-filter-date-caption">Início</span>
+              <input type="date" [(ngModel)]="draftFilter.dateStart" name="extratoFilterStart" />
+            </label>
+            <label class="cartoes-filter-date">
+              <span class="cartoes-filter-date-caption">Fim</span>
+              <input type="date" [(ngModel)]="draftFilter.dateEnd" name="extratoFilterEnd" />
+            </label>
+          </div>
+        </div>
+
+        <div class="cartoes-filter-field">
+          <span class="cartoes-filter-label">Nome ou descrição</span>
+          <input
+            type="text"
+            class="cartoes-filter-text-input"
+            [(ngModel)]="draftFilter.nameContains"
+            name="extratoFilterName"
+            placeholder="Beneficiário, empresa…"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="cartoes-filter-field">
+          <span class="cartoes-filter-label">Documento (CPF/CNPJ)</span>
+          <input
+            type="text"
+            class="cartoes-filter-text-input"
+            [(ngModel)]="draftFilter.documentContains"
+            name="extratoFilterDoc"
+            placeholder="Com ou sem pontuação"
+            inputmode="numeric"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="cartoes-filter-field">
+          <span class="cartoes-filter-label">Tipo</span>
+          <div class="cartoes-filter-chips" role="group" aria-label="Tipo de lançamento">
+            <button
+              type="button"
+              class="cartoes-filter-chip tap-highlight-none"
+              [class.cartoes-filter-chip--active]="draftFilter.fluxo === 'todos'"
+              (click)="setDraftFluxo('todos')"
+            >
+              Todos
+            </button>
+            <button
+              type="button"
+              class="cartoes-filter-chip tap-highlight-none"
+              [class.cartoes-filter-chip--active]="draftFilter.fluxo === 'credito'"
+              (click)="setDraftFluxo('credito')"
+            >
+              Crédito
+            </button>
+            <button
+              type="button"
+              class="cartoes-filter-chip tap-highlight-none"
+              [class.cartoes-filter-chip--active]="draftFilter.fluxo === 'debito'"
+              (click)="setDraftFluxo('debito')"
+            >
+              Débito
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="cartoes-filter-footer">
+        <button type="button" class="cartoes-filter-btn cartoes-filter-btn--ghost tap-highlight-none" (click)="clearDraftFilters()">
+          Limpar
+        </button>
+        <button type="button" class="cartoes-filter-btn cartoes-filter-btn--primary tap-highlight-none" (click)="applyDraftFilters()">
+          Aplicar
+        </button>
+      </footer>
+    </section>
+  </div>
 </ion-content>

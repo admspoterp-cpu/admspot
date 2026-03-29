@@ -14,6 +14,10 @@ export type ExtratoOperacaoRaw = Record<string, unknown> & {
   trasnfer_bank_ownerName?: string;
   companyName?: string;
   trasnfer_value?: string;
+  /** Valor em reais (número ou string) — usado em lançamentos genéricos / “movimento”. */
+  amount?: number | string;
+  valor?: number | string;
+  value?: number | string;
   values?: string;
   trasnfer_object?: string;
   trasnfer_type?: string;
@@ -22,6 +26,14 @@ export type ExtratoOperacaoRaw = Record<string, unknown> & {
   trasnfer_bank_name?: string;
   atividade?: string;
   banco_recebedor?: string | null;
+  /** Campos opcionais conforme retorno do extrato — usados em filtros / exibição. */
+  trasnfer_bank_ownerCPF?: string;
+  trasnfer_bank_ownerCnpj?: string;
+  cpfCnpj?: string;
+  cpf_cnpj?: string;
+  documento?: string;
+  beneficiary_document?: string;
+  trasnfer_document?: string;
 };
 
 export type ExtratoGeralResponse = {

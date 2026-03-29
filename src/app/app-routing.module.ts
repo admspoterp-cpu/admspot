@@ -51,8 +51,14 @@ const routes: Routes = [
       import('./features/cartoes/cartoes.module').then((m) => m.CartoesPageModule),
   },
   {
+    path: 'transacoes',
+    loadChildren: () =>
+      import('./features/transactions/transactions.module').then((m) => m.TransactionsPageModule),
+  },
+  {
     path: 'transactions',
-    loadChildren: () => import('./features/transactions/transactions.module').then( m => m.TransactionsPageModule)
+    redirectTo: 'transacoes',
+    pathMatch: 'full',
   },
   {
     path: 'qr-scan',

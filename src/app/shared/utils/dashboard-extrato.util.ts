@@ -27,6 +27,14 @@ export type DashboardExtratoRow = {
   beneficiaryBank: string;
   /** Só transferências PIX com `trasnfer_id` abrem detalhe via `/pix/transfers/info` */
   pixTransferId?: string;
+  /** Dígitos do documento do beneficiário (para filtro), quando a API enviar */
+  documentDigits?: string;
+  /** Exibição mascarada na lista */
+  documentMasked?: string;
+  /** Rótulo curto (pix, boleto, Recarga, …) */
+  kindTag: string;
+  /** Data local da operação (filtro por período) */
+  dateIso: string;
 };
 
 /** Iniciais (até 2 letras) a partir do nome exibido. */
@@ -72,6 +80,48 @@ function parseDataHoraBrOrCreated(op: ExtratoOperacaoRaw): Date | null {
   return null;
 }
 
+/**
+ * Valor monetário em reais (API `amount`, `valor`, `value`) → centavos absolutos.
+ */
+function parseReaisFieldToCents(raw: unknown): number | null {
+  if (raw === undefined || raw === null) {
+    return null;
+  }
+  if (typeof raw === 'number') {
+    if (!Number.isFinite(raw)) {
+      return null;
+    }
+    return Math.round(raw * 100);
+  }
+  const s = String(raw).trim();
+  if (s === '') {
+    return null;
+  }
+  const normalized = s.replace(/\s/g, '').replace(',', '.');
+  const n = parseFloat(normalized);
+  if (!Number.isFinite(n)) {
+    return null;
+  }
+  return Math.round(n * 100);
+}
+
+function extratoAmountFieldRaw(op: ExtratoOperacaoRaw): unknown {
+  const typed = [op.amount, op.valor, op.value];
+  for (const c of typed) {
+    if (c !== undefined && c !== null && String(c).trim() !== '') {
+      return c;
+    }
+  }
+  const rec = op as Record<string, unknown>;
+  for (const key of ['amount', 'Amount', 'AMOUNT', 'valor', 'Valor', 'value', 'Value']) {
+    const v = rec[key];
+    if (v !== undefined && v !== null && String(v).trim() !== '') {
+      return v;
+    }
+  }
+  return undefined;
+}
+
 /** Centavos absolutos para exibição. */
 function amountCentsFromOperacao(op: ExtratoOperacaoRaw): number {
   const tipo = (op.tipo_registro ?? '').trim();
@@ -83,6 +133,15 @@ function amountCentsFromOperacao(op: ExtratoOperacaoRaw): number {
     }
     return Math.round(n * 100);
   }
+
+  const moneyField = extratoAmountFieldRaw(op);
+  if (moneyField !== undefined) {
+    const cents = parseReaisFieldToCents(moneyField);
+    if (cents !== null) {
+      return Math.abs(cents);
+    }
+  }
+
   const tv = String(op.trasnfer_value ?? '0').replace(/\s/g, '');
   const n = parseFloat(tv);
   if (!Number.isFinite(n)) {
@@ -122,7 +181,7 @@ function displayNameFromOperacao(op: ExtratoOperacaoRaw): string {
   if (company) {
     return company;
   }
-  return 'Operação';
+  return 'Recarga';
 }
 
 function formatTimeAmPm(d: Date): string {
@@ -155,6 +214,62 @@ function pixTransferIdFromOperacao(op: ExtratoOperacaoRaw): string | undefined {
   return id.length > 0 ? id : undefined;
 }
 
+function pickDocumentRaw(op: ExtratoOperacaoRaw): string {
+  const candidates = [
+    op.trasnfer_bank_ownerCPF,
+    op.trasnfer_bank_ownerCnpj,
+    op.cpfCnpj,
+    op.cpf_cnpj,
+    op.documento,
+    op.beneficiary_document,
+    op.trasnfer_document,
+  ];
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.trim().length > 0) {
+      return c.trim();
+    }
+  }
+  return '';
+}
+
+function digitsOnly(s: string): string {
+  return s.replace(/\D/g, '');
+}
+
+/** Máscara simples para lista (CPF 11 / CNPJ 14 dígitos). */
+export function maskBrazilDocumentForList(digits: string): string {
+  const d = digitsOnly(digits);
+  if (d.length === 0) {
+    return '';
+  }
+  if (d.length === 11) {
+    return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
+  }
+  if (d.length >= 14) {
+    const c = d.slice(0, 14);
+    return `**.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8, 12)}-**`;
+  }
+  return `***${d.slice(-4)}`;
+}
+
+function kindTagFromOperacao(op: ExtratoOperacaoRaw): string {
+  const tipo = String(op.tipo_registro ?? '').trim();
+  if (tipo === 'app_boleto_barcode_payout') {
+    return 'boleto';
+  }
+  if (tipo === 'app_real_transfer') {
+    const t = String(op.trasnfer_operationType ?? '').toUpperCase().trim();
+    if (t === 'PIX') {
+      return 'pix';
+    }
+    return 'transferência';
+  }
+  if (isCreditOperation(op)) {
+    return 'crédito';
+  }
+  return 'Recarga';
+}
+
 export function mapOperacaoToDashboardRow(op: ExtratoOperacaoRaw): DashboardExtratoRow | null {
   const when = parseDataHoraBrOrCreated(op);
   if (!when) {
@@ -166,6 +281,13 @@ export function mapOperacaoToDashboardRow(op: ExtratoOperacaoRaw): DashboardExtr
   const brl = formatBrlNumber(abs);
   const credit = isCreditOperation(op);
   const sign = credit ? '+' : '-';
+  const docRaw = pickDocumentRaw(op);
+  const docDigits = digitsOnly(docRaw);
+  const docMasked = docDigits.length > 0 ? maskBrazilDocumentForList(docDigits) : '';
+  const y = when.getFullYear();
+  const mo = String(when.getMonth() + 1).padStart(2, '0');
+  const da = String(when.getDate()).padStart(2, '0');
+  const dateIso = `${y}-${mo}-${da}`;
   return {
     displayName: name,
     initials: initialsFromDisplayName(name),
@@ -176,6 +298,10 @@ export function mapOperacaoToDashboardRow(op: ExtratoOperacaoRaw): DashboardExtr
     amountDisplay: brl,
     beneficiaryBank: beneficiaryBankFromOperacao(op),
     pixTransferId: pixTransferIdFromOperacao(op),
+    documentDigits: docDigits.length > 0 ? docDigits : undefined,
+    documentMasked: docMasked || undefined,
+    kindTag: kindTagFromOperacao(op),
+    dateIso,
   };
 }
 
@@ -271,4 +397,67 @@ export function buildDashboardExtratoGroups(operacoes: ExtratoOperacaoRaw[]): Da
     previousDayTitle: previousTitle,
     previousDay: previousRows,
   };
+}
+
+export type ExtratoDayGroup = {
+  dayStart: Date;
+  title: string;
+  rows: DashboardExtratoRow[];
+};
+
+/** Agrupa todas as operações por dia civil (mais recentes primeiro). */
+export function buildExtratoGroupsAllDays(operacoes: ExtratoOperacaoRaw[]): ExtratoDayGroup[] {
+  const now = new Date();
+  const todayStart = startOfLocalDay(now);
+  const yesterdayStart = addLocalDays(todayStart, -1);
+
+  const withParsed: { op: ExtratoOperacaoRaw; at: Date }[] = [];
+  for (const op of operacoes) {
+    const at = parseDataHoraBrOrCreated(op);
+    if (at) {
+      withParsed.push({ op, at });
+    }
+  }
+  withParsed.sort((a, b) => b.at.getTime() - a.at.getTime());
+
+  const groups: ExtratoDayGroup[] = [];
+  let currentKey: string | null = null;
+  let currentRows: DashboardExtratoRow[] = [];
+  let currentDay: Date | null = null;
+
+  const flush = (): void => {
+    if (currentDay && currentRows.length > 0) {
+      let title: string;
+      if (sameLocalDay(currentDay, now)) {
+        title = 'HOJE';
+      } else if (sameLocalDay(currentDay, yesterdayStart)) {
+        title = 'ONTEM';
+      } else {
+        title = formatExtratoPastDayTitle(currentDay);
+      }
+      groups.push({
+        dayStart: currentDay,
+        title,
+        rows: [...currentRows],
+      });
+    }
+    currentRows = [];
+  };
+
+  for (const { op, at } of withParsed) {
+    const dayStart = startOfLocalDay(at);
+    const key = `${dayStart.getFullYear()}-${dayStart.getMonth()}-${dayStart.getDate()}`;
+    if (key !== currentKey) {
+      flush();
+      currentKey = key;
+      currentDay = dayStart;
+    }
+    const row = mapOperacaoToDashboardRow(op);
+    if (row) {
+      currentRows.push(row);
+    }
+  }
+  flush();
+
+  return groups;
 }
