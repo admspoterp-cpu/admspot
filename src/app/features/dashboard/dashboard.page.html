@@ -197,7 +197,7 @@
           <button
             type="button"
             class="transaction-item tap-highlight-none"
-            [class.transaction-item--link]="row.pixTransferId"
+            [class.transaction-item--link]="row.pixTransferId || row.extratoBoleto"
             *ngFor="let row of todayExtrato"
             (click)="onExtratoItemTap(row)"
           >
@@ -221,7 +221,7 @@
           <button
             type="button"
             class="transaction-item tap-highlight-none"
-            [class.transaction-item--link]="row.pixTransferId"
+            [class.transaction-item--link]="row.pixTransferId || row.extratoBoleto"
             *ngFor="let row of previousDayExtrato"
             (click)="onExtratoItemTap(row)"
           >

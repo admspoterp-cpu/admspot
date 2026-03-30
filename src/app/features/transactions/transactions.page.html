@@ -62,7 +62,7 @@
           <button
             type="button"
             class="cartoes-tx-row cartoes-tx-row--extrato tap-highlight-none"
-            [class.cartoes-tx-row--link]="!!row.pixTransferId"
+            [class.cartoes-tx-row--link]="!!row.pixTransferId || !!row.extratoBoleto"
             *ngFor="let row of group.rows"
             (click)="onRowTap(row)"
           >
@@ -194,6 +194,38 @@
               (click)="setDraftFluxo('debito')"
             >
               Débito
+            </button>
+            <button
+              type="button"
+              class="cartoes-filter-chip tap-highlight-none"
+              [class.cartoes-filter-chip--active]="draftFilter.fluxo === 'recargas'"
+              (click)="setDraftFluxo('recargas')"
+            >
+              Recargas
+            </button>
+            <button
+              type="button"
+              class="cartoes-filter-chip tap-highlight-none"
+              [class.cartoes-filter-chip--active]="draftFilter.fluxo === 'recebimentos'"
+              (click)="setDraftFluxo('recebimentos')"
+            >
+              Recebimentos
+            </button>
+            <button
+              type="button"
+              class="cartoes-filter-chip tap-highlight-none"
+              [class.cartoes-filter-chip--active]="draftFilter.fluxo === 'boletos'"
+              (click)="setDraftFluxo('boletos')"
+            >
+              Boletos
+            </button>
+            <button
+              type="button"
+              class="cartoes-filter-chip tap-highlight-none"
+              [class.cartoes-filter-chip--active]="draftFilter.fluxo === 'pix'"
+              (click)="setDraftFluxo('pix')"
+            >
+              Pix
             </button>
           </div>
         </div>

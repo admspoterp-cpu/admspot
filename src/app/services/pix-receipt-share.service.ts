@@ -17,11 +17,18 @@ export interface PixTransferReceiptData {
   transferKind?: 'pix' | 'ted' | 'pix_qr' | 'boleto';
   /** Boleto: `bill_payment_id` — “ID da operação” no PDF */
   boletoOperationId?: string;
-  /** Carteira padrão (origem) — mesmo critério da tela Depositar */
+  /** Boleto vindo do extrato — layout dedicado no PDF. */
+  boletoExtratoFromExtrato?: boolean;
+  boletoExtratoPaymentDateBr?: string;
+  boletoExtratoPaymentDate?: string;
+  boletoExtratoStatusRaw?: string;
+  boletoExtratoBoletoId?: string;
+  boletoExtratoBillId?: string;
+  /** Carteira padrão: envio PIX = origem; PIX recebido no PDF = dados do beneficiário (conta digital). */
   originFullName?: string;
   originAgency?: string;
   originAccount?: string;
-  /** PIX recebido (extrato): PDF sem Identificador, valor com + */
+  /** PIX recebido: no PDF, beneficiário na tela = Origem no PDF; conta digital = Beneficiário. */
   pixIncoming?: boolean;
 }
 
@@ -56,6 +63,7 @@ export class PixReceiptShareService {
     const isTed = data.transferKind === 'ted';
     const isPixQr = data.transferKind === 'pix_qr';
     const isBoleto = data.transferKind === 'boleto';
+    const isBoletoExtrato = isBoleto && data.boletoExtratoFromExtrato === true;
     const isPixReceived = data.pixIncoming === true;
     const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
     const pageW = doc.internal.pageSize.getWidth();
@@ -127,12 +135,28 @@ export class PixReceiptShareService {
       y += Math.max(lines.length * 4.8, 5) + 5;
     };
 
-    const hasOrigin =
-      Boolean(data.originFullName?.trim()) ||
-      Boolean(data.originAgency?.trim()) ||
-      Boolean(data.originAccount?.trim());
+    const addSectionTitle = (title: string) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(22, 45, 76);
+      doc.text(title, margin, y);
+      y += 6;
+    };
 
-    if (hasOrigin) {
+    const hasBankLabel = (v: string | undefined): boolean => {
+      const t = (v ?? '').trim();
+      return t.length > 0 && t !== '—';
+    };
+
+    /** Conta digital do usuário (carteira padrão) — mesmo dado de `loadOriginWalletForPdf`. */
+    const appendContaOrigemDigital = (): void => {
+      const hasOrigin =
+        Boolean(data.originFullName?.trim()) ||
+        Boolean(data.originAgency?.trim()) ||
+        Boolean(data.originAccount?.trim());
+      if (!hasOrigin) {
+        return;
+      }
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
       doc.setTextColor(22, 45, 76);
@@ -150,12 +174,87 @@ export class PixReceiptShareService {
       doc.setDrawColor(230, 230, 230);
       doc.line(margin, y, pageW - margin, y);
       y += 8;
+    };
+
+    /** PIX recebido: origem = quem enviou; beneficiário = conta digital (carteira). */
+    if (isPixReceived) {
+      addSectionTitle('Origem');
+      addField('Nome completo', (data.beneficiaryName ?? '').trim() || '—');
+      if (hasBankLabel(data.beneficiaryBank)) {
+        addField('Instituição', (data.beneficiaryBank ?? '').trim());
+      }
+      addField('Tipo', (data.transactionType ?? '').trim() || '—');
+      doc.setDrawColor(230, 230, 230);
+      doc.line(margin, y, pageW - margin, y);
+      y += 8;
+      addField('Valor', `+ R$ ${data.amountDisplay}`);
+      addSectionTitle('Beneficiário');
+      addField('Nome completo', (data.originFullName ?? '').trim() || '—');
+      addField('Agência', (data.originAgency ?? '').trim() || '—');
+      addField('Conta', (data.originAccount ?? '').trim() || '—');
+      doc.setDrawColor(230, 230, 230);
+      doc.line(margin, y, pageW - margin, y);
+      y += 8;
+      addField('ID da transação', (data.transactionId ?? '').trim() || '—');
+      addField('Estatus', (data.statusText ?? '').trim() || '—');
+      y += 4;
+      doc.setDrawColor(230, 230, 230);
+      doc.line(margin, y, pageW - margin, y);
+      y += 6;
+      doc.setFontSize(7);
+      doc.setTextColor(150, 150, 150);
+      const year = new Date().getFullYear();
+      const footerText = `Documento gerado pelo aplicativo Admspot Finance. Guarde este comprovante para sua referência. intermediada por © ${year} ADMSPOT TECNOLOGIA EM GESTÃO , sob tecnologias de ASAAS GESTÃO FINANCEIRA INSTITUIÇÃO DE PAGAMENTO S.A..`;
+      const footer = doc.splitTextToSize(footerText, contentW);
+      doc.text(footer, margin, y);
+      return doc;
     }
+
+    /** Boleto pago — dados do extrato (`app_boleto_barcode_payout`). */
+    if (isBoletoExtrato) {
+      appendContaOrigemDigital();
+      const statusLine = (data.boletoExtratoStatusRaw ?? data.statusText ?? '').trim() || '—';
+      const br = (data.boletoExtratoPaymentDateBr ?? '').trim();
+      if (br) {
+        addField('Data pagamento (BR)', br);
+      }
+      const pd = (data.boletoExtratoPaymentDate ?? '').trim();
+      if (pd) {
+        addField('Data pagamento', pd);
+      }
+      addField('Valor', `- R$ ${data.amountDisplay}`);
+      addField('Beneficiário', (data.beneficiaryName ?? '').trim() || '—');
+      if (hasBankLabel(data.beneficiaryBank)) {
+        addField('Instituição', (data.beneficiaryBank ?? '').trim());
+      }
+      const linha = data.identifier.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+      addField('Linha digitável (boleto)', linha || '—');
+      const bid = (data.boletoExtratoBoletoId ?? data.transactionId ?? '').trim() || '—';
+      addField('ID do boleto', bid);
+      const bill = (data.boletoExtratoBillId ?? '').trim();
+      if (bill) {
+        addField('Bill ID', bill);
+      }
+      addField('Estatus', statusLine);
+      y += 4;
+      doc.setDrawColor(230, 230, 230);
+      doc.line(margin, y, pageW - margin, y);
+      y += 6;
+      doc.setFontSize(7);
+      doc.setTextColor(150, 150, 150);
+      const year = new Date().getFullYear();
+      const footerText = `Documento gerado pelo aplicativo Admspot Finance. Guarde este comprovante para sua referência. intermediada por © ${year} ADMSPOT TECNOLOGIA EM GESTÃO , sob tecnologias de ASAAS GESTÃO FINANCEIRA INSTITUIÇÃO DE PAGAMENTO S.A..`;
+      const footer = doc.splitTextToSize(footerText, contentW);
+      doc.text(footer, margin, y);
+      return doc;
+    }
+
+    appendContaOrigemDigital();
 
     addField('Valor', isPixReceived ? `+ R$ ${data.amountDisplay}` : `- R$ ${data.amountDisplay}`);
     addField('Beneficiário', data.beneficiaryName);
-    if (!isBoleto) {
-      addField('Instituição', data.beneficiaryBank);
+    if (!isBoleto && hasBankLabel(data.beneficiaryBank)) {
+      addField('Instituição', (data.beneficiaryBank ?? '').trim());
     }
     if (!isPixReceived) {
       addField('Documento do beneficiário', data.documentMasked);
@@ -212,7 +311,10 @@ export class PixReceiptShareService {
       throw new Error('Compartilhamento não disponível neste dispositivo.');
     }
 
-    const summary = `Transferência de R$ ${data.amountDisplay} para ${data.beneficiaryName}`;
+    const summary =
+      data.pixIncoming === true
+        ? `PIX recebido de R$ ${data.amountDisplay} — ${data.beneficiaryName}`
+        : `Transferência de R$ ${data.amountDisplay} para ${data.beneficiaryName}`;
     const shareTitle =
       options?.shareTitle ??
       (data.transferKind === 'ted'
@@ -274,7 +376,10 @@ export class PixReceiptShareService {
       try {
         const payload: ShareData = {
           title: shareTitle,
-          text: `Transferência de R$ ${data.amountDisplay} — ${data.beneficiaryName}`,
+          text:
+            data.pixIncoming === true
+              ? `PIX recebido de R$ ${data.amountDisplay} — ${data.beneficiaryName}`
+              : `Transferência de R$ ${data.amountDisplay} — ${data.beneficiaryName}`,
           files: [file],
         };
         if (navigator.canShare?.(payload)) {

@@ -8,6 +8,7 @@ const PHPSESSID = 'ba832f1772c56eb7fb76a591cf310f5f';
 
 /** Registro genérico retornado pelo extrato (transferência, boleto, etc.). */
 export type ExtratoOperacaoRaw = Record<string, unknown> & {
+  /** Ex.: `app_real_transfer`, `api_mobile_carga` (recarga — nome/rótulo Recarga no app). */
   tipo_registro?: string;
   data_hora_br?: string;
   created_at?: string;
@@ -26,6 +27,15 @@ export type ExtratoOperacaoRaw = Record<string, unknown> & {
   trasnfer_bank_name?: string;
   atividade?: string;
   banco_recebedor?: string | null;
+  /** Boleto pago (`app_boleto_barcode_payout`) — detalhe / comprovante. */
+  status?: string;
+  /** Texto amigável do status (preferido em relação a `status`). */
+  status_label?: string;
+  payment_date_br?: string;
+  paymentDate?: string;
+  digitavel?: string;
+  boleto_id?: string | number;
+  bill_id?: string | number | null;
   /** Crédito PIX recebido — ex.: `recebido`. */
   operacao_subtipo?: string;
   /** Status da operação no extrato — ex.: `RECEIVED` (PIX recebido). */

@@ -63,7 +63,31 @@
         />
       </section>
 
-      <section class="cp-detail-row cp-detail-padded" *ngIf="transferKind !== 'boleto'">
+      <ng-container *ngIf="boletoExtratoMode">
+        <section class="cp-detail-row cp-detail-padded" *ngIf="boletoExtratoPaymentDateBr">
+          <span class="cp-label">Data pagamento (BR)</span>
+          <span class="cp-value">{{ boletoExtratoPaymentDateBr }}</span>
+          <img
+            class="cp-row-divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-fe2a3dd5-cbd6-497f-8099-0c0c79bddd4f.svg"
+            alt=""
+          />
+        </section>
+        <section class="cp-detail-row cp-detail-padded" *ngIf="boletoExtratoPaymentDateIso">
+          <span class="cp-label">Data pagamento</span>
+          <span class="cp-value">{{ boletoExtratoPaymentDateIso }}</span>
+          <img
+            class="cp-row-divider"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-fe2a3dd5-cbd6-497f-8099-0c0c79bddd4f.svg"
+            alt=""
+          />
+        </section>
+      </ng-container>
+
+      <section
+        class="cp-detail-row cp-detail-padded"
+        *ngIf="(transferKind !== 'boleto' || boletoExtratoMode) && hasBeneficiaryBankDisplay"
+      >
         <span class="cp-label">Instituição</span>
         <div class="cp-institution-row">
           <span class="cp-value">{{ beneficiaryBank }}</span>
@@ -78,7 +102,10 @@
         />
       </section>
 
-      <section class="cp-detail-row cp-detail-padded" *ngIf="!pixExtratoIncoming">
+      <section
+        class="cp-detail-row cp-detail-padded"
+        *ngIf="!pixExtratoIncoming && !(transferKind === 'boleto' && boletoExtratoMode)"
+      >
         <span class="cp-label">Documento do Beneficiário</span>
         <span class="cp-value">{{ documentMasked }}</span>
         <img
@@ -108,9 +135,12 @@
         />
       </section>
 
-      <section class="cp-detail-row cp-detail-padded" *ngIf="transferKind === 'boleto'">
-        <span class="cp-label">ID da operação</span>
-        <span class="cp-value cp-value-wrap">{{ boletoOperationId }}</span>
+      <section
+        class="cp-detail-row cp-detail-padded"
+        *ngIf="transferKind === 'boleto' && (!boletoExtratoMode || boletoExtratoBillIdForPdf)"
+      >
+        <span class="cp-label">{{ boletoBillSectionLabel }}</span>
+        <span class="cp-value cp-value-wrap">{{ boletoBillSectionValue }}</span>
         <img
           class="cp-row-divider"
           src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Line249-69791452-1a56-4461-bdc8-cc564a621b23.svg"

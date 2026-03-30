@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "212863851577",
+    "project_id": "admspot-finance",
+    "storage_bucket": "admspot-finance.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:212863851577:android:89425673633bb2eabd01e8",
+        "android_client_info": {
+          "package_name": "com.admspot.finance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBw8vkXN3b6yUXk_VE6oqbG18AHD1lgrs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

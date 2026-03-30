@@ -35,10 +35,25 @@ export type DashboardExtratoRow = {
   documentDigits?: string;
   /** Exibição mascarada na lista */
   documentMasked?: string;
-  /** Rótulo curto (pix, boleto, Recarga, …) */
+  /** Rótulo curto (pix, boleto, Recarga só para `api_mobile_carga`, …) */
   kindTag: string;
   /** Data local da operação (filtro por período) */
   dateIso: string;
+  /** `app_boleto_barcode_payout` — abre comprovante com dados do extrato. */
+  extratoBoleto?: ExtratoBoletoDetailPayload;
+};
+
+/** Campos do extrato para detalhe de boleto pago. */
+export type ExtratoBoletoDetailPayload = {
+  /** Preferencialmente `status_label` da API; senão `status`. */
+  status: string;
+  payment_date_br: string;
+  valuesRaw: string;
+  paymentDate: string;
+  companyName: string;
+  digitavel: string;
+  boleto_id: string;
+  bill_id: string | null;
 };
 
 /** Iniciais (até 2 letras) a partir do nome exibido. */
@@ -197,6 +212,11 @@ function extratoOStatusRaw(op: ExtratoOperacaoRaw): string | undefined {
   return undefined;
 }
 
+/** Recarga de celular no extrato — só este `tipo_registro` usa nome/rótulo "Recarga". */
+function isApiMobileCarga(op: ExtratoOperacaoRaw): boolean {
+  return String(op.tipo_registro ?? '').trim() === 'api_mobile_carga';
+}
+
 function displayNameFromOperacao(op: ExtratoOperacaoRaw): string {
   const owner = String(op.trasnfer_bank_ownerName ?? '').trim();
   if (owner) {
@@ -206,7 +226,7 @@ function displayNameFromOperacao(op: ExtratoOperacaoRaw): string {
   if (company) {
     return company;
   }
-  return 'Recarga';
+  return isApiMobileCarga(op) ? 'Recarga' : 'Operação';
 }
 
 function formatTimeAmPm(d: Date): string {
@@ -304,7 +324,42 @@ function kindTagFromOperacao(op: ExtratoOperacaoRaw): string {
   if (isCreditOperation(op)) {
     return 'crédito';
   }
-  return 'Recarga';
+  if (isApiMobileCarga(op)) {
+    return 'Recarga';
+  }
+  return 'movimento';
+}
+
+function extratoStringField(op: ExtratoOperacaoRaw, key: string): string {
+  const v = (op as Record<string, unknown>)[key];
+  if (v === undefined || v === null) {
+    return '';
+  }
+  return String(v).trim();
+}
+
+function extratoBoletoPayloadFromOp(op: ExtratoOperacaoRaw): ExtratoBoletoDetailPayload | undefined {
+  if (String(op.tipo_registro ?? '').trim() !== 'app_boleto_barcode_payout') {
+    return undefined;
+  }
+  const rec = op as Record<string, unknown>;
+  const billRaw = rec['bill_id'];
+  const billId =
+    billRaw !== undefined && billRaw !== null && String(billRaw).trim() !== ''
+      ? String(billRaw).trim()
+      : null;
+  const statusLabel = extratoStringField(op, 'status_label');
+  const statusCode = extratoStringField(op, 'status');
+  return {
+    status: statusLabel || statusCode,
+    payment_date_br: extratoStringField(op, 'payment_date_br'),
+    valuesRaw: extratoStringField(op, 'values'),
+    paymentDate: extratoStringField(op, 'paymentDate'),
+    companyName: extratoStringField(op, 'companyName'),
+    digitavel: extratoStringField(op, 'digitavel'),
+    boleto_id: extratoStringField(op, 'boleto_id'),
+    bill_id: billId,
+  };
 }
 
 export function mapOperacaoToDashboardRow(op: ExtratoOperacaoRaw): DashboardExtratoRow | null {
@@ -326,6 +381,7 @@ export function mapOperacaoToDashboardRow(op: ExtratoOperacaoRaw): DashboardExtr
   const da = String(when.getDate()).padStart(2, '0');
   const dateIso = `${y}-${mo}-${da}`;
   const pixExtratoRecebido = isPixExtratoRecebidoRow(op);
+  const boletoExtrato = extratoBoletoPayloadFromOp(op);
   return {
     displayName: name,
     initials: initialsFromDisplayName(name),
@@ -340,6 +396,7 @@ export function mapOperacaoToDashboardRow(op: ExtratoOperacaoRaw): DashboardExtr
     documentMasked: docMasked || undefined,
     kindTag: kindTagFromOperacao(op),
     dateIso,
+    ...(boletoExtrato ? { extratoBoleto: boletoExtrato } : {}),
     ...(pixExtratoRecebido ? { pixExtratoRecebido: true, extratoPixOStatus: extratoOStatusRaw(op) } : {}),
   };
 }

@@ -43,6 +43,13 @@ export interface ComprovantePaymentNavState {
   /** Apenas dígitos — preferido para reformatar a linha no comprovante (evita truncamento no estado). */
   boletoLinhaDigitavelDigits?: string;
   boletoExternalReference?: string;
+  /** Boleto aberto a partir do extrato (`app_boleto_barcode_payout`). */
+  boletoExtratoSource?: boolean;
+  boletoExtratoStatus?: string;
+  boletoExtratoPaymentDateBr?: string;
+  boletoExtratoPaymentDate?: string;
+  boletoExtratoBoletoId?: string;
+  boletoExtratoBillId?: string | null;
   /** UUID da transferência — dispara consulta a `/pix/transfers/info` até `status === DONE` */
   pixTransferId?: string;
   /** Aberto a partir do extrato: PIX recebido (sem Identificador, status por `extratoPixOStatus`). */
@@ -143,6 +150,14 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
   /** PIX recebido via extrato: não polling, sem identificador E2E, valor com +. */
   pixExtratoIncoming = false;
 
+  /** Boleto pago vindo do extrato — campos adicionais na tela e no PDF. */
+  boletoExtratoMode = false;
+  /** Exibição dedicada (extrato boleto). */
+  boletoExtratoPaymentDateBr = '';
+  boletoExtratoPaymentDateIso = '';
+  /** Só PDF quando `bill_id` veio no extrato. */
+  boletoExtratoBillIdForPdf = '';
+
   ngOnInit(): void {
     this.receiptSubtitle = this.buildReceiptDateTime();
 
@@ -150,6 +165,7 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
 
     if (s?.transferKind === 'boleto') {
       this.transferKind = 'boleto';
+      this.boletoExtratoMode = s?.boletoExtratoSource === true;
       if (typeof s?.amountDisplay === 'string' && s.amountDisplay.trim()) {
         this.amountDisplay = s.amountDisplay.trim();
       }
@@ -163,16 +179,48 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
         this.documentMasked = s.documentMasked.trim();
       }
       this.transactionType = 'Boleto';
+
+      if (this.boletoExtratoMode) {
+        const linhaDigits = String(s?.boletoLinhaDigitavelDigits ?? '')
+          .replace(/\D/g, '')
+          .trim();
+        this.identifier = linhaDigits
+          ? formatBoletoIdentificationDisplay(linhaDigits)
+          : (s?.boletoLinhaResumo as string)?.trim() || '—';
+        this.transactionId = (typeof s?.boletoExtratoBoletoId === 'string' ? s.boletoExtratoBoletoId : '')
+          .trim() || '—';
+        const billEx = s?.boletoExtratoBillId;
+        const billStr =
+          billEx !== undefined && billEx !== null && String(billEx).trim() !== ''
+            ? String(billEx).trim()
+            : '';
+        this.boletoExtratoBillIdForPdf = billStr;
+        this.boletoOperationId = billStr || '—';
+        this.boletoStatusRaw = (typeof s?.boletoExtratoStatus === 'string' ? s.boletoExtratoStatus : '')
+          .trim() || '';
+        this.statusText = this.boletoStatusRaw || '—';
+        this.documentMasked = '—';
+        const br = (typeof s?.boletoExtratoPaymentDateBr === 'string' ? s.boletoExtratoPaymentDateBr : '')
+          .trim();
+        const pd = (typeof s?.boletoExtratoPaymentDate === 'string' ? s.boletoExtratoPaymentDate : '')
+          .trim();
+        this.boletoExtratoPaymentDateBr = br;
+        this.boletoExtratoPaymentDateIso = pd;
+        this.receiptSubtitle = [br, pd].filter((x) => x.length > 0).join(' · ') || this.buildReceiptDateTime();
+        this.syncBankShort();
+        return;
+      }
+
       const billId = (s?.boletoBillPaymentId as string)?.trim() || '';
       this.boletoOperationId = billId || '—';
       const extRef = (s?.boletoExternalReference as string)?.trim() || '';
       this.transactionId = extRef || '—';
       this.boletoStatusRaw = (s?.boletoStatus as string)?.trim() || '';
-      const linhaDigits = String(s?.boletoLinhaDigitavelDigits ?? '')
+      const linhaDigitsLegacy = String(s?.boletoLinhaDigitavelDigits ?? '')
         .replace(/\D/g, '')
         .trim();
-      this.identifier = linhaDigits
-        ? formatBoletoIdentificationDisplay(linhaDigits)
+      this.identifier = linhaDigitsLegacy
+        ? formatBoletoIdentificationDisplay(linhaDigitsLegacy)
         : (s?.boletoLinhaResumo as string)?.trim() || '—';
       const msg = (s?.boletoMessage as string)?.trim();
       const sched = s?.boletoScheduleDate as string | null | undefined;
@@ -271,6 +319,24 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
   /** Rótulo do campo: boleto exibe linha digitável completa; PIX/TED o identificador da transação. */
   get identifierFieldLabel(): string {
     return this.transferKind === 'boleto' ? 'Linha digitável (boleto)' : 'Identificador';
+  }
+
+  get transactionIdFieldLabel(): string {
+    return this.boletoExtratoMode ? 'ID do boleto' : 'ID da Transação';
+  }
+
+  get boletoBillSectionLabel(): string {
+    return this.boletoExtratoMode ? 'Bill ID' : 'ID da operação';
+  }
+
+  get boletoBillSectionValue(): string {
+    return this.boletoExtratoMode ? this.boletoExtratoBillIdForPdf : this.boletoOperationId;
+  }
+
+  /** Exibe linha Instituição só quando há banco (ex.: `banco_recebedor` no extrato). */
+  get hasBeneficiaryBankDisplay(): boolean {
+    const b = (this.beneficiaryBank ?? '').trim();
+    return b.length > 0 && b !== '—';
   }
 
   /** Sinal antes do valor no detalhe (- envio, + recebimento). */
@@ -407,6 +473,16 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
     };
     if (this.transferKind === 'boleto') {
       base.boletoOperationId = this.boletoOperationId;
+    }
+    if (this.boletoExtratoMode) {
+      base.boletoExtratoFromExtrato = true;
+      base.boletoExtratoPaymentDateBr = this.boletoExtratoPaymentDateBr;
+      base.boletoExtratoPaymentDate = this.boletoExtratoPaymentDateIso;
+      base.boletoExtratoStatusRaw = this.boletoStatusRaw;
+      base.boletoExtratoBoletoId = this.transactionId;
+      if (this.boletoExtratoBillIdForPdf.trim()) {
+        base.boletoExtratoBillId = this.boletoExtratoBillIdForPdf.trim();
+      }
     }
     return base;
   }

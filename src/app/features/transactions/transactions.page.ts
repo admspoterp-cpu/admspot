@@ -12,7 +12,14 @@ import type { ComprovantePaymentNavState } from '../comprovante-payment/comprova
 
 const G = 'https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1';
 
-export type ExtratoListaFluxo = 'todos' | 'credito' | 'debito';
+export type ExtratoListaFluxo =
+  | 'todos'
+  | 'credito'
+  | 'debito'
+  | 'recargas'
+  | 'recebimentos'
+  | 'boletos'
+  | 'pix';
 
 export interface ExtratoListaFilter {
   dateStart: string;
@@ -145,6 +152,28 @@ export class TransactionsPage implements ViewWillEnter {
   }
 
   async onRowTap(row: DashboardExtratoRow): Promise<void> {
+    if (row.extratoBoleto) {
+      const p = row.extratoBoleto;
+      const linhaDigits = p.digitavel.replace(/\D/g, '');
+      const state: ComprovantePaymentNavState = {
+        transferKind: 'boleto',
+        boletoExtratoSource: true,
+        amountDisplay: row.amountDisplay,
+        beneficiaryName: row.displayName,
+        beneficiaryBank: row.beneficiaryBank,
+        documentMasked: row.documentMasked ?? '—',
+        boletoLinhaDigitavelDigits: linhaDigits,
+        boletoLinhaResumo: p.digitavel,
+        boletoExtratoStatus: p.status,
+        boletoExtratoPaymentDateBr: p.payment_date_br,
+        boletoExtratoPaymentDate: p.paymentDate,
+        boletoExtratoBoletoId: p.boleto_id,
+        boletoExtratoBillId: p.bill_id,
+      };
+      await this.navController.navigateForward('/comprovante-payment', { state });
+      return;
+    }
+
     const id = row.pixTransferId?.trim();
     if (!id) {
       return;
@@ -188,11 +217,39 @@ export class TransactionsPage implements ViewWillEnter {
     if (f.dateEnd && row.dateIso > f.dateEnd) {
       return false;
     }
-    if (f.fluxo === 'credito' && !row.isCredit) {
-      return false;
-    }
-    if (f.fluxo === 'debito' && row.isCredit) {
-      return false;
+    switch (f.fluxo) {
+      case 'credito':
+        if (!row.isCredit) {
+          return false;
+        }
+        break;
+      case 'debito':
+        if (row.isCredit) {
+          return false;
+        }
+        break;
+      case 'recargas':
+        if (row.kindTag !== 'Recarga') {
+          return false;
+        }
+        break;
+      case 'recebimentos':
+        if (!row.isCredit || row.kindTag === 'Recarga') {
+          return false;
+        }
+        break;
+      case 'boletos':
+        if (row.kindTag !== 'boleto') {
+          return false;
+        }
+        break;
+      case 'pix':
+        if (row.kindTag !== 'pix') {
+          return false;
+        }
+        break;
+      default:
+        break;
     }
     const n = f.nameContains.trim().toLowerCase();
     if (n.length > 0 && !row.displayName.toLowerCase().includes(n)) {

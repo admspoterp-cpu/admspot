@@ -15,6 +15,7 @@ import {
   MobilePhoneRechargeService,
   recargaResultUiMode,
 } from '../../services/mobile-phone-recharge.service';
+import { PushFcmTokenService } from '../../services/push-fcm-token.service';
 import { ScanCodesService } from '../../services/scan-codes.service';
 import {
   buildDashboardExtratoGroups,
@@ -80,6 +81,7 @@ export class DashboardPage implements ViewWillEnter {
   private readonly extratoGeralService = inject(ExtratoGeralService);
   private readonly mobilePhoneRechargeService = inject(MobilePhoneRechargeService);
   private readonly scanCodesService = inject(ScanCodesService);
+  private readonly pushFcmToken = inject(PushFcmTokenService);
 
   ionViewWillEnter(): void {
     if (this.authSession.isTokenExpired()) {
@@ -87,6 +89,7 @@ export class DashboardPage implements ViewWillEnter {
       void this.navController.navigateRoot('/login');
       return;
     }
+    void this.pushFcmToken.retryAfterAuth();
     void this.loadBalanceFromApi();
     void this.loadExtratoResumo();
   }
@@ -169,6 +172,28 @@ export class DashboardPage implements ViewWillEnter {
    * `/api/central/v1/pix/transfers/info` pelo `trasnfer_id`.
    */
   async onExtratoItemTap(row: DashboardExtratoRow): Promise<void> {
+    if (row.extratoBoleto) {
+      const p = row.extratoBoleto;
+      const linhaDigits = p.digitavel.replace(/\D/g, '');
+      const state: ComprovantePaymentNavState = {
+        transferKind: 'boleto',
+        boletoExtratoSource: true,
+        amountDisplay: row.amountDisplay,
+        beneficiaryName: row.displayName,
+        beneficiaryBank: row.beneficiaryBank,
+        documentMasked: row.documentMasked ?? '—',
+        boletoLinhaDigitavelDigits: linhaDigits,
+        boletoLinhaResumo: p.digitavel,
+        boletoExtratoStatus: p.status,
+        boletoExtratoPaymentDateBr: p.payment_date_br,
+        boletoExtratoPaymentDate: p.paymentDate,
+        boletoExtratoBoletoId: p.boleto_id,
+        boletoExtratoBillId: p.bill_id,
+      };
+      await this.navController.navigateForward('/comprovante-payment', { state });
+      return;
+    }
+
     const id = row.pixTransferId?.trim();
     if (!id) {
       return;
