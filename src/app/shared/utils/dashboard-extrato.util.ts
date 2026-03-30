@@ -324,6 +324,7 @@ function kindTagFromOperacao(op: ExtratoOperacaoRaw): string {
   if (isCreditOperation(op)) {
     return 'crédito';
   }
+
   if (isApiMobileCarga(op)) {
     return 'Recarga';
   }

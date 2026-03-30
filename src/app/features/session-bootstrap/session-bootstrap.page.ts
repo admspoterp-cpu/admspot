@@ -2,8 +2,11 @@ import { Component, inject } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { AlertController, NavController, ToastController, ViewWillEnter } from '@ionic/angular';
 
+import { AppVersionService } from '../../services/app-version.service';
 import { AuthMeService } from '../../services/auth-me.service';
 import { AuthSessionService } from '../../services/auth-session.service';
+import type { CheckUpdateResponse } from '../../services/check-update.service';
+import { CheckUpdateService } from '../../services/check-update.service';
 import { PushFcmTokenService } from '../../services/push-fcm-token.service';
 import { PushNotificationsService } from '../../services/push-notifications.service';
 
@@ -19,6 +22,8 @@ export class SessionBootstrapPage implements ViewWillEnter {
   private readonly alertController = inject(AlertController);
   private readonly authSession = inject(AuthSessionService);
   private readonly authMe = inject(AuthMeService);
+  private readonly appVersion = inject(AppVersionService);
+  private readonly checkUpdate = inject(CheckUpdateService);
   private readonly pushFcmToken = inject(PushFcmTokenService);
   private readonly pushNotifications = inject(PushNotificationsService);
 
@@ -48,6 +53,13 @@ export class SessionBootstrapPage implements ViewWillEnter {
     }
 
     const { hasDefaultWallet } = this.authSession.applyAuthMeResponse(me);
+
+    const currentVersion = await this.appVersion.getCurrentVersionForApi();
+    const updateInfo = await this.checkUpdate.checkClientVersion(token, currentVersion);
+    if (this.mustForceUpdate(updateInfo)) {
+      await this.presentForceUpdateAlert(updateInfo!);
+      return;
+    }
 
     if (!hasDefaultWallet) {
       await this.navController.navigateRoot('/wallet-digital-setup');
@@ -97,5 +109,49 @@ export class SessionBootstrapPage implements ViewWillEnter {
     }
 
     await this.navController.navigateRoot('/dashboard');
+  }
+
+  /** API indica que o cliente precisa atualizar antes de usar o app. */
+  private mustForceUpdate(info: CheckUpdateResponse | null): boolean {
+    if (!info || info.success !== true) {
+      return false;
+    }
+    if (info.status === 'precisa_atualizar') {
+      return true;
+    }
+    if (info.atualizado === false) {
+      return true;
+    }
+    return false;
+  }
+
+  private pickStoreUrl(data: CheckUpdateResponse): string | null {
+    const p = Capacitor.getPlatform();
+    if (p === 'ios') {
+      return data.link_apple_store?.trim() || data.link_play_store?.trim() || null;
+    }
+    return data.link_play_store?.trim() || data.link_apple_store?.trim() || null;
+  }
+
+  private async presentForceUpdateAlert(data: CheckUpdateResponse): Promise<void> {
+    const storeUrl = this.pickStoreUrl(data);
+    const ver = data.version?.trim() ?? '—';
+    const alert = await this.alertController.create({
+      header: `v.${ver} disponível`,
+      message: data.message?.trim() || 'É preciso atualizar o aplicativo AdmSpot Finance para continuar.',
+      backdropDismiss: false,
+      buttons: [
+        {
+          text: 'Atualizar na loja',
+          handler: () => {
+            if (storeUrl) {
+              window.open(storeUrl, '_blank', 'noopener,noreferrer');
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
+    await alert.onDidDismiss();
   }
 }
