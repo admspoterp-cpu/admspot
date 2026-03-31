@@ -65,6 +65,13 @@ const routes: Routes = [
       import('./features/cobrancas/cobrancas.module').then((m) => m.CobrancasPageModule),
   },
   {
+    path: 'pagamento-contas',
+    loadChildren: () =>
+      import('./features/pagamento-contas/pagamento-contas.module').then(
+        (m) => m.PagamentoContasPageModule,
+      ),
+  },
+  {
     path: 'nova-cobranca',
     loadChildren: () =>
       import('./features/nova-cobranca/nova-cobranca.module').then((m) => m.NovaCobrancaPageModule),

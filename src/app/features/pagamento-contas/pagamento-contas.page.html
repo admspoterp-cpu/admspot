@@ -1,0 +1,215 @@
+<ion-content [fullscreen]="true" [scrollY]="false" class="cobrancas-content">
+  <div class="cobrancas-page">
+    <header class="cobrancas-header">
+      <button type="button" class="cobrancas-header-btn tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="cobrancas-title">Pagamento de Contas</h1>
+      <div class="cobrancas-header-tools">
+        <button
+          type="button"
+          class="cobrancas-header-btn tap-highlight-none"
+          [class.cobrancas-header-btn--active]="hasActiveSearch || searchExpanded"
+          (click)="toggleSearchBar()"
+          aria-label="Buscar pagamentos"
+          [attr.aria-expanded]="searchExpanded"
+        >
+          <img [src]="searchSrc" alt="" />
+        </button>
+        <button
+          type="button"
+          class="cobrancas-header-btn tap-highlight-none"
+          [class.cobrancas-header-btn--active]="hasActiveFilters"
+          (click)="openFilterModal()"
+          aria-label="Filtrar pagamentos"
+        >
+          <img [src]="funnelSrc" alt="" />
+        </button>
+      </div>
+    </header>
+
+    <div *ngIf="searchExpanded" class="cobrancas-search-bar">
+      <label class="cobrancas-search-label" for="pagamento-contas-search-input">Pesquisar</label>
+      <div class="cobrancas-search-row">
+        <input
+          id="pagamento-contas-search-input"
+          class="cobrancas-search-input"
+          type="search"
+          [(ngModel)]="searchQuery"
+          name="pagamentoContasSearchQuery"
+          [ngModelOptions]="{ standalone: true }"
+          inputmode="search"
+          enterkeyhint="search"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          placeholder="Beneficiário, linha digitável ou identificação"
+          aria-describedby="pagamento-contas-search-hint"
+        />
+        <button
+          *ngIf="hasActiveSearch"
+          type="button"
+          class="cobrancas-search-clear tap-highlight-none"
+          (click)="searchQuery = ''"
+          aria-label="Limpar texto da pesquisa"
+        >
+          ×
+        </button>
+      </div>
+      <p id="pagamento-contas-search-hint" class="cobrancas-search-hint">
+        Busca em nome, linha digitável e referências do pagamento.
+      </p>
+    </div>
+
+    <div class="cobrancas-body">
+      <div class="cobrancas-resumo-head cobrancas-resumo-head--spaced">
+        <h2 class="cobrancas-resumo-title">Resumo</h2>
+        <span class="cobrancas-header-spacer" aria-hidden="true"></span>
+      </div>
+
+      <div class="cobrancas-stat cobrancas-stat--full">
+        <span class="cobrancas-stat-label">Pagos</span>
+        <span class="cobrancas-stat-value">{{ summaryPagos }}</span>
+      </div>
+
+      <div class="cobrancas-stat-row">
+        <div class="cobrancas-stat cobrancas-stat--half">
+          <span class="cobrancas-stat-label">Agendados</span>
+          <span class="cobrancas-stat-value cobrancas-stat-value--md">{{ summaryAgendados }}</span>
+        </div>
+        <div class="cobrancas-stat cobrancas-stat--half">
+          <span class="cobrancas-stat-label">Não efetivado</span>
+          <span class="cobrancas-stat-value cobrancas-stat-value--md">{{ summaryNaoEfetivado }}</span>
+        </div>
+      </div>
+
+      <section class="cobrancas-list-panel" aria-label="Lista de pagamentos">
+        <div class="cobrancas-tabs" role="tablist" aria-label="Filtrar pagamentos">
+          <button
+            *ngFor="let label of tabLabels; let i = index"
+            type="button"
+            role="tab"
+            class="cobrancas-tab tap-highlight-none"
+            [class.cobrancas-tab--active]="selectedTabIndex === i"
+            [attr.aria-selected]="selectedTabIndex === i"
+            (click)="selectTab(i)"
+          >
+            {{ label }}
+          </button>
+        </div>
+        <p class="cobrancas-count">{{ tabCountLabel }}</p>
+        <div class="cobrancas-tab-line" role="presentation"></div>
+
+        <div class="cobrancas-list-scroll" role="region" aria-label="Itens de pagamento">
+          <p *ngIf="loading" class="cobrancas-loading">Carregando pagamentos…</p>
+          <p *ngIf="!loading && loadError" class="cobrancas-error">{{ loadError }}</p>
+          <p *ngIf="!loading && !loadError && filteredRows.length === 0" class="cobrancas-empty">
+            <ng-container *ngIf="hasActiveSearch; else pagamentosEmptyQueue">Nenhum resultado para a pesquisa.</ng-container>
+            <ng-template #pagamentosEmptyQueue>Nenhum pagamento nesta fila.</ng-template>
+          </p>
+          <ul *ngIf="!loading && !loadError" class="cobrancas-rows">
+            <li
+              *ngFor="let row of filteredRows; trackBy: trackByRowId"
+              class="cobrancas-row tap-highlight-none"
+              (click)="openRow(row)"
+              (keydown.enter)="openRow(row)"
+              (keydown.space)="$event.preventDefault(); openRow(row)"
+              tabindex="0"
+              role="button"
+            >
+              <div class="cobrancas-avatar" [style.background-color]="row.avatarBg">{{ row.initials }}</div>
+              <div class="cobrancas-row-main">
+                <p class="cobrancas-name">{{ row.name }}</p>
+                <p class="cobrancas-due">{{ row.dueLabel }}</p>
+              </div>
+              <div class="cobrancas-row-right">
+                <span
+                  class="cobrancas-amount"
+                  [ngClass]="{
+                    'cobrancas-amount--red': row.amountTone === 'red',
+                    'cobrancas-amount--blue-xs': row.amountTone === 'blue-xs',
+                    'cobrancas-amount--blue-sm': row.amountTone === 'blue-sm',
+                    'cobrancas-amount--muted': row.amountTone === 'muted'
+                  }"
+                  >{{ row.amount }}</span
+                >
+                <span
+                  class="cobrancas-badge"
+                  [ngClass]="{
+                    'cobrancas-badge--pago': row.status === 'pago',
+                    'cobrancas-badge--atrasado': row.status === 'atrasado' || row.status === 'falhou',
+                    'cobrancas-badge--aguardando': row.status === 'aguardando'
+                  }"
+                  >{{ row.statusDisplay }}</span
+                >
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+</ion-content>
+
+<ion-modal
+  class="cb-filter-sheet"
+  [isOpen]="filterModalOpen"
+  [initialBreakpoint]="0.92"
+  [breakpoints]="[0, 0.92]"
+  handle="true"
+  [backdropDismiss]="true"
+  (didDismiss)="onFilterModalDismiss()"
+>
+  <ng-template>
+    <div class="cb-filter-shell">
+      <ion-header class="ion-no-border cb-filter-shell-header">
+        <ion-toolbar>
+          <ion-title>Filtros</ion-title>
+          <ion-buttons slot="end">
+            <ion-button fill="clear" (click)="closeFilterModal()">Fechar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <div class="cb-filter-body-scroll">
+        <p class="cb-filter-section-title">Data de vencimento</p>
+        <p class="cb-filter-hint">
+          Mostra pagamentos com vencimento entre as datas (inclusive). Deixe em branco para não filtrar por data.
+        </p>
+        <div class="cb-filter-date-row">
+          <label class="cb-filter-date-label" for="pc-filter-start">Início</label>
+          <input
+            id="pc-filter-start"
+            class="cb-filter-date-input"
+            type="date"
+            [(ngModel)]="draftDateStart"
+            [ngModelOptions]="{ standalone: true }"
+            name="draftDateStartPc"
+            autocomplete="off"
+          />
+        </div>
+        <div class="cb-filter-date-row">
+          <label class="cb-filter-date-label" for="pc-filter-end">Fim</label>
+          <input
+            id="pc-filter-end"
+            class="cb-filter-date-input"
+            type="date"
+            [(ngModel)]="draftDateEnd"
+            [ngModelOptions]="{ standalone: true }"
+            name="draftDateEndPc"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+      <footer class="cb-filter-footer-bar">
+        <div class="cb-filter-actions">
+          <button type="button" class="cb-filter-btn cb-filter-btn--outline tap-highlight-none" (click)="clearFilters()">
+            Limpar
+          </button>
+          <button type="button" class="cb-filter-btn cb-filter-btn--primary tap-highlight-none" (click)="applyFilters()">
+            Aplicar
+          </button>
+        </div>
+      </footer>
+    </div>
+  </ng-template>
+</ion-modal>

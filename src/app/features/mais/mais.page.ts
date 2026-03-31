@@ -61,6 +61,10 @@ export class MaisPage implements ViewWillEnter {
     void this.navController.navigateForward('/cobrancas');
   }
 
+  goToPagamentoContas(): void {
+    void this.navController.navigateForward('/pagamento-contas');
+  }
+
   goToClientes(): void {
     void this.navController.navigateForward('/clientes');
   }
