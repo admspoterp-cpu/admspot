@@ -218,12 +218,14 @@ ion-content.dashboard-content::part(scroll) {
   padding: 12px 0;
 }
 
-.list-item img {
+/** Ícone à esquerda; seta à direita fica pequena (independe de `alt`, ex.: ""). */
+.list-item > img:first-of-type {
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
 }
 
-.list-item img[alt='Arrow'] {
+.list-item > img:last-of-type {
   width: 16px;
   height: 16px;
   flex-shrink: 0;

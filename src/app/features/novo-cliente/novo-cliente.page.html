@@ -1,0 +1,121 @@
+<ion-content [fullscreen]="true" class="ncli-content">
+  <div class="ncli-page">
+    <header class="ncli-header">
+      <button type="button" class="ncli-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="ncli-title">Novo Cliente</h1>
+    </header>
+
+    <div class="ncli-body">
+      <h2 class="ncli-section-title ncli-section-title--first">Dados do cliente</h2>
+
+      <label class="ncli-field-block">
+        <span class="ncli-field-label">Nome completo</span>
+        <input
+          class="ncli-text-input"
+          type="text"
+          name="name"
+          [(ngModel)]="name"
+          autocomplete="name"
+          autocapitalize="words"
+          enterkeyhint="next"
+          aria-label="Nome completo"
+        />
+        <p *ngIf="nameError" class="ncli-field-hint ncli-field-hint--error">{{ nameError }}</p>
+      </label>
+
+      <label class="ncli-field-block">
+        <span class="ncli-field-label">CPF ou CNPJ</span>
+        <input
+          class="ncli-text-input"
+          type="text"
+          name="document"
+          inputmode="numeric"
+          autocomplete="off"
+          [value]="documentDisplay"
+          (input)="onDocumentInput($event)"
+          maxlength="18"
+          aria-label="CPF ou CNPJ"
+        />
+        <p class="ncli-field-sublabel">A máscara muda automaticamente conforme você digita.</p>
+        <p *ngIf="documentError" class="ncli-field-hint ncli-field-hint--error">{{ documentError }}</p>
+      </label>
+
+      <label class="ncli-field-block">
+        <span class="ncli-field-label">E-mail</span>
+        <input
+          class="ncli-text-input"
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          autocomplete="email"
+          inputmode="email"
+          enterkeyhint="next"
+          aria-label="E-mail"
+        />
+        <p *ngIf="emailError" class="ncli-field-hint ncli-field-hint--error">{{ emailError }}</p>
+      </label>
+
+      <label class="ncli-field-block">
+        <span class="ncli-field-label">WhatsApp</span>
+        <input
+          class="ncli-text-input"
+          type="tel"
+          name="whatsapp"
+          inputmode="numeric"
+          autocomplete="tel"
+          [value]="whatsappDisplay"
+          (input)="onWhatsappInput($event)"
+          maxlength="16"
+          aria-label="WhatsApp"
+        />
+        <p *ngIf="whatsappError" class="ncli-field-hint ncli-field-hint--error">{{ whatsappError }}</p>
+      </label>
+
+      <h2 class="ncli-section-title">Endereço</h2>
+
+      <div class="ncli-row-2">
+        <label class="ncli-field-block ncli-field-block--half">
+          <span class="ncli-field-label">CEP</span>
+          <input
+            class="ncli-text-input"
+            type="text"
+            name="cep"
+            inputmode="numeric"
+            autocomplete="postal-code"
+            [value]="cepDisplay"
+            (input)="onCepInput($event)"
+            maxlength="9"
+            aria-label="CEP"
+          />
+          <p *ngIf="cepError" class="ncli-field-hint ncli-field-hint--error">{{ cepError }}</p>
+        </label>
+        <label class="ncli-field-block ncli-field-block--half">
+          <span class="ncli-field-label">Número</span>
+          <input
+            class="ncli-text-input"
+            type="text"
+            name="number"
+            [(ngModel)]="number"
+            inputmode="numeric"
+            autocomplete="address-line2"
+            enterkeyhint="done"
+            aria-label="Número do endereço"
+          />
+          <p *ngIf="numberError" class="ncli-field-hint ncli-field-hint--error">{{ numberError }}</p>
+        </label>
+      </div>
+
+      <button
+        type="button"
+        class="ncli-submit tap-highlight-none"
+        [disabled]="submitBusy"
+        (click)="onSubmit()"
+      >
+        <ion-spinner *ngIf="submitBusy" class="ncli-submit-spinner" name="crescent"></ion-spinner>
+        <span>{{ submitBusy ? 'Cadastrando…' : 'Cadastrar cliente' }}</span>
+      </button>
+    </div>
+  </div>
+</ion-content>

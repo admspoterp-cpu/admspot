@@ -10,8 +10,8 @@ export type CentralClient = {
   id: number;
   cus_id: string | null;
   admspot_id?: string | null;
-  name: string;
-  last_name: string;
+  name?: string | null;
+  last_name?: string | null;
   document?: string | null;
   email?: string | null;
   whatsapp?: string | null;

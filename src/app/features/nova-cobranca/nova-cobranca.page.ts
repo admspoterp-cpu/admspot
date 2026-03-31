@@ -3,6 +3,7 @@ import { AlertController, NavController, ToastController, ViewWillEnter } from '
 
 import { BRL_ZERO_DISPLAY, brlStringToCents } from '../../shared/utils/brl-currency.util';
 import { AuthSessionService } from '../../services/auth-session.service';
+import { NovaCobrancaClientePrefillService } from '../../services/nova-cobranca-cliente-prefill.service';
 import {
   ChargesCreateService,
   extractBoletoIdFromCreateResponse,
@@ -93,6 +94,7 @@ export class NovaCobrancaPage implements ViewWillEnter {
   private readonly alertController = inject(AlertController);
   private readonly clientsListService = inject(ClientsListService);
   private readonly chargesCreateService = inject(ChargesCreateService);
+  private readonly cobrancaClientePrefill = inject(NovaCobrancaClientePrefillService);
 
   get clientName(): string {
     return this.selectedClient ? NovaCobrancaPage.fullName(this.selectedClient) : 'Selecione o cliente';
@@ -187,6 +189,11 @@ export class NovaCobrancaPage implements ViewWillEnter {
     if (this.authSession.isTokenExpired()) {
       this.authSession.clear();
       void this.navController.navigateRoot('/login');
+      return;
+    }
+    const pre = this.cobrancaClientePrefill.consumePendingClient();
+    if (pre) {
+      this.selectedClient = pre;
     }
   }
 

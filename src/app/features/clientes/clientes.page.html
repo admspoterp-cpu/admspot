@@ -1,0 +1,196 @@
+<ion-content [fullscreen]="true" [scrollY]="false" class="clientes-content">
+  <div class="clientes-page">
+    <header class="clientes-header">
+      <button type="button" class="clientes-header-btn tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="clientes-title">Clientes</h1>
+      <div class="clientes-header-tools">
+        <button
+          type="button"
+          class="clientes-header-btn tap-highlight-none"
+          [class.clientes-header-btn--active]="hasActiveFilters"
+          (click)="openFilterModal()"
+          aria-label="Filtrar clientes"
+        >
+          <img [src]="funnelSrc" alt="" />
+        </button>
+      </div>
+    </header>
+
+    <div class="clientes-body">
+      <div class="clientes-toolbar-head clientes-toolbar-head--spaced">
+        <div class="clientes-search-block">
+          <label class="clientes-search-label" for="clientes-search-input">Pesquisar</label>
+          <div class="clientes-search-row">
+            <input
+              id="clientes-search-input"
+              class="clientes-search-input"
+              type="search"
+              [(ngModel)]="searchQuery"
+              name="clientesSearchQuery"
+              [ngModelOptions]="{ standalone: true }"
+              inputmode="search"
+              enterkeyhint="search"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+              placeholder="Nome, sobrenome, documento, e-mail ou WhatsApp"
+            />
+            <button
+              *ngIf="hasActiveSearch"
+              type="button"
+              class="clientes-search-clear tap-highlight-none"
+              (click)="searchQuery = ''"
+              aria-label="Limpar pesquisa"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="clientes-plus tap-highlight-none"
+          aria-label="Novo cliente"
+          (click)="goToNovoCliente()"
+        >
+          <span>+</span>
+        </button>
+      </div>
+
+      <section class="clientes-list-panel" aria-label="Lista de clientes">
+        <div class="clientes-tabs" role="tablist" aria-label="Tipo de pessoa">
+          <button
+            *ngFor="let label of tabLabels; let i = index"
+            type="button"
+            role="tab"
+            class="clientes-tab tap-highlight-none"
+            [class.clientes-tab--active]="selectedTabIndex === i"
+            [attr.aria-selected]="selectedTabIndex === i"
+            (click)="selectTab(i)"
+          >
+            {{ label }}
+          </button>
+        </div>
+        <p class="clientes-count">{{ clientesCountLabel }}</p>
+        <div class="clientes-tab-line" role="presentation"></div>
+
+        <div class="clientes-list-scroll" role="region" aria-label="Itens dos clientes">
+          <p *ngIf="loading" class="clientes-loading">Carregando clientes…</p>
+          <p *ngIf="!loading && loadError" class="clientes-error">{{ loadError }}</p>
+          <p *ngIf="!loading && !loadError && filteredRows.length === 0" class="clientes-empty">
+            <ng-container *ngIf="hasActiveSearch; else clientesEmptyList">Nenhum resultado para a pesquisa.</ng-container>
+            <ng-template #clientesEmptyList>Nenhum cliente nesta lista.</ng-template>
+          </p>
+          <ul *ngIf="!loading && !loadError" class="clientes-rows">
+            <li
+              *ngFor="let row of filteredRows; trackBy: trackByRowId"
+              class="clientes-row tap-highlight-none"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="'Abrir detalhes de ' + row.fullName"
+              (click)="openCliente(row)"
+              (keydown)="onClienteRowKeydown($event, row)"
+            >
+              <div class="clientes-avatar" [style.background-color]="row.avatarBg">{{ row.initials }}</div>
+              <div class="clientes-row-main">
+                <p class="clientes-name">{{ row.fullName }}</p>
+                <p class="clientes-sub">{{ row.documentDisplay }}</p>
+              </div>
+              <div class="clientes-row-right">
+                <span class="clientes-city-state">{{ row.cityState }}</span>
+                <span
+                  class="clientes-badge"
+                  [ngClass]="{
+                    'clientes-badge--active': row.statusKind === 'active',
+                    'clientes-badge--inactive': row.statusKind === 'inactive',
+                    'clientes-badge--other': row.statusKind === 'other'
+                  }"
+                  >{{ row.statusLabel }}</span
+                >
+              </div>
+              <img [src]="caretRightSrc" alt="" class="clientes-chevron" aria-hidden="true" />
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+</ion-content>
+
+<ion-modal
+  class="cl-filter-sheet"
+  [isOpen]="filterModalOpen"
+  [initialBreakpoint]="0.92"
+  [breakpoints]="[0, 0.92]"
+  handle="true"
+  [backdropDismiss]="true"
+  (didDismiss)="onFilterModalDismiss()"
+>
+  <ng-template>
+    <div class="cl-filter-shell">
+      <ion-header class="ion-no-border cl-filter-shell-header">
+        <ion-toolbar>
+          <ion-title>Filtros</ion-title>
+          <ion-buttons slot="end">
+            <ion-button fill="clear" (click)="closeFilterModal()">Fechar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <div class="cl-filter-body-scroll">
+        <p class="cl-filter-section-title">Data de registro</p>
+        <p class="cl-filter-hint">Filtra pela data de cadastro (criado em). Deixe em branco para não filtrar por data.</p>
+        <div class="cl-filter-date-row">
+          <label class="cl-filter-date-label" for="cl-filter-start">Início</label>
+          <input
+            id="cl-filter-start"
+            class="cl-filter-date-input"
+            type="date"
+            [(ngModel)]="draftDateStart"
+            [ngModelOptions]="{ standalone: true }"
+            name="draftDateStart"
+            autocomplete="off"
+          />
+        </div>
+        <div class="cl-filter-date-row">
+          <label class="cl-filter-date-label" for="cl-filter-end">Fim</label>
+          <input
+            id="cl-filter-end"
+            class="cl-filter-date-input"
+            type="date"
+            [(ngModel)]="draftDateEnd"
+            [ngModelOptions]="{ standalone: true }"
+            name="draftDateEnd"
+            autocomplete="off"
+          />
+        </div>
+
+        <p class="cl-filter-section-title">Estado (UF)</p>
+        <p class="cl-filter-hint">Filtra pelo estado do endereço do cliente.</p>
+        <div class="cl-filter-select-row">
+          <label class="cl-filter-date-label" for="cl-filter-state">UF</label>
+          <select
+            id="cl-filter-state"
+            class="cl-filter-select"
+            [(ngModel)]="draftStateFilter"
+            [ngModelOptions]="{ standalone: true }"
+            name="draftStateFilter"
+          >
+            <option value="">Todos os estados</option>
+            <option *ngFor="let uf of brazilStateUfs" [value]="uf">{{ uf }}</option>
+          </select>
+        </div>
+      </div>
+      <footer class="cl-filter-footer-bar">
+        <div class="cl-filter-actions">
+          <button type="button" class="cl-filter-btn cl-filter-btn--outline tap-highlight-none" (click)="clearFilters()">
+            Limpar
+          </button>
+          <button type="button" class="cl-filter-btn cl-filter-btn--primary tap-highlight-none" (click)="applyFilters()">
+            Aplicar
+          </button>
+        </div>
+      </footer>
+    </div>
+  </ng-template>
+</ion-modal>

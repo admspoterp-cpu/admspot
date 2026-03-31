@@ -358,6 +358,11 @@ export class DashboardPage implements ViewWillEnter {
     void this.navController.navigateForward('/cartoes');
   }
 
+  goToNovaCobranca(): void {
+    this.closeOverlaySheets();
+    void this.navController.navigateForward('/nova-cobranca');
+  }
+
   goToTransacoes(): void {
     this.activeTab = 'Send';
     this.closeOverlaySheets();

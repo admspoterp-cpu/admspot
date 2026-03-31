@@ -1,0 +1,193 @@
+<ion-content [fullscreen]="true" class="cd-content">
+  <div class="cd-page">
+    <header class="cd-header">
+      <button type="button" class="cd-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="cd-title">{{ pageTitle }}</h1>
+    </header>
+
+    <div *ngIf="loadingClient" class="cd-center-msg">Carregando…</div>
+    <p *ngIf="!loadingClient && loadError" class="cd-error">{{ loadError }}</p>
+
+    <ng-container *ngIf="!loadingClient && !loadError && client">
+      <div class="cd-segment-wrap">
+        <ion-segment
+          class="cd-segment"
+          name="clienteDetalheTab"
+          [(ngModel)]="selectedTab"
+          (ionChange)="onSegmentChange($event)"
+        >
+          <ion-segment-button value="info" layout="label-only">
+            <ion-label>Informações</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="history" layout="label-only">
+            <ion-label>Histórico</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </div>
+
+      <div *ngIf="selectedTab === 'info'" class="cd-body">
+        <div class="cd-edit-row">
+          <span class="cd-edit-label">Editar dados</span>
+          <ion-toggle [checked]="editMode" (ionChange)="onEditToggle($event)" aria-label="Editar dados"></ion-toggle>
+        </div>
+
+        <h2 class="cd-section-title">Dados do cliente</h2>
+
+        <label class="cd-field-block">
+          <span class="cd-field-label">Nome completo</span>
+          <input
+            class="cd-text-input"
+            type="text"
+            name="name"
+            [(ngModel)]="name"
+            [readonly]="!editMode"
+            autocomplete="name"
+            autocapitalize="words"
+            aria-label="Nome completo"
+          />
+          <p *ngIf="nameError" class="cd-field-hint cd-field-hint--error">{{ nameError }}</p>
+        </label>
+
+        <label class="cd-field-block">
+          <span class="cd-field-label">CPF ou CNPJ</span>
+          <input
+            class="cd-text-input"
+            type="text"
+            name="document"
+            inputmode="numeric"
+            autocomplete="off"
+            [readonly]="!editMode"
+            [value]="documentDisplay"
+            (input)="onDocumentInput($event)"
+            maxlength="18"
+            aria-label="CPF ou CNPJ"
+          />
+          <p *ngIf="documentError" class="cd-field-hint cd-field-hint--error">{{ documentError }}</p>
+        </label>
+
+        <label class="cd-field-block">
+          <span class="cd-field-label">E-mail</span>
+          <input
+            class="cd-text-input"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            [readonly]="!editMode"
+            autocomplete="email"
+            inputmode="email"
+            aria-label="E-mail"
+          />
+          <p *ngIf="emailError" class="cd-field-hint cd-field-hint--error">{{ emailError }}</p>
+        </label>
+
+        <label class="cd-field-block">
+          <span class="cd-field-label">WhatsApp</span>
+          <input
+            class="cd-text-input"
+            type="tel"
+            name="whatsapp"
+            inputmode="numeric"
+            autocomplete="tel"
+            [readonly]="!editMode"
+            [value]="whatsappDisplay"
+            (input)="onWhatsappInput($event)"
+            maxlength="16"
+            aria-label="WhatsApp"
+          />
+          <p *ngIf="whatsappError" class="cd-field-hint cd-field-hint--error">{{ whatsappError }}</p>
+        </label>
+
+        <h2 class="cd-section-title">Endereço</h2>
+
+        <div class="cd-row-2">
+          <label class="cd-field-block cd-field-block--half">
+            <span class="cd-field-label">CEP</span>
+            <input
+              class="cd-text-input"
+              type="text"
+              name="cep"
+              inputmode="numeric"
+              autocomplete="postal-code"
+              [readonly]="!editMode"
+              [value]="cepDisplay"
+              (input)="onCepInput($event)"
+              maxlength="9"
+              aria-label="CEP"
+            />
+            <p *ngIf="cepError" class="cd-field-hint cd-field-hint--error">{{ cepError }}</p>
+          </label>
+          <label class="cd-field-block cd-field-block--half">
+            <span class="cd-field-label">Número</span>
+            <input
+              class="cd-text-input"
+              type="text"
+              name="number"
+              [(ngModel)]="number"
+              [readonly]="!editMode"
+              inputmode="numeric"
+              autocomplete="address-line2"
+              aria-label="Número do endereço"
+            />
+            <p *ngIf="numberError" class="cd-field-hint cd-field-hint--error">{{ numberError }}</p>
+          </label>
+        </div>
+
+        <button
+          *ngIf="editMode"
+          type="button"
+          class="cd-submit tap-highlight-none"
+          [disabled]="saveBusy"
+          (click)="onSave()"
+        >
+          <ion-spinner *ngIf="saveBusy" class="cd-submit-spinner" name="crescent"></ion-spinner>
+          <span>{{ saveBusy ? 'Salvando…' : 'Salvar alterações' }}</span>
+        </button>
+
+        <div class="cd-actions-row">
+          <button type="button" class="cd-cobrar tap-highlight-none" [disabled]="editMode" (click)="goToCobrar()">
+            Cobrar
+          </button>
+          <button
+            type="button"
+            class="cd-delete tap-highlight-none"
+            [disabled]="deleteBusy || editMode"
+            (click)="confirmDelete()"
+          >
+            <ion-spinner *ngIf="deleteBusy" class="cd-submit-spinner" name="crescent"></ion-spinner>
+            <span>{{ deleteBusy ? 'Excluindo…' : 'Deletar' }}</span>
+          </button>
+        </div>
+        <p *ngIf="editMode" class="cd-delete-hint">Finalize ou cancele a edição para cobrar ou excluir o cliente.</p>
+      </div>
+
+      <div *ngIf="selectedTab === 'history'" class="cd-body cd-body--history">
+        <p *ngIf="historicoLoading" class="cd-center-msg">Carregando histórico…</p>
+        <p *ngIf="!historicoLoading && historicoLoadError" class="cd-warn">{{ historicoLoadError }}</p>
+        <p *ngIf="!historicoLoading && !historicoLoadError && historicoItems.length === 0" class="cd-empty">
+          Nenhum movimento encontrado para este cliente.
+        </p>
+        <ul *ngIf="!historicoLoading" class="cd-hist-list" role="list">
+          <li
+            *ngFor="let item of historicoItems; trackBy: trackByHistorico"
+            class="cd-hist-row tap-highlight-none"
+            role="button"
+            tabindex="0"
+            (click)="openHistoricoItem(item)"
+          >
+            <div class="cd-hist-main">
+              <span class="cd-hist-kind">{{ historicoKindLabel(item) }}</span>
+              <span class="cd-hist-title">{{ item.kind === 'cobranca' ? item.title : item.row.displayName }}</span>
+              <span class="cd-hist-sub">{{
+                item.kind === 'cobranca' ? item.subtitle : item.row.beneficiaryBank
+              }}</span>
+              <span class="cd-hist-date">{{ historicoDateLabel(item) }}</span>
+            </div>
+            <span class="cd-hist-amount">{{ item.kind === 'cobranca' ? item.amountLabel : item.row.amountLine }}</span>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+  </div>
+</ion-content>

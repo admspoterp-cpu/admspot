@@ -45,6 +45,21 @@ const routes: Routes = [
     loadChildren: () => import('./features/mais/mais.module').then((m) => m.MaisPageModule),
   },
   {
+    path: 'clientes',
+    loadChildren: () =>
+      import('./features/clientes/clientes.module').then((m) => m.ClientesPageModule),
+  },
+  {
+    path: 'novo-cliente',
+    loadChildren: () =>
+      import('./features/novo-cliente/novo-cliente.module').then((m) => m.NovoClientePageModule),
+  },
+  {
+    path: 'cliente/:id',
+    loadChildren: () =>
+      import('./features/cliente-detalhe/cliente-detalhe.module').then((m) => m.ClienteDetalhePageModule),
+  },
+  {
     path: 'cobrancas',
     loadChildren: () =>
       import('./features/cobrancas/cobrancas.module').then((m) => m.CobrancasPageModule),
