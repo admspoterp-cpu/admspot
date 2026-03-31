@@ -1,0 +1,41 @@
+:host {
+  --brand-blue: #235697;
+  --brand-text: #3a3c4c;
+  --brand-subtext: #7d7c93;
+}
+
+ion-content.wdu-content {
+  --background: #ffffff;
+}
+
+.wdu-screen {
+  min-height: 100%;
+  padding: 48px 20px 28px;
+}
+
+.wdu-back {
+  align-self: flex-start;
+  margin: 0 0 20px;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: #5e6275;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wdu-header h1 {
+  margin: 0 0 16px;
+  color: var(--brand-text);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.wdu-message {
+  margin: 0;
+  color: var(--brand-subtext);
+  font-size: 16px;
+  line-height: 1.5;
+}

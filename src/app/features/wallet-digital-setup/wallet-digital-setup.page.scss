@@ -49,6 +49,18 @@ ion-content.wds-content {
   margin-bottom: 20px;
 }
 
+.wds-card--selectable {
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.wds-card--selectable:hover,
+.wds-card--selectable:focus-visible {
+  border-color: rgba(35, 86, 151, 0.35);
+  background: #eef2f8;
+}
+
 .wds-card-title {
   margin: 0 0 6px;
   font-size: 18px;

@@ -1,0 +1,91 @@
+<ion-content [fullscreen]="true" class="mais-content">
+  <div class="mais-page">
+    <header class="mais-header">
+      <button type="button" class="mais-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="mais-title">Mais</h1>
+      <span class="mais-header-spacer" aria-hidden="true"></span>
+    </header>
+
+    <section class="mais-profile" aria-label="Perfil">
+      <img [src]="avatarSrc" alt="" class="mais-avatar" />
+      <p class="mais-user-name">{{ displayName }}</p>
+      <div class="mais-account-line">
+        <span class="mais-account-label">ID:</span>
+        <span class="mais-account-value">{{ walletTokenDisplay }}</span>
+      </div>
+      <div class="mais-profile-divider" role="presentation"></div>
+    </section>
+
+    <section class="mais-block" aria-labelledby="mais-conta">
+      <h2 id="mais-conta" class="mais-section-title">Conta</h2>
+      <button
+        type="button"
+        class="mais-row tap-highlight-none"
+        (click)="onComingSoon('Dados pessoais')"
+      >
+        <span class="mais-row-label">Dados pessoais</span>
+        <img [src]="caretRightSrc" alt="" class="mais-chevron" />
+        <span class="mais-row-line" role="presentation"></span>
+      </button>
+      <button type="button" class="mais-row tap-highlight-none" (click)="goToTransacoes()">
+        <span class="mais-row-label">Histórico de transações</span>
+        <img [src]="caretRightSrc" alt="" class="mais-chevron" />
+        <span class="mais-row-line" role="presentation"></span>
+      </button>
+      <button
+        type="button"
+        class="mais-row tap-highlight-none"
+        (click)="onComingSoon('Privacidade e segurança')"
+      >
+        <span class="mais-row-label">Privacidade e segurança</span>
+        <img [src]="caretRightSrc" alt="" class="mais-chevron" />
+        <span class="mais-row-line" role="presentation"></span>
+      </button>
+    </section>
+
+    <section class="mais-block" aria-labelledby="mais-ferramentas">
+      <h2 id="mais-ferramentas" class="mais-section-title">Ferramentas</h2>
+      <button type="button" class="mais-row tap-highlight-none" (click)="onComingSoon('Clientes')">
+        <span class="mais-row-label">Clientes</span>
+        <img [src]="caretRightSrc" alt="" class="mais-chevron" />
+        <span class="mais-row-line" role="presentation"></span>
+      </button>
+      <button type="button" class="mais-row tap-highlight-none" (click)="goToCobrancas()">
+        <span class="mais-row-label">Cobranças</span>
+        <img [src]="caretRightSrc" alt="" class="mais-chevron" />
+        <span class="mais-row-line" role="presentation"></span>
+      </button>
+      <button type="button" class="mais-row tap-highlight-none" (click)="onComingSoon('Pagamentos')">
+        <span class="mais-row-label">Pagamentos</span>
+        <img [src]="caretRightSrc" alt="" class="mais-chevron" />
+        <span class="mais-row-line" role="presentation"></span>
+      </button>
+    </section>
+
+    <section class="mais-block" aria-labelledby="mais-suporte">
+      <h2 id="mais-suporte" class="mais-section-title">Suporte</h2>
+      <button type="button" class="mais-row tap-highlight-none" (click)="onComingSoon('Falar com suporte')">
+        <span class="mais-row-label">Falar com suporte</span>
+        <img [src]="caretRightSrc" alt="" class="mais-chevron" />
+        <span class="mais-row-line" role="presentation"></span>
+      </button>
+      <button type="button" class="mais-row tap-highlight-none" (click)="onComingSoon('F.A.Q')">
+        <span class="mais-row-label">F.A.Q</span>
+        <img [src]="caretRightSrc" alt="" class="mais-chevron" />
+        <span class="mais-row-line" role="presentation"></span>
+      </button>
+    </section>
+
+    <div class="mais-situacao-row">
+      <span class="mais-situacao-label">Situação</span>
+      <span class="mais-situacao-badge" [class.mais-situacao-badge--pending]="!isApproved">
+        {{ isApproved ? 'Aprovado' : 'Pendente' }}
+      </span>
+      <span class="mais-row-line mais-row-line--situacao" role="presentation"></span>
+    </div>
+
+    <button type="button" class="mais-logout tap-highlight-none" (click)="onSair()">Sair da Conta</button>
+  </div>
+</ion-content>

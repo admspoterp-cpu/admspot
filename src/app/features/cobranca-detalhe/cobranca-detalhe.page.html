@@ -1,0 +1,113 @@
+<ion-content [fullscreen]="true" class="cd-content" [forceOverscroll]="false">
+  <div class="cd-page">
+    <header class="cd-header">
+      <button type="button" class="cd-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="cd-title">Cobrança</h1>
+      <button
+        type="button"
+        class="cd-share tap-highlight-none"
+        (click)="onShareCheckout()"
+        aria-label="Compartilhar link de pagamento"
+      >
+        <img [src]="shareIconSrc" alt="" />
+      </button>
+    </header>
+
+    <div class="cd-body" *ngIf="loading">
+      <div class="cd-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Carregando cobrança…</p>
+      </div>
+    </div>
+
+    <div class="cd-body" *ngIf="!loading && loadError">
+      <p class="cd-error">{{ loadError }}</p>
+    </div>
+
+    <div class="cd-body" *ngIf="!loading && !loadError && bl">
+      <section class="cd-hero">
+        <p class="cd-client-name">{{ clientName }}</p>
+        <div class="cd-invoice-row">
+          <span class="cd-label-muted">Fatura</span>
+          <span class="cd-invoice-num">{{ invoiceNumberDisplay }}</span>
+        </div>
+        <span
+          class="cd-badge"
+          [class.cd-badge--pago]="statusBadgePago"
+          [class.cd-badge--cancelado]="statusBadgeCancelado"
+          [class.cd-badge--aguardando]="statusBadgeAguardando"
+          >{{ statusLabel }}</span
+        >
+        <div class="cd-actions-row">
+          <button type="button" class="cd-btn cd-btn-primary tap-highlight-none" (click)="onShareCheckout()">
+            <img [src]="shareIconSrc" alt="" />
+            <span>Compartilhar</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="cd-block">
+        <div class="cd-row">
+          <span class="cd-label">E-mail</span>
+          <span class="cd-value">{{ clientEmail }}</span>
+        </div>
+        <div class="cd-row">
+          <span class="cd-label">Documento</span>
+          <span class="cd-value">{{ clientDocument }}</span>
+        </div>
+      </section>
+
+      <section class="cd-highlight">
+        <div class="cd-highlight-item">
+          <span class="cd-highlight-label">Valor</span>
+          <span class="cd-highlight-value">{{ valorDestaque }}</span>
+        </div>
+        <div class="cd-highlight-divider" aria-hidden="true"></div>
+        <div class="cd-highlight-item">
+          <span class="cd-highlight-label">Vencimento</span>
+          <span class="cd-highlight-value cd-highlight-value--date">{{ vencimentoDestaque }}</span>
+        </div>
+      </section>
+
+      <section class="cd-block cd-block--cond" *ngIf="showJuros || showMulta || showDesconto">
+        <h2 class="cd-section-title">Condições</h2>
+        <div class="cd-row" *ngIf="showJuros">
+          <span class="cd-label">Juros</span>
+          <span class="cd-value">{{ jurosLabel }}</span>
+        </div>
+        <div class="cd-row" *ngIf="showMulta">
+          <span class="cd-label">Multa</span>
+          <span class="cd-value">{{ multaLabel }}</span>
+        </div>
+        <div class="cd-row" *ngIf="showDesconto">
+          <span class="cd-label">Desconto</span>
+          <span class="cd-value">{{ descontoValorLabel }}</span>
+        </div>
+        <div class="cd-row" *ngIf="showDesconto">
+          <span class="cd-label">Prazo desconto</span>
+          <span class="cd-value">{{ descontoPrazoLabel }}</span>
+        </div>
+      </section>
+
+      <section class="cd-block" *ngIf="linhaDigitavel">
+        <h2 class="cd-section-title">Linha digitável</h2>
+        <p class="cd-linha">{{ linhaDigitavel }}</p>
+        <button type="button" class="cd-btn-copy tap-highlight-none" (click)="copyLinhaDigitavel()">
+          Copiar linha digitável
+        </button>
+      </section>
+
+      <section class="cd-block cd-block--pix" *ngIf="pixPayload">
+        <h2 class="cd-section-title">PIX</h2>
+        <p class="cd-pix-hint">Copie e cole no app do seu banco ou escaneie o QR Code.</p>
+        <div class="cd-qr-wrap" *ngIf="pixQrImageUrl">
+          <img class="cd-qr-img" [src]="pixQrImageUrl" alt="QR Code PIX" />
+        </div>
+        <p class="cd-pix-payload">{{ pixPayload }}</p>
+        <button type="button" class="cd-btn-copy tap-highlight-none" (click)="copyPixPayload()">Copiar código PIX</button>
+      </section>
+    </div>
+  </div>
+</ion-content>

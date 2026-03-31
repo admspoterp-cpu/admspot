@@ -23,6 +23,8 @@ type StoredSession = {
   /** Expiração absoluta do token (ms desde epoch), alinhada a `expires_in` ou ao `exp` do JWT. */
   expires_at_ms?: number;
   default_wallet?: WalletItemPayload;
+  /** Todas as carteiras do último `GET /auth/me`. */
+  wallets?: WalletItemPayload[];
 };
 
 /** Extrai `exp` (segundos) do payload do JWT, se existir. */
@@ -48,6 +50,8 @@ export class AuthSessionService {
   private readonly userKey = 'admspot_auth_user';
   private readonly tokenExpiresAtKey = 'admspot_auth_token_expires_at_ms';
   private readonly defaultWalletKey = 'admspot_default_wallet';
+  /** Lista completa `wallets.items` do último `/auth/me`. */
+  private readonly walletsItemsKey = 'admspot_wallets_items';
   /** Primeira carteira quando nenhuma tem `is_default` como padrão (tela “criar conta digital”). */
   private readonly pendingFirstWalletKey = 'admspot_wallet_pending_first';
 
@@ -120,21 +124,42 @@ export class AuthSessionService {
 
   /**
    * Persiste utilizador e carteiras conforme `/auth/me`.
-   * `true` = existe item com `is_default` truthy (1 ou true no DB).
+   * `true` = existe item com `is_default` truthy na API **ou** seleção local ainda válida na lista.
    */
   applyAuthMeResponse(data: AuthMeResponse): { hasDefaultWallet: boolean } {
     const user = this.meUserToAuthUser(data.user);
     this.updateUserProfile(user);
 
     const items = data.wallets?.items ?? [];
+    const previousDefault = this.getDefaultWallet();
     const defaultItem = items.find((w) => isWalletMarkedDefault(w.is_default)) ?? null;
 
     try {
+      if (items.length > 0) {
+        localStorage.setItem(this.walletsItemsKey, JSON.stringify(items));
+      } else {
+        localStorage.removeItem(this.walletsItemsKey);
+      }
+
       if (defaultItem) {
         localStorage.setItem(this.defaultWalletKey, JSON.stringify(defaultItem));
         localStorage.removeItem(this.pendingFirstWalletKey);
         return { hasDefaultWallet: true };
       }
+
+      if (
+        previousDefault &&
+        items.some((w) => w.id === previousDefault.id)
+      ) {
+        const merged = items.find((w) => w.id === previousDefault.id)!;
+        localStorage.setItem(
+          this.defaultWalletKey,
+          JSON.stringify({ ...merged, is_default: 1 }),
+        );
+        localStorage.removeItem(this.pendingFirstWalletKey);
+        return { hasDefaultWallet: true };
+      }
+
       localStorage.removeItem(this.defaultWalletKey);
       if (items.length > 0) {
         localStorage.setItem(this.pendingFirstWalletKey, JSON.stringify(items[0]));
@@ -147,6 +172,28 @@ export class AuthSessionService {
     return { hasDefaultWallet: false };
   }
 
+  /**
+   * Define a carteira ativa no app (até existir API que grave `is_default` no servidor).
+   * Marca `is_default = 1` na escolhida e `0` nas demais na lista local.
+   */
+  setSelectedWalletAsDefaultLocal(wallet: WalletItemPayload): void {
+    try {
+      let items = this.getAllWallets();
+      if (items.length === 0) {
+        items = [{ ...wallet }];
+      }
+      const updated = items.map((w) =>
+        w.id === wallet.id ? { ...w, ...wallet, is_default: 1 } : { ...w, is_default: 0 },
+      );
+      localStorage.setItem(this.walletsItemsKey, JSON.stringify(updated));
+      const chosen = updated.find((w) => w.id === wallet.id) ?? { ...wallet, is_default: 1 };
+      localStorage.setItem(this.defaultWalletKey, JSON.stringify(chosen));
+      localStorage.removeItem(this.pendingFirstWalletKey);
+    } catch {
+      // ignore
+    }
+  }
+
   getDefaultWallet(): WalletItemPayload | null {
     try {
       const raw = localStorage.getItem(this.defaultWalletKey);
@@ -154,6 +201,26 @@ export class AuthSessionService {
       return JSON.parse(raw) as WalletItemPayload;
     } catch {
       return null;
+    }
+  }
+
+  /**
+   * Todas as carteiras do utilizador conforme o último `GET /auth/me` (`wallets.items`).
+   * Pode estar vazio se ainda não houve `/auth/me` ou se não houver carteiras.
+   */
+  getAllWallets(): WalletItemPayload[] {
+    try {
+      const raw = localStorage.getItem(this.walletsItemsKey);
+      if (!raw?.trim()) {
+        return [];
+      }
+      const parsed = JSON.parse(raw) as unknown;
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+      return parsed as WalletItemPayload[];
+    } catch {
+      return [];
     }
   }
 
@@ -174,6 +241,7 @@ export class AuthSessionService {
       localStorage.removeItem(this.userKey);
       localStorage.removeItem(this.tokenExpiresAtKey);
       localStorage.removeItem(this.defaultWalletKey);
+      localStorage.removeItem(this.walletsItemsKey);
       localStorage.removeItem(this.pendingFirstWalletKey);
     } catch {
       // ignore
@@ -217,7 +285,14 @@ export class AuthSessionService {
     if (!access_token || !user) return null;
     const expires_at_ms = this.getTokenExpiresAtMs() ?? undefined;
     const default_wallet = this.getDefaultWallet() ?? undefined;
-    return { access_token, user, expires_at_ms, default_wallet };
+    const wallets = this.getAllWallets();
+    return {
+      access_token,
+      user,
+      expires_at_ms,
+      default_wallet,
+      ...(wallets.length > 0 ? { wallets } : {}),
+    };
   }
 }
 

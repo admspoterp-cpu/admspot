@@ -1,0 +1,582 @@
+@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+:host {
+  display: block;
+  height: 100%;
+  --nc-border: #f3f3f3;
+  --nc-text: #3a3c4c;
+  --nc-text-value: #373f46;
+  --nc-label: #a09fa4;
+  --nc-muted: #a0a3a5;
+  --nc-line: #e5e5e5;
+  --nc-blue: #235697;
+  --nc-blue-dark: #114280;
+  --nc-teal: #5ccaa9;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+ion-content.nc-content {
+  --background: #fff;
+}
+
+.nc-page {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100%;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-sizing: border-box;
+}
+
+.nc-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding: 13px 16px;
+  padding-top: max(13px, env(safe-area-inset-top, 13px));
+  border-bottom: 1px solid var(--nc-border);
+  box-sizing: border-box;
+}
+
+.nc-back {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.nc-back img {
+  width: 24px;
+  height: 24px;
+}
+
+.nc-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 0 48px;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+  color: var(--nc-text);
+  text-align: center;
+  pointer-events: none;
+}
+
+.nc-body {
+  padding: 30px 20px 40px;
+  padding-bottom: max(40px, calc(24px + env(safe-area-inset-bottom, 0px)));
+  box-sizing: border-box;
+}
+
+.nc-section-title {
+  margin: 0 0 16px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 25.2px;
+  color: var(--nc-text);
+}
+
+.nc-section-title--first {
+  margin-bottom: 20px;
+}
+
+.nc-section-title--inline {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+}
+
+.nc-client-row {
+  position: relative;
+  width: 100%;
+  min-height: 66px;
+  padding: 2px 0 12px;
+  margin-bottom: 8px;
+  border: 0;
+  border-bottom: 1px solid var(--nc-line);
+  background: transparent;
+  display: block;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.nc-field-label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.4px;
+  color: var(--nc-label);
+}
+
+.nc-client-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding-left: 2px;
+  padding-right: 28px;
+}
+
+.nc-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16.8px;
+  color: #fff;
+}
+
+.nc-client-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--nc-text-value);
+}
+
+.nc-chevron--client {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  width: 20px;
+  height: 20px;
+}
+
+.nc-row-2 {
+  display: flex;
+  gap: 21px;
+  margin-bottom: 8px;
+}
+
+.nc-field-block--full {
+  width: 100%;
+  flex: none;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.nc-tipo-cobranca-select {
+  width: 100%;
+  max-width: 100%;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 2px;
+  min-height: 36px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--nc-text-value);
+}
+
+.nc-field-block {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--nc-line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/** Valor editável — mesmo padrão de máscara BRL que Transferência PIX (`appBrlCurrency`). */
+.nc-field-block--valor-input {
+  margin: 0;
+  background: transparent;
+  cursor: text;
+}
+
+.nc-valor-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.nc-valor-prefix {
+  flex-shrink: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--nc-text-value);
+}
+
+.nc-valor-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--nc-text-value);
+  outline: none;
+}
+
+.nc-valor-row--field {
+  margin-top: 2px;
+}
+
+.nc-int-input {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 2px;
+  --padding-bottom: 0;
+  margin-top: 2px;
+  min-height: 28px;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--nc-text-value);
+}
+
+.nc-field-block--half {
+  flex: 0 0 calc(50% - 10px);
+  max-width: calc(50% - 10px);
+}
+
+.nc-field-block--button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.nc-field-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--nc-text-value);
+}
+
+.nc-field-value--muted {
+  color: var(--nc-muted);
+}
+
+.nc-field-value--with-chevron {
+  padding-right: 24px;
+}
+
+.nc-vencimento-trigger {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.nc-vencimento-trigger .nc-field-value {
+  color: var(--nc-blue);
+}
+
+.nc-field-hint {
+  margin: 6px 0 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.nc-field-hint--error {
+  color: #c0392b;
+}
+
+.nc-field-sublabel {
+  display: block;
+  margin-top: 2px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--nc-muted);
+}
+
+.nc-field-block--dias {
+  gap: 6px;
+}
+
+.nc-dias-input {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 4px;
+  --padding-bottom: 0;
+  margin-top: 4px;
+  min-height: 32px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--nc-text-value);
+}
+
+.nc-dias-feedback {
+  margin: 8px 0 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.nc-dias-feedback--error {
+  color: #c0392b;
+}
+
+.nc-dias-feedback--warn {
+  color: #b7791f;
+}
+
+.nc-chevron--tipo {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  width: 18px;
+  height: 18px;
+  transform: rotate(90deg);
+}
+
+.nc-subhead-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  margin-bottom: 16px;
+}
+
+.nc-subhead-row ~ .nc-subhead-row {
+  margin-top: 40px;
+}
+
+.nc-switch {
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.nc-switch-track {
+  display: flex;
+  width: 44px;
+  height: 22px;
+  border-radius: 26px;
+  background: #e5e5e5;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 3px;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+}
+
+/** Mesmo verde/teal do toggle "Desconto por Antecipação" quando habilitado. */
+.nc-switch-track--juros.nc-switch-track--on,
+.nc-switch-track--desconto.nc-switch-track--on {
+  background: var(--nc-teal);
+}
+
+.nc-switch-thumb {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.nc-switch-track--on {
+  justify-content: flex-end;
+}
+
+.nc-multa-row {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.nc-dias-row {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.nc-vencimento-modal ion-toolbar {
+  --background: #fff;
+  --border-width: 0;
+}
+
+.nc-descricao-block {
+  width: 100%;
+  min-height: 87px;
+  padding-bottom: 9px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--nc-line);
+  box-sizing: border-box;
+}
+
+.nc-descricao-textarea {
+  --padding-top: 12px;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  margin-top: 4px;
+  min-height: 72px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--nc-text, #1a1a1a);
+}
+
+.nc-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 53px;
+  margin-top: 8px;
+  padding: 16px 24px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(to left, var(--nc-blue), var(--nc-blue-dark));
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 21px;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+
+.nc-submit:disabled {
+  opacity: 0.88;
+  cursor: default;
+}
+
+.nc-submit-spinner {
+  width: 22px;
+  height: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.nc-client-sheet ion-toolbar {
+  --background: #fff;
+  --border-width: 0;
+}
+
+.nc-client-sheet-content {
+  --background: #fff;
+}
+
+.nc-client-search {
+  padding: 8px 16px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  border-bottom: 1px solid var(--nc-line);
+}
+
+.nc-client-search-input {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  border: 1px solid var(--nc-line);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+}
+
+.nc-client-sheet-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--nc-muted);
+}
+
+.nc-client-sheet-empty {
+  margin: 24px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--nc-muted);
+  text-align: center;
+}
+
+.nc-client-list {
+  margin: 0;
+  padding: 0 0 16px;
+  background: transparent;
+}
+
+.nc-client-item {
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --min-height: 64px;
+}
+
+.nc-sheet-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 300px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-inline-end: 12px;
+}
+
+.nc-client-item-name {
+  margin: 0 0 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--nc-text-value);
+}
+
+.nc-client-item-meta {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--nc-muted);
+  white-space: normal;
+}

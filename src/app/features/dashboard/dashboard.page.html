@@ -51,10 +51,15 @@
           }}</span>
         </div>
         <p class="balance-updated">{{ balanceUpdatedText }}</p>
-        <button type="button" class="balance-more tap-highlight-none">
+        <button
+          type="button"
+          class="balance-more tap-highlight-none"
+          (click)="openWalletSelection()"
+          aria-label="Escolher carteira"
+        >
           <img
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319598-8f3df41d-f60a-447f-9812-dce44f41bdef.svg"
-            alt="More"
+            alt=""
           />
         </button>
       </div>
@@ -271,7 +276,7 @@
         />
         <span [class.active-tab]="activeTab === 'Cards'" [class.inactive-tab]="activeTab !== 'Cards'">Cartões</span>
       </button>
-      <button type="button" class="nav-item tap-highlight-none" (click)="setActiveTab('More')">
+      <button type="button" class="nav-item tap-highlight-none" (click)="goToMais()">
         <img
           src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CirclesFour-08d4bf2e-5043-4b61-bd51-f6e5526cb953.svg"
           alt="More"

@@ -1,0 +1,359 @@
+<ion-content [fullscreen]="true" class="nc-content">
+  <div class="nc-page">
+    <header class="nc-header">
+      <button type="button" class="nc-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="nc-title">Nova Cobrança</h1>
+    </header>
+
+    <div class="nc-body">
+      <h2 class="nc-section-title nc-section-title--first">Resumo da cobrança</h2>
+
+      <button type="button" class="nc-client-row tap-highlight-none" (click)="onSelecionarCliente()">
+        <span class="nc-field-label">Cliente</span>
+        <div class="nc-client-main">
+          <div class="nc-avatar" [style.background-color]="clientAvatarBg">{{ clientInitials }}</div>
+          <span class="nc-client-name">{{ clientName }}</span>
+        </div>
+        <img [src]="caretRightClienteSrc" alt="" class="nc-chevron nc-chevron--client" />
+      </button>
+
+      <div class="nc-row-2">
+        <label class="nc-field-block nc-field-block--valor-input">
+          <span class="nc-field-label">Valor</span>
+          <div class="nc-valor-row">
+            <span class="nc-valor-prefix" aria-hidden="true">R$</span>
+            <input
+              class="nc-valor-input"
+              type="text"
+              name="valorCobranca"
+              [(ngModel)]="valorCobranca"
+              appBrlCurrency
+              inputmode="numeric"
+              autocomplete="off"
+              aria-label="Valor da cobrança em reais"
+            />
+          </div>
+        </label>
+        <div class="nc-field-block">
+          <span class="nc-field-label">Vencimento</span>
+          <button type="button" class="nc-vencimento-trigger tap-highlight-none" (click)="openVencimentoModal()">
+            <span class="nc-field-value">{{ vencimentoDisplay }}</span>
+          </button>
+          <p *ngIf="vencimentoFeedback" class="nc-field-hint nc-field-hint--error">{{ vencimentoFeedback }}</p>
+        </div>
+      </div>
+
+      <div class="nc-field-block nc-field-block--full">
+        <span class="nc-field-label">Tipo de Cobrança</span>
+        <ion-select
+          class="nc-tipo-cobranca-select"
+          [(ngModel)]="tipoCobranca"
+          name="tipoCobranca"
+          interface="action-sheet"
+          cancelText="Cancelar"
+          [interfaceOptions]="tipoCobrancaSelectInterfaceOptions"
+          aria-label="Tipo de Cobrança"
+        >
+          <ion-select-option *ngFor="let opt of tipoCobrancaOptions" [value]="opt.value">
+            {{ opt.label }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="nc-subhead-row">
+        <h2 class="nc-section-title nc-section-title--inline">Juros e Multa</h2>
+        <button
+          type="button"
+          class="nc-switch tap-highlight-none"
+          role="switch"
+          [attr.aria-checked]="jurosMultaEnabled"
+          (click)="toggleJurosMulta()"
+          aria-label="Juros e multa"
+        >
+          <span
+            class="nc-switch-track nc-switch-track--juros"
+            [class.nc-switch-track--on]="jurosMultaEnabled"
+          >
+            <img [src]="jurosMultaEnabled ? toggleThumbOnSrc : toggleThumbOffSrc" alt="" class="nc-switch-thumb" />
+          </span>
+        </button>
+      </div>
+
+      <ng-container *ngIf="jurosMultaEnabled">
+        <div class="nc-row-2">
+          <div class="nc-field-block">
+            <span class="nc-field-label">Juros</span>
+            <ng-container *ngIf="jurosTipo === '%'; else jurosFixoTpl">
+              <ion-input
+                class="nc-int-input"
+                type="text"
+                inputmode="numeric"
+                name="jurosValorInt"
+                [ngModel]="jurosValorInt"
+                (ngModelChange)="jurosValorInt = sanitizePositiveIntDigits($event)"
+                aria-label="Juros em percentual inteiro"
+              ></ion-input>
+            </ng-container>
+            <ng-template #jurosFixoTpl>
+              <div class="nc-valor-row nc-valor-row--field">
+                <span class="nc-valor-prefix" aria-hidden="true">R$</span>
+                <input
+                  class="nc-valor-input"
+                  type="text"
+                  name="jurosValorFixo"
+                  [(ngModel)]="jurosValorFixo"
+                  appBrlCurrency
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="Juros em valor fixo em reais"
+                />
+              </div>
+            </ng-template>
+          </div>
+          <div class="nc-field-block">
+            <span class="nc-field-label">Tipo (% ou Fixo)</span>
+            <ion-select
+              class="nc-tipo-cobranca-select"
+              [(ngModel)]="jurosTipo"
+              name="jurosTipo"
+              interface="action-sheet"
+              cancelText="Cancelar"
+              [interfaceOptions]="jurosTipoSelectInterfaceOptions"
+              aria-label="Tipo de juros percentual ou fixo"
+            >
+              <ion-select-option *ngFor="let opt of percentOuFixoOptions" [value]="opt.value">
+                {{ opt.label }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+
+        <div class="nc-multa-row">
+          <div class="nc-field-block nc-field-block--half">
+            <span class="nc-field-label">Multa</span>
+            <ion-input
+              class="nc-int-input"
+              type="text"
+              inputmode="numeric"
+              name="multaValor"
+              [ngModel]="multaValor"
+              (ngModelChange)="multaValor = sanitizePositiveIntDigits($event)"
+              aria-label="Multa em valor inteiro"
+            ></ion-input>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="nc-subhead-row">
+        <h2 class="nc-section-title nc-section-title--inline">Desconto por Antecipação</h2>
+        <button
+          type="button"
+          class="nc-switch tap-highlight-none"
+          role="switch"
+          [attr.aria-checked]="descontoAntecipacaoEnabled"
+          (click)="toggleDesconto()"
+          aria-label="Desconto por antecipação"
+        >
+          <span
+            class="nc-switch-track nc-switch-track--desconto"
+            [class.nc-switch-track--on]="descontoAntecipacaoEnabled"
+          >
+            <img [src]="descontoAntecipacaoEnabled ? toggleThumbOnSrc : toggleThumbOffSrc" alt="" class="nc-switch-thumb" />
+          </span>
+        </button>
+      </div>
+
+      <ng-container *ngIf="descontoAntecipacaoEnabled">
+        <div class="nc-row-2">
+          <div class="nc-field-block">
+            <span class="nc-field-label">Desconto</span>
+            <ng-container *ngIf="descontoTipo === '%'; else descontoFixoTpl">
+              <ion-input
+                class="nc-int-input"
+                type="text"
+                inputmode="numeric"
+                name="descontoValorInt"
+                [ngModel]="descontoValorInt"
+                (ngModelChange)="descontoValorInt = sanitizePositiveIntDigits($event)"
+                aria-label="Desconto em percentual inteiro"
+              ></ion-input>
+            </ng-container>
+            <ng-template #descontoFixoTpl>
+              <div class="nc-valor-row nc-valor-row--field">
+                <span class="nc-valor-prefix" aria-hidden="true">R$</span>
+                <input
+                  class="nc-valor-input"
+                  type="text"
+                  name="descontoValorFixo"
+                  [(ngModel)]="descontoValorFixo"
+                  appBrlCurrency
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="Desconto em valor fixo em reais"
+                />
+              </div>
+            </ng-template>
+          </div>
+          <div class="nc-field-block">
+            <span class="nc-field-label">Tipo (% ou Fixo)</span>
+            <ion-select
+              class="nc-tipo-cobranca-select"
+              [(ngModel)]="descontoTipo"
+              name="descontoTipo"
+              interface="action-sheet"
+              cancelText="Cancelar"
+              [interfaceOptions]="descontoTipoSelectInterfaceOptions"
+              aria-label="Tipo de desconto percentual ou fixo"
+            >
+              <ion-select-option *ngFor="let opt of percentOuFixoOptions" [value]="opt.value">
+                {{ opt.label }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+
+        <div class="nc-dias-row">
+          <div class="nc-field-block nc-field-block--half nc-field-block--dias">
+            <span class="nc-field-label">Dias</span>
+            <span class="nc-field-sublabel">Antes do vencimento</span>
+            <ion-input
+              class="nc-dias-input"
+              type="number"
+              inputmode="numeric"
+              [(ngModel)]="descontoDias"
+              name="descontoDias"
+              min="1"
+              aria-label="Dias antes do vencimento para o desconto"
+            ></ion-input>
+          </div>
+        </div>
+        <p *ngIf="diasAntecipacaoError" class="nc-dias-feedback nc-dias-feedback--error">{{ diasAntecipacaoError }}</p>
+        <p *ngIf="!diasAntecipacaoError && diasAntecipacaoWarning" class="nc-dias-feedback nc-dias-feedback--warn">
+          {{ diasAntecipacaoWarning }}
+        </p>
+      </ng-container>
+
+      <div class="nc-descricao-block">
+        <span class="nc-field-label">Descrição</span>
+        <ion-textarea
+          class="nc-descricao-textarea"
+          [(ngModel)]="descricao"
+          name="descricao"
+          rows="3"
+          [autoGrow]="true"
+          placeholder="Opcional"
+          aria-label="Descrição"
+        ></ion-textarea>
+      </div>
+
+      <button
+        type="button"
+        class="nc-submit tap-highlight-none"
+        [disabled]="gerarCobrancaBusy"
+        (click)="onGerarCobranca()"
+      >
+        <ion-spinner *ngIf="gerarCobrancaBusy" class="nc-submit-spinner" name="crescent"></ion-spinner>
+        <span>{{ gerarCobrancaBusy ? 'Gerando…' : 'Gerar Cobrança' }}</span>
+      </button>
+    </div>
+  </div>
+</ion-content>
+
+<ion-modal
+  class="nc-vencimento-modal"
+  [isOpen]="vencimentoModalOpen"
+  [backdropDismiss]="true"
+  (didDismiss)="closeVencimentoModal()"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button fill="clear" (click)="closeVencimentoModal()">Cancelar</ion-button>
+        </ion-buttons>
+        <ion-title>Data de vencimento</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" (click)="closeVencimentoModal()">OK</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-datetime
+        presentation="date"
+        locale="pt-BR"
+        [(ngModel)]="vencimentoIso"
+        name="vencimentoIso"
+        [min]="minVencimentoIso"
+        [firstDayOfWeek]="0"
+      ></ion-datetime>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  class="nc-client-sheet"
+  [isOpen]="clientSheetOpen"
+  [initialBreakpoint]="0.92"
+  [breakpoints]="[0, 0.92]"
+  handle="true"
+  [backdropDismiss]="true"
+  (didDismiss)="closeClientSheet()"
+>
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>Cliente</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" (click)="closeClientSheet()">Fechar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="nc-client-sheet-content" [forceOverscroll]="false">
+      <div class="nc-client-search">
+        <ion-input
+          class="nc-client-search-input"
+          placeholder="Buscar por nome, documento, e-mail ou WhatsApp"
+          [(ngModel)]="clientSearchQuery"
+          name="clientSearchQuery"
+          inputmode="search"
+          autocomplete="off"
+          aria-label="Buscar cliente"
+        ></ion-input>
+      </div>
+
+      <div *ngIf="clientsLoading" class="nc-client-sheet-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Carregando clientes…</p>
+      </div>
+
+      <ng-container *ngIf="!clientsLoading">
+        <p *ngIf="clientsList.length === 0" class="nc-client-sheet-empty">Nenhum cliente disponível.</p>
+        <p
+          *ngIf="clientsList.length > 0 && clientsFilteredSorted.length === 0"
+          class="nc-client-sheet-empty"
+        >
+          Nenhum cliente encontrado para a busca.
+        </p>
+        <ion-list *ngIf="clientsFilteredSorted.length > 0" lines="full" class="nc-client-list">
+          <ion-item
+            *ngFor="let c of clientsFilteredSorted"
+            button
+            detail="false"
+            class="nc-client-item tap-highlight-none"
+            (click)="selectClient(c)"
+          >
+            <div class="nc-sheet-avatar" slot="start" [style.background-color]="avatarForList(c)">
+              {{ initialsForList(c) }}
+            </div>
+            <ion-label>
+              <h2 class="nc-client-item-name">{{ fullNameClient(c) }}</h2>
+              <p class="nc-client-item-meta">{{ clientSecondaryLine(c) }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ng-container>
+    </ion-content>
+  </ng-template>
+</ion-modal>

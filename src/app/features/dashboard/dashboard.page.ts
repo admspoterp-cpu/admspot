@@ -94,6 +94,11 @@ export class DashboardPage implements ViewWillEnter {
     void this.loadExtratoResumo();
   }
 
+  /** Abre a mesma tela de seleção de carteiras (`wallet-digital-setup` em modo escolha). */
+  openWalletSelection(): void {
+    void this.router.navigate(['/wallet-digital-setup'], { queryParams: { pick: '1' } });
+  }
+
   private async loadBalanceFromApi(): Promise<void> {
     const access = this.authSession.getAccessToken();
     if (!access) {
@@ -357,6 +362,12 @@ export class DashboardPage implements ViewWillEnter {
     this.activeTab = 'Send';
     this.closeOverlaySheets();
     void this.navController.navigateForward('/transacoes');
+  }
+
+  goToMais(): void {
+    this.activeTab = 'More';
+    this.closeOverlaySheets();
+    void this.navController.navigateForward('/mais');
   }
 
   goToBoletoScanner(): void {

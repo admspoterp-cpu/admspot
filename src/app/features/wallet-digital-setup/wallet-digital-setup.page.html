@@ -5,14 +5,24 @@
     </button>
 
     <header class="wds-header">
-      <h1>Conta digital</h1>
-      <p class="wds-lead">
-        Nenhuma carteira está definida como padrão. Confira os dados da sua primeira carteira ou crie uma conta
-        digital.
+      <h1>{{ pickMode ? 'Carteiras' : 'Conta digital' }}</h1>
+      <p class="wds-lead" *ngIf="!pickMode">
+        Nenhuma carteira está definida como padrão no gestor. Toque numa carteira para usá-la neste aparelho ou crie uma
+        conta digital.
+      </p>
+      <p class="wds-lead" *ngIf="pickMode">
+        Toque numa carteira para usá-la neste aparelho. Os dados do saldo e do extrato passam a ser desta conta.
       </p>
     </header>
 
-    <section class="wds-card" *ngIf="wallet">
+    <section
+      class="wds-card wds-card--selectable"
+      *ngFor="let wallet of wallets"
+      role="button"
+      tabindex="0"
+      (click)="onWalletTap(wallet)"
+      (keydown.enter)="onWalletTap(wallet)"
+    >
       <h2 class="wds-card-title">{{ wallet.wallet }}</h2>
       <p class="wds-fantasia" *ngIf="wallet.nome_fantasia">{{ wallet.nome_fantasia }}</p>
 
@@ -32,7 +42,7 @@
       </dl>
     </section>
 
-    <section class="wds-empty" *ngIf="!wallet">
+    <section class="wds-empty" *ngIf="wallets.length === 0">
       <p>Nenhuma carteira foi encontrada na sua conta.</p>
     </section>
 

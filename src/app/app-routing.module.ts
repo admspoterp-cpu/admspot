@@ -30,8 +30,36 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'wallet-digital-unavailable',
+    loadChildren: () =>
+      import('./features/wallet-digital-unavailable/wallet-digital-unavailable.module').then(
+        (m) => m.WalletDigitalUnavailablePageModule
+      ),
+  },
+  {
     path: 'dashboard',
     loadChildren: () => import('./features/dashboard/dashboard.module').then( m => m.DashboardPageModule)
+  },
+  {
+    path: 'mais',
+    loadChildren: () => import('./features/mais/mais.module').then((m) => m.MaisPageModule),
+  },
+  {
+    path: 'cobrancas',
+    loadChildren: () =>
+      import('./features/cobrancas/cobrancas.module').then((m) => m.CobrancasPageModule),
+  },
+  {
+    path: 'nova-cobranca',
+    loadChildren: () =>
+      import('./features/nova-cobranca/nova-cobranca.module').then((m) => m.NovaCobrancaPageModule),
+  },
+  {
+    path: 'cobranca/:boletoId',
+    loadChildren: () =>
+      import('./features/cobranca-detalhe/cobranca-detalhe.module').then(
+        (m) => m.CobrancaDetalhePageModule,
+      ),
   },
   {
     path: 'charge-scan-results',

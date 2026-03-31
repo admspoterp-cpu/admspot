@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:host {
+  display: block;
+  height: 100%;
+  --mais-border: #f3f3f3;
+  --mais-text: #3a3c4c;
+  --mais-text-row: #3b3d4b;
+  --mais-muted: #7d7c93;
+  --mais-green: #0d8536;
+  --mais-red: #d02e28;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+ion-content.mais-content {
+  --background: #fff;
+}
+
+.mais-page {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-sizing: border-box;
+}
+
+.mais-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 13px 20px 13px 20px;
+  padding-top: max(13px, env(safe-area-inset-top, 13px));
+  border-bottom: 1px solid var(--mais-border);
+  box-sizing: border-box;
+}
+
+.mais-back {
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.mais-back img {
+  width: 24px;
+  height: 24px;
+}
+
+.mais-title {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+  color: var(--mais-text);
+  text-align: center;
+}
+
+.mais-header-spacer {
+  display: block;
+  width: 40px;
+  height: 1px;
+}
+
+.mais-profile {
+  position: relative;
+  padding: 0 20px 0;
+  padding-top: 8px;
+  min-height: 188px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mais-avatar {
+  width: 80px;
+  height: 80px;
+  margin-top: 24px;
+  object-fit: contain;
+}
+
+.mais-user-name {
+  margin: 8px 0 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--mais-text);
+  text-align: center;
+}
+
+.mais-account-line {
+  margin-top: 6px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+
+.mais-account-label,
+.mais-account-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.4px;
+  color: var(--mais-muted);
+  white-space: nowrap;
+}
+
+.mais-profile-divider {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  height: 1px;
+  background: var(--mais-border);
+}
+
+.mais-block {
+  padding: 20px 0 0;
+}
+
+.mais-section-title {
+  margin: 0 0 6px 19px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--mais-text);
+}
+
+.mais-row {
+  position: relative;
+  width: 100%;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mais-row-label {
+  flex: 1;
+  padding: 14px 48px 14px 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--mais-text-row);
+}
+
+.mais-chevron {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+}
+
+.mais-row-line {
+  position: absolute;
+  left: 20px;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--mais-border);
+}
+
+.mais-situacao-row {
+  position: relative;
+  min-height: 48px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.mais-situacao-label {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--mais-text-row);
+}
+
+.mais-situacao-badge {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: rgba(13, 133, 54, 0.1);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.4px;
+  color: var(--mais-green);
+  white-space: nowrap;
+}
+
+.mais-situacao-badge--pending {
+  background: rgba(61, 61, 61, 0.08);
+  color: var(--mais-muted);
+}
+
+.mais-row-line--situacao {
+  left: 20px;
+  right: 0;
+  bottom: 0;
+}
+
+.mais-logout {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 24px 20px 32px;
+  border: 0;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22.5px;
+  color: var(--mais-red);
+  text-align: center;
+  cursor: pointer;
+}
