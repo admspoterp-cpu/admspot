@@ -226,7 +226,7 @@ function displayNameFromOperacao(op: ExtratoOperacaoRaw): string {
   if (company) {
     return company;
   }
-  return isApiMobileCarga(op) ? 'Recarga' : 'Operação';
+  return isApiMobileCarga(op) ? 'Recarga' : 'Pagamento';
 }
 
 function formatTimeAmPm(d: Date): string {
