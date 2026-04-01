@@ -45,5 +45,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>O AdmSpot Finance usa Face ID ou Touch ID para confirmar a sua identidade ao aceder à conta.</string>
 </dict>
 </plist>
