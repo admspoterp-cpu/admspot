@@ -1,0 +1,28 @@
+Push notifications iOS + Firebase (FCM igual ao Android)
+============================================================
+
+1) Firebase Console (https://console.firebase.google.com) — projeto "admspot-finance"
+   - Adicionar app iOS com Bundle ID: com.admspot.finance (igual ao capacitor.config / Xcode)
+   - Descarregar GoogleService-Info.plist
+   - Colocar em: ios/App/App/GoogleService-Info.plist
+   - No Xcode: arrastar o ficheiro para o grupo "App", marcar target "App" (Copy Bundle Resources)
+   - Alternativa: copiar o plist descarregado por cima do exemplo e fazer commit (equipa com cuidado com chaves em repositório)
+
+2) Apple Developer — chave APNs para o Firebase
+   - Keys > criar key com "Apple Push Notifications service (APNs)"
+   - Fazer download do .p8
+   - Firebase > Project settings > Cloud Messaging > Apple app configuration
+   - Carregar a chave APNs (.p8), Team ID e Key ID
+
+3) Appflow / build
+   - O perfil de provisionamento usado no build tem de incluir a capability "Push Notifications"
+   - O ficheiro GoogleService-Info.plist tem de existir no repositório (ou ser injetado no pipeline) antes do build nativo
+   - Depois de alterar Podfile: na macOS, em ios/App: pod install
+
+4) Token FCM
+   - Com GoogleService-Info.plist e FirebaseMessaging, o token enviado ao JS é o token FCM (mesmo endpoint /api/central/v1/push-fcm-token que no Android)
+   - Sem o plist, o app usa apenas o token APNs em hex — o backend teria de tratar plataforma diferente
+
+5) aps-environment em App.entitlements
+   - "production" — adequado a IPA/App Store e TestFlight (Appflow)
+   - Para testes locais com perfil de desenvolvimento, pode ser necessário "development" no Xcode

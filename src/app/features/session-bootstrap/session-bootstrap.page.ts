@@ -71,10 +71,11 @@ export class SessionBootstrapPage implements ViewWillEnter {
     const walletId = wallet?.id;
 
     if (walletToken && walletId != null) {
-      const isAndroidNative =
-        Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
+      const isNativeMobile =
+        Capacitor.isNativePlatform() &&
+        (Capacitor.getPlatform() === 'android' || Capacitor.getPlatform() === 'ios');
 
-      if (isAndroidNative) {
+      if (isNativeMobile) {
         const status = await this.pushFcmToken.fetchRegistrationStatus(token, walletToken);
         const okForWallet =
           status != null &&

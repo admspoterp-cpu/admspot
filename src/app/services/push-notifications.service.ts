@@ -7,9 +7,10 @@ import { ReplaySubject, filter, firstValueFrom } from 'rxjs';
 import { PushFcmTokenService } from './push-fcm-token.service';
 
 /**
- * Registro FCM no Android via @capacitor/push-notifications.
- * Requer `android/app/google-services.json` do projeto Firebase (mesmo package `com.admspot.finance`).
- * iOS: habilitar Push + AppDelegate (fora do escopo desta primeira fase).
+ * Push via @capacitor/push-notifications + Firebase Cloud Messaging.
+ *
+ * Android: `android/app/google-services.json` (package `com.admspot.finance`).
+ * iOS: `ios/App/App/GoogleService-Info.plist` + Firebase Messaging no Podfile; `AppDelegate` envia token FCM ao JS (guia Capacitor Push + Firebase).
  */
 @Injectable({ providedIn: 'root' })
 export class PushNotificationsService {
@@ -18,15 +19,15 @@ export class PushNotificationsService {
   /** Resolve a próxima emissão do listener `registration` (para aguardar após `register()`). */
   private pendingRegistrationResolve: ((t: string) => void) | null = null;
 
-  /** Último token FCM (Android) ou null após erro / sem permissão. */
+  /** Último token FCM (Android e iOS com Firebase) ou null após erro / sem permissão. */
   readonly fcmToken$ = new ReplaySubject<string | null>(1);
 
   /**
    * Ao iniciar o app: listeners + permissão + `register()`.
-   * Só executa em build nativo Android.
+   * Só em builds nativos (Android e iOS).
    */
   async initialize(): Promise<void> {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
+    if (!Capacitor.isNativePlatform()) {
       return;
     }
     await this.attachListenersOnce();
@@ -38,7 +39,7 @@ export class PushNotificationsService {
    * `true` se permissão concedida e POST de registo bem-sucedido (ou já estava registado).
    */
   async pushOptInFlow(): Promise<boolean> {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
+    if (!Capacitor.isNativePlatform()) {
       return true;
     }
     await this.attachListenersOnce();
@@ -125,6 +126,9 @@ export class PushNotificationsService {
 
   /** Canal padrão Android 8+; use o mesmo `channelId` no payload FCM quando aplicável. */
   private async ensureDefaultChannel(): Promise<void> {
+    if (Capacitor.getPlatform() !== 'android') {
+      return;
+    }
     try {
       await PushNotifications.createChannel({
         id: 'default',

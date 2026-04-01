@@ -41,7 +41,7 @@ export class PushFcmTokenService {
 
   constructor(private readonly authSession: AuthSessionService) {}
 
-  /** Chamado quando o Capacitor emite o token FCM (Android). */
+  /** Chamado quando o Capacitor emite o token FCM (Android e iOS com Firebase). */
   async registerFromToken(fcmToken: string): Promise<boolean> {
     this.lastFcmToken = fcmToken;
     return this.tryPost();

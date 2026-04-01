@@ -24,7 +24,8 @@ end
 
 target 'App' do
   capacitor_pods
-  # Add your Pods here
+  # Firebase Cloud Messaging no iOS — mesmo token FCM que no Android (@capacitor/push-notifications + guia Capacitor)
+  pod 'FirebaseMessaging'
 end
 
 post_install do |installer|
