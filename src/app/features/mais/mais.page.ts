@@ -69,6 +69,10 @@ export class MaisPage implements ViewWillEnter {
     void this.navController.navigateForward('/clientes');
   }
 
+  goToDadosPessoais(): void {
+    void this.navController.navigateForward('/dados-pessoais');
+  }
+
   async onSair(): Promise<void> {
     this.authSession.clear();
     await this.navController.navigateRoot('/login');

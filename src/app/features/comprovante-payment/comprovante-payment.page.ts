@@ -313,7 +313,7 @@ export class ComprovantePaymentPage implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    void this.navController.navigateRoot('/dashboard');
+    void this.navController.back();
   }
 
   /** Rótulo do campo: boleto exibe linha digitável completa; PIX/TED o identificador da transação. */

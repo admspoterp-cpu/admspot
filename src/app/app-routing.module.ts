@@ -45,6 +45,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/mais/mais.module').then((m) => m.MaisPageModule),
   },
   {
+    path: 'dados-pessoais',
+    loadChildren: () =>
+      import('./features/dados-pessoais/dados-pessoais.module').then((m) => m.DadosPessoaisPageModule),
+  },
+  {
     path: 'clientes',
     loadChildren: () =>
       import('./features/clientes/clientes.module').then((m) => m.ClientesPageModule),

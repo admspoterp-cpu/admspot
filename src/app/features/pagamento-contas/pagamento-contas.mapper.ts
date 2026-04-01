@@ -1,7 +1,13 @@
 import type { BillPaymentListItem } from '../../services/bill-payments-list.service';
+import type { ExtratoOperacaoRaw } from '../../services/extrato-geral.service';
+import { mapOperacaoToDashboardRow } from '../../shared/utils/dashboard-extrato.util';
 import { formatBrlNumber } from '../../utils/brl-format';
 
-import type { PagamentoContaRow, PagamentoContaStatus } from './pagamento-contas.types';
+import type {
+  PagamentoContaChannel,
+  PagamentoContaRow,
+  PagamentoContaStatus,
+} from './pagamento-contas.types';
 import type { CobrancaAmountTone } from '../cobrancas/cobrancas.types';
 
 const AVATAR_COLORS = ['#588cc0', '#e21001', '#291a5e', '#162d4c', '#68ac48', '#235697', '#291a5e'];
@@ -74,6 +80,39 @@ function mapStatusAndDisplay(
   return { status: 'aguardando', display: 'Agendado', tone: 'blue-xs' };
 }
 
+function paymentChannelFromBillItem(item: BillPaymentListItem): PagamentoContaChannel {
+  const t = String(item.type_bill ?? '').trim().toLowerCase();
+  if (t === 'qrcode' || t.includes('qr')) {
+    return 'pix_qr';
+  }
+  return 'boleto';
+}
+
+function paymentChannelFromExtratoOp(op: ExtratoOperacaoRaw): PagamentoContaChannel {
+  const tipo = String(op.tipo_registro ?? '').trim();
+  if (tipo === 'app_boleto_barcode_payout') {
+    return 'boleto';
+  }
+  const digits = String(op.digitavel ?? '').replace(/\D/g, '');
+  if (digits.length >= 44) {
+    return 'boleto';
+  }
+  return 'pix_qr';
+}
+
+function billSortDateMs(item: BillPaymentListItem): number {
+  for (const raw of [item.paymentDate, item.scheduleDate, item.dueDate]) {
+    const s = typeof raw === 'string' ? raw.trim() : '';
+    if (s) {
+      const t = new Date(s.replace(' ', 'T')).getTime();
+      if (Number.isFinite(t)) {
+        return t;
+      }
+    }
+  }
+  return 0;
+}
+
 export function mapBillPaymentItemToRow(item: BillPaymentListItem): PagamentoContaRow {
   const name = (item.companyName ?? '').trim() || 'Pagamento';
   const reais = parseValueReais(item.value);
@@ -100,11 +139,19 @@ export function mapBillPaymentItemToRow(item: BillPaymentListItem): PagamentoCon
   const desc = String(item.description ?? '').trim();
   const billId = String(item.bill_id ?? '').trim();
   const boletoId = String(item.boleto_id ?? '').trim();
+  const bank = String(item.banco_recebedor ?? '').trim();
 
-  const searchBlob = [name, digitavel, token, desc, billId, boletoId, typeBill].join(' ').toLowerCase();
+  const paymentChannel = paymentChannelFromBillItem(item);
+
+  const searchBlob = [name, digitavel, token, desc, billId, boletoId, typeBill, bank]
+    .join(' ')
+    .toLowerCase();
 
   return {
     id: item.id,
+    source: 'bill',
+    rowKey: `bill-${item.id}`,
+    sortDateMs: billSortDateMs(item),
     name,
     amount,
     amountTone: mapped.tone,
@@ -118,8 +165,105 @@ export function mapBillPaymentItemToRow(item: BillPaymentListItem): PagamentoCon
     digitavel,
     token,
     typeBill,
+    paymentChannel,
     searchBlob,
+    beneficiaryBank: bank || '—',
+    apiStatus: apiSt,
+    scheduleDateRaw: item.scheduleDate ?? null,
+    paymentDateRaw: item.paymentDate ?? null,
   };
+}
+
+function parseBrlDisplayToReais(amountDisplay: string): number {
+  const t = amountDisplay.replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(t);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** Itens do extrato: descrição Pagamento e débito. */
+export function isExtratoPagamentoDebit(op: ExtratoOperacaoRaw): boolean {
+  const desc = String(op.trasnfer_description ?? '').trim();
+  const typ = String(op.trasnfer_type ?? '')
+    .trim()
+    .toUpperCase();
+  return desc === 'Pagamento' && typ === 'DEBIT';
+}
+
+export function mapExtratoPagamentoDebitToRow(
+  op: ExtratoOperacaoRaw,
+  index: number,
+): PagamentoContaRow | null {
+  const dash = mapOperacaoToDashboardRow(op);
+  if (!dash) {
+    return null;
+  }
+
+  const name = dash.displayName;
+  const reais = parseBrlDisplayToReais(dash.amountDisplay);
+  const amount = reais > 0 ? `R$ ${formatBrlNumber(reais)}` : 'R$ 0,00';
+
+  const dueMs = parseLocalYmdToMs(dash.dateIso);
+  const dueLabel =
+    dueMs != null
+      ? `em ${new Date(dueMs).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`
+      : '—';
+
+  const tid = String(op.trasnfer_id ?? '').trim();
+  const rowKey = `extrato-${tid || 'x'}-${dash.dateIso}-${index}`;
+
+  const whenMs =
+    parseDataHoraBrOrCreated(op)?.getTime() ?? (dueMs != null ? dueMs : Date.now());
+
+  const digitavel = String(op.digitavel ?? '').trim();
+  const paymentChannel = paymentChannelFromExtratoOp(op);
+
+  const searchBlob = [name, digitavel, tid, String(op.boleto_id ?? ''), String(op.bill_id ?? '')]
+    .join(' ')
+    .toLowerCase();
+
+  return {
+    id: index,
+    source: 'extrato',
+    rowKey,
+    sortDateMs: whenMs,
+    name,
+    amount,
+    amountTone: 'blue-xs',
+    dueLabel,
+    initials: dash.initials,
+    avatarBg: dash.avatarColor,
+    status: 'pago',
+    statusDisplay: 'Pago',
+    valorReais: reais,
+    dueMs,
+    digitavel,
+    token: '',
+    typeBill: String(op.tipo_registro ?? '').trim(),
+    paymentChannel,
+    searchBlob,
+    beneficiaryBank: dash.beneficiaryBank,
+    extratoOp: op,
+  };
+}
+
+function parseDataHoraBrOrCreated(op: ExtratoOperacaoRaw): Date | null {
+  const br = String(op.data_hora_br ?? '').trim();
+  const m = br.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+  if (m) {
+    const day = parseInt(m[1], 10);
+    const month = parseInt(m[2], 10) - 1;
+    const year = parseInt(m[3], 10);
+    const hh = parseInt(m[4], 10);
+    const mm = parseInt(m[5], 10);
+    const d = new Date(year, month, day, hh, mm, 0, 0);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  const ca = String(op.created_at ?? '').trim();
+  if (ca) {
+    const d = new Date(ca.replace(' ', 'T'));
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  return null;
 }
 
 export function rowMatchesSearch(row: PagamentoContaRow, query: string): boolean {

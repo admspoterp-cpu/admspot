@@ -4,3 +4,35 @@
   width: 40px;
   flex-shrink: 0;
 }
+
+.pc-row-meta {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.pc-channel {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 10.8px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pc-channel--boleto {
+  background: rgba(35, 86, 151, 0.12);
+  color: #235697;
+}
+
+.pc-channel--pix {
+  background: rgba(118, 75, 162, 0.18);
+  color: #5b3d7a;
+}

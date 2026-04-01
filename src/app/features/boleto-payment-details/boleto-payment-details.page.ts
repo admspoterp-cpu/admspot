@@ -124,9 +124,7 @@ export class BoletoPaymentDetailsPage implements OnInit {
   }
 
   goBack(): void {
-    void this.navController.navigateBack(
-      this.detailsSource === 'manual' ? '/boleto-manual' : '/boleto-scan',
-    );
+    void this.navController.back();
   }
 
   get payButtonDisabled(): boolean {

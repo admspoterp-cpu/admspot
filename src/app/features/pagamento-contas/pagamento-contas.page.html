@@ -4,7 +4,7 @@
       <button type="button" class="cobrancas-header-btn tap-highlight-none" (click)="goBack()" aria-label="Voltar">
         <img [src]="caretLeftSrc" alt="" />
       </button>
-      <h1 class="cobrancas-title">Pagamento de Contas</h1>
+      <h1 class="cobrancas-title">Pagamentos</h1>
       <div class="cobrancas-header-tools">
         <button
           type="button"
@@ -67,19 +67,14 @@
         <span class="cobrancas-header-spacer" aria-hidden="true"></span>
       </div>
 
-      <div class="cobrancas-stat cobrancas-stat--full">
-        <span class="cobrancas-stat-label">Pagos</span>
-        <span class="cobrancas-stat-value">{{ summaryPagos }}</span>
-      </div>
-
       <div class="cobrancas-stat-row">
+        <div class="cobrancas-stat cobrancas-stat--half">
+          <span class="cobrancas-stat-label">Pagos</span>
+          <span class="cobrancas-stat-value cobrancas-stat-value--md">{{ summaryPagos }}</span>
+        </div>
         <div class="cobrancas-stat cobrancas-stat--half">
           <span class="cobrancas-stat-label">Agendados</span>
           <span class="cobrancas-stat-value cobrancas-stat-value--md">{{ summaryAgendados }}</span>
-        </div>
-        <div class="cobrancas-stat cobrancas-stat--half">
-          <span class="cobrancas-stat-label">Não efetivado</span>
-          <span class="cobrancas-stat-value cobrancas-stat-value--md">{{ summaryNaoEfetivado }}</span>
         </div>
       </div>
 
@@ -109,7 +104,7 @@
           </p>
           <ul *ngIf="!loading && !loadError" class="cobrancas-rows">
             <li
-              *ngFor="let row of filteredRows; trackBy: trackByRowId"
+              *ngFor="let row of filteredRows; trackBy: trackByRowKey"
               class="cobrancas-row tap-highlight-none"
               (click)="openRow(row)"
               (keydown.enter)="openRow(row)"
@@ -133,15 +128,25 @@
                   }"
                   >{{ row.amount }}</span
                 >
-                <span
-                  class="cobrancas-badge"
-                  [ngClass]="{
-                    'cobrancas-badge--pago': row.status === 'pago',
-                    'cobrancas-badge--atrasado': row.status === 'atrasado' || row.status === 'falhou',
-                    'cobrancas-badge--aguardando': row.status === 'aguardando'
-                  }"
-                  >{{ row.statusDisplay }}</span
-                >
+                <div class="pc-row-meta">
+                  <span
+                    class="pc-channel"
+                    [class.pc-channel--boleto]="row.paymentChannel === 'boleto'"
+                    [class.pc-channel--pix]="row.paymentChannel === 'pix_qr'"
+                    [attr.aria-label]="row.paymentChannel === 'pix_qr' ? 'Pagamento PIX QR Code' : 'Boleto — código de barras'"
+                  >
+                    {{ row.paymentChannel === 'pix_qr' ? 'PIX QR' : 'Boleto' }}
+                  </span>
+                  <span
+                    class="cobrancas-badge"
+                    [ngClass]="{
+                      'cobrancas-badge--pago': row.status === 'pago',
+                      'cobrancas-badge--atrasado': row.status === 'atrasado' || row.status === 'falhou',
+                      'cobrancas-badge--aguardando': row.status === 'aguardando'
+                    }"
+                    >{{ row.statusDisplay }}</span
+                  >
+                </div>
               </div>
             </li>
           </ul>

@@ -8,6 +8,8 @@ const PHPSESSID = 'ba832f1772c56eb7fb76a591cf310f5f';
 
 export type BillPaymentListItem = {
   id: number;
+  /** Quando presente, deve coincidir com a carteira da sessão. */
+  wallet_id?: number | null;
   token?: string | null;
   status?: string | null;
   digitavel?: string | null;

@@ -21,6 +21,8 @@ export type ExtratoOperacaoRaw = Record<string, unknown> & {
   value?: number | string;
   values?: string;
   trasnfer_object?: string;
+  /** Ex.: `Pagamento` — lançamentos de pagamento de contas. */
+  trasnfer_description?: string;
   trasnfer_type?: string;
   trasnfer_id?: string;
   trasnfer_operationType?: string;

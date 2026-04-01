@@ -1,0 +1,262 @@
+<ion-content [fullscreen]="true" class="dp-content">
+  <div class="dp-page">
+    <header class="dp-header">
+      <button type="button" class="dp-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="dp-title">Dados Pessoais</h1>
+    </header>
+
+    <div *ngIf="loading" class="dp-center-msg">Carregando…</div>
+    <p *ngIf="!loading && loadError" class="dp-error">{{ loadError }}</p>
+
+    <ng-container *ngIf="!loading && !loadError">
+      <div class="dp-segment-wrap">
+        <ion-segment
+          class="dp-segment"
+          name="dadosPessoaisTab"
+          [(ngModel)]="selectedTab"
+          (ionChange)="onSegmentChange($event)"
+        >
+          <ion-segment-button value="meus-dados" layout="label-only">
+            <ion-label>Meus dados</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="minha-wallet" layout="label-only">
+            <ion-label>Minha Wallet</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </div>
+
+      <div *ngIf="selectedTab === 'meus-dados'" class="dp-body">
+        <div class="dp-edit-row">
+          <span class="dp-edit-label">Editar dados</span>
+          <ion-toggle [checked]="editMode" (ionChange)="onEditToggle($event)" aria-label="Editar dados"></ion-toggle>
+        </div>
+
+        <section class="dp-photo-block" aria-label="Foto do perfil">
+          <div class="dp-photo-wrap">
+            <img [src]="displayAvatarSrc" alt="" class="dp-photo-img" />
+          </div>
+          <input
+            #photoFile
+            type="file"
+            class="dp-photo-input"
+            accept="image/jpeg,image/png"
+            [disabled]="!editMode"
+            (change)="onPhotoSelected($event)"
+            aria-hidden="true"
+            tabindex="-1"
+          />
+          <div *ngIf="editMode" class="dp-photo-actions">
+            <button type="button" class="dp-photo-btn tap-highlight-none" (click)="photoFile.click()">
+              {{ newPhotoPreview ? 'Trocar foto' : 'Carregar foto' }}
+            </button>
+            <button
+              *ngIf="newPhotoPreview"
+              type="button"
+              class="dp-photo-btn dp-photo-btn--ghost tap-highlight-none"
+              (click)="clearNewPhoto(photoFile)"
+            >
+              Remover nova foto
+            </button>
+          </div>
+        </section>
+
+        <h2 class="dp-section-title">Dados editáveis</h2>
+
+        <div class="dp-row-2">
+          <label class="dp-field-block dp-field-block--half">
+            <span class="dp-field-label">Nome</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              name="firstName"
+              [(ngModel)]="firstName"
+              [readonly]="!editMode"
+              autocomplete="given-name"
+              autocapitalize="words"
+              aria-label="Nome"
+            />
+          </label>
+          <label class="dp-field-block dp-field-block--half">
+            <span class="dp-field-label">Sobrenome</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              name="lastName"
+              [(ngModel)]="lastName"
+              [readonly]="!editMode"
+              autocomplete="family-name"
+              autocapitalize="words"
+              aria-label="Sobrenome"
+            />
+          </label>
+        </div>
+
+        <label class="dp-field-block">
+          <span class="dp-field-label">Gênero</span>
+          <select
+            class="dp-text-input dp-select"
+            name="genre"
+            [(ngModel)]="genre"
+            [disabled]="!editMode"
+            aria-label="Gênero"
+          >
+            <option value="male">Masculino</option>
+            <option value="female">Feminino</option>
+            <option value="other">Outro</option>
+          </select>
+        </label>
+
+        <label class="dp-field-block">
+          <span class="dp-field-label">Data de nascimento</span>
+          <input
+            class="dp-text-input"
+            type="date"
+            name="datebirth"
+            [(ngModel)]="datebirth"
+            [readonly]="!editMode"
+            aria-label="Data de nascimento"
+          />
+        </label>
+
+        <label class="dp-field-block">
+          <span class="dp-field-label">WhatsApp</span>
+          <input
+            class="dp-text-input"
+            type="tel"
+            name="whatsapp"
+            inputmode="numeric"
+            autocomplete="tel"
+            [readonly]="!editMode"
+            [value]="whatsappDisplay"
+            (input)="onWhatsappInput($event)"
+            maxlength="16"
+            aria-label="WhatsApp"
+          />
+        </label>
+
+        <label class="dp-field-block">
+          <span class="dp-field-label">CEP</span>
+          <input
+            class="dp-text-input"
+            type="text"
+            name="postal_code"
+            inputmode="numeric"
+            autocomplete="postal-code"
+            [readonly]="!editMode"
+            [value]="postalCodeDisplay"
+            (input)="onCepInput($event)"
+            maxlength="9"
+            aria-label="CEP"
+          />
+        </label>
+
+        <h2 class="dp-section-title">Demais informações</h2>
+
+        <label class="dp-field-block">
+          <span class="dp-field-label">E-mail</span>
+          <input
+            class="dp-text-input"
+            type="email"
+            name="email"
+            [value]="email"
+            readonly
+            tabindex="-1"
+            aria-label="E-mail"
+          />
+        </label>
+
+        <label class="dp-field-block">
+          <span class="dp-field-label">CPF ou documento</span>
+          <input
+            class="dp-text-input"
+            type="text"
+            name="document"
+            [value]="documentDisplay"
+            readonly
+            tabindex="-1"
+            aria-label="CPF ou documento"
+          />
+        </label>
+
+        <div class="dp-row-2">
+          <label class="dp-field-block dp-field-block--half">
+            <span class="dp-field-label">Estado</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              [value]="state"
+              readonly
+              tabindex="-1"
+              aria-label="Estado"
+            />
+          </label>
+          <label class="dp-field-block dp-field-block--half">
+            <span class="dp-field-label">Cidade</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              [value]="city"
+              readonly
+              tabindex="-1"
+              aria-label="Cidade"
+            />
+          </label>
+        </div>
+
+        <label class="dp-field-block">
+          <span class="dp-field-label">Status da conta</span>
+          <input
+            class="dp-text-input"
+            type="text"
+            [value]="statusDisplay"
+            readonly
+            tabindex="-1"
+            aria-label="Status da conta"
+          />
+        </label>
+
+        <div class="dp-row-2">
+          <label class="dp-field-block dp-field-block--half">
+            <span class="dp-field-label">Criado em</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              [value]="createdAtDisplay"
+              readonly
+              tabindex="-1"
+              aria-label="Criado em"
+            />
+          </label>
+          <label class="dp-field-block dp-field-block--half">
+            <span class="dp-field-label">Atualizado em</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              [value]="updatedAtDisplay"
+              readonly
+              tabindex="-1"
+              aria-label="Atualizado em"
+            />
+          </label>
+        </div>
+
+        <button
+          *ngIf="editMode"
+          type="button"
+          class="dp-submit tap-highlight-none"
+          [disabled]="saveBusy"
+          (click)="onSave()"
+        >
+          <ion-spinner *ngIf="saveBusy" class="dp-submit-spinner" name="crescent"></ion-spinner>
+          <span>{{ saveBusy ? 'Salvando…' : 'Salvar alterações' }}</span>
+        </button>
+      </div>
+
+      <div *ngIf="selectedTab === 'minha-wallet'" class="dp-body dp-body--wallet">
+        <p class="dp-empty">Em breve você poderá gerenciar sua Wallet aqui.</p>
+      </div>
+    </ng-container>
+  </div>
+</ion-content>
