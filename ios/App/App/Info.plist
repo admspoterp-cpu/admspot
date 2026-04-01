@@ -47,5 +47,9 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>O AdmSpot Finance usa Face ID ou Touch ID para confirmar a sua identidade ao aceder à conta.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Precisamos da câmera para ler códigos QR PIX e códigos de barras de boletos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Precisamos aceder à galeria quando escolhe fotos ou imagens (anexos, cobranças e foto de perfil).</string>
 </dict>
 </plist>
