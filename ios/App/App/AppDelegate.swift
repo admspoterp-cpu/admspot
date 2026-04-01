@@ -4,13 +4,14 @@ import FirebaseCore
 import FirebaseMessaging
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
             FirebaseApp.configure()
+            Messaging.messaging().delegate = self
         }
         return true
     }
@@ -30,29 +31,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
     }
 
-    /// Registo remoto: com Firebase configurado, o token emitido ao JS é o token FCM (igual ao Android). Sem `GoogleService-Info.plist`, usa-se o token APNs em hex (comportamento nativo Capacitor).
+    /// Registo remoto: com Firebase, o token FCM chega ao JS via `MessagingDelegate` (fiável). O callback síncrono de `Messaging.messaging().token` após `apnsToken` falha muitas vezes (token ainda nil).
+    /// Sem `GoogleService-Info.plist`, usa-se o token APNs em hex (Capacitor).
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         if FirebaseApp.app() != nil {
             Messaging.messaging().apnsToken = deviceToken
-            Messaging.messaging().token { token, error in
-                if let error = error {
-                    NotificationCenter.default.post(
-                        name: .capacitorDidFailToRegisterForRemoteNotifications,
-                        object: error
-                    )
-                } else if let token = token {
-                    NotificationCenter.default.post(
-                        name: .capacitorDidRegisterForRemoteNotifications,
-                        object: token
-                    )
-                }
-            }
         } else {
             NotificationCenter.default.post(
                 name: .capacitorDidRegisterForRemoteNotifications,
                 object: deviceToken
             )
         }
+    }
+
+    // MARK: - MessagingDelegate (FCM → Capacitor / JS)
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        guard let token = fcmToken?.trimmingCharacters(in: .whitespacesAndNewlines), !token.isEmpty else {
+            return
+        }
+        NotificationCenter.default.post(
+            name: .capacitorDidRegisterForRemoteNotifications,
+            object: token
+        )
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {

@@ -26,3 +26,12 @@ Push notifications iOS + Firebase (FCM igual ao Android)
 5) aps-environment em App.entitlements
    - "production" — adequado a IPA/App Store e TestFlight (Appflow)
    - Para testes locais com perfil de desenvolvimento, pode ser necessário "development" no Xcode
+     (se ficar "production" com certificado de desenvolvimento, o registo APNs falha e não há push)
+
+6) Token FCM no nativo (AppDelegate)
+   - O token deve ser enviado ao JS via MessagingDelegate `messaging(_:didReceiveRegistrationToken:)`.
+     Usar só `Messaging.messaging().token { }` logo após `apnsToken = deviceToken` é pouco fiável (token muitas vezes nil).
+
+7) Backend / payload FCM
+   - O mesmo envio que só preenche `notification`/`data` para Android pode não entregar no iOS.
+   - Use a API FCM v1 com bloco `apns` / `fcm_options` para iOS, ou envie notificação multi-plataforma no console Firebase.
