@@ -35,3 +35,16 @@ Push notifications iOS + Firebase (FCM igual ao Android)
 7) Backend / payload FCM
    - O mesmo envio que só preenche `notification`/`data` para Android pode não entregar no iOS.
    - Use a API FCM v1 com bloco `apns` / `fcm_options` para iOS, ou envie notificação multi-plataforma no console Firebase.
+   - Em iOS, alertas visíveis precisam de payload APNs (ex.: `apns.payload.aps.alert` ou `mutable-content` conforme o caso).
+   - Confirme no gestor que o token guardado para o utilizador é o token FCM longo (não só hex APNs de 64 caracteres).
+
+8) Appflow + TestFlight (sem Xcode local)
+   - Repositório: `GoogleService-Info.plist` no target (Copy Bundle Resources), `App.entitlements` com Push, `Podfile` com FirebaseMessaging — já no projeto.
+   - Certificados Appflow: perfil de distribuição iOS com capability "Push Notifications" para o App ID com.admspot.finance.
+   - Firebase Console > Cloud Messaging: chave APNs .p8 carregada (a mesma chave serve development e production na Firebase).
+   - TestFlight usa ambiente APNs production — `aps-environment` = production no repo está correto para IPA da loja/Appflow.
+   - Se o push falhar só no iOS mas o Android funciona: quase sempre (a) payload FCM sem secção `apns`, ou (b) token iOS não registado na API, ou (c) APNs não ligado ao projeto Firebase.
+
+9) AppDelegate (token → Capacitor)
+   - O token é reenviado duas vezes (imediatos + ~1,2s) para o mesmo `NotificationCenter` para contornar o plugin JS ainda não ter o observer ativo.
+   - `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` encaminha para `Messaging` (mensagens em background).

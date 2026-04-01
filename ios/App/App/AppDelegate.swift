@@ -31,8 +31,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
     }
 
-    /// Registo remoto: com Firebase, o token FCM chega ao JS via `MessagingDelegate` (fiável). O callback síncrono de `Messaging.messaging().token` após `apnsToken` falha muitas vezes (token ainda nil).
-    /// Sem `GoogleService-Info.plist`, usa-se o token APNs em hex (Capacitor).
+    /// Envia o token FCM ao Capacitor. Duplo envio (imediatos + ~1s) evita corrida em que o `PushNotificationsPlugin`
+    /// ainda não regista o observer no `NotificationCenter` (comum em TestFlight / WebView lenta a inicializar).
+    private func postFcmTokenToCapacitor(_ token: String) {
+        let name = Notification.Name.capacitorDidRegisterForRemoteNotifications
+        let post = {
+            NotificationCenter.default.post(name: name, object: token)
+        }
+        DispatchQueue.main.async(execute: post)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: post)
+    }
+
+    /// Registo APNs → FCM. Sem Firebase, repasse do token APNs em `Data` (hex) como espera o Capacitor.
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         if FirebaseApp.app() != nil {
             Messaging.messaging().apnsToken = deviceToken
@@ -49,10 +59,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         guard let token = fcmToken?.trimmingCharacters(in: .whitespacesAndNewlines), !token.isEmpty else {
             return
         }
-        NotificationCenter.default.post(
-            name: .capacitorDidRegisterForRemoteNotifications,
-            object: token
-        )
+        postFcmTokenToCapacitor(token)
+    }
+
+    /// Necessário para o Firebase associar mensagens em segundo plano / `content-available`.
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
+        if FirebaseApp.app() != nil {
+            Messaging.messaging().appDidReceiveMessage(userInfo)
+        }
+        completionHandler(.newData)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
