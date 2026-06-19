@@ -258,6 +258,7 @@ export class DashboardPage implements ViewWillEnter {
     this.transferSheetOpen = false;
     this.notificationsSheetOpen = false;
     this.recargaSheetOpen = false;
+    this.cartoesSoonSheetOpen = false;
     this.paymentSheetOpen = true;
   }
 
@@ -269,6 +270,7 @@ export class DashboardPage implements ViewWillEnter {
     this.paymentSheetOpen = false;
     this.notificationsSheetOpen = false;
     this.recargaSheetOpen = false;
+    this.cartoesSoonSheetOpen = false;
     this.transferSheetOpen = true;
   }
 
@@ -280,6 +282,7 @@ export class DashboardPage implements ViewWillEnter {
     this.paymentSheetOpen = false;
     this.transferSheetOpen = false;
     this.recargaSheetOpen = false;
+    this.cartoesSoonSheetOpen = false;
     this.notificationsSheetOpen = true;
   }
 
@@ -291,6 +294,7 @@ export class DashboardPage implements ViewWillEnter {
     this.paymentSheetOpen = false;
     this.transferSheetOpen = false;
     this.notificationsSheetOpen = false;
+    this.cartoesSoonSheetOpen = false;
     this.recargaSheetOpen = true;
   }
 

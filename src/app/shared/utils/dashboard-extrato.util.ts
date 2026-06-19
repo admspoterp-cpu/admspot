@@ -570,7 +570,8 @@ function isSentTransfer(op: ExtratoOperacaoRaw): boolean {
   if (String(op.tipo_registro ?? '').trim() !== 'app_real_transfer') {
     return false;
   }
-  return !isOperacaoRecebido(op);
+  // Débito (saída): exclui qualquer sinal de crédito/recebimento, não só `RECEIVER`.
+  return !isCreditOperation(op);
 }
 
 /**
@@ -596,17 +597,18 @@ export function buildRecentTransferContacts(
   const contacts: RecentTransferContact[] = [];
   const seen = new Set<string>();
   for (const { op } of withParsed) {
-    const name = String(op.trasnfer_bank_ownerName ?? '').trim();
-    if (!name) {
+    // Em transferências enviadas, `trasnfer_bank_ownerName` é o destinatário.
+    const recipient = String(op.trasnfer_bank_ownerName ?? '').trim();
+    if (!recipient) {
       continue;
     }
     const bank = beneficiaryBankFromOperacao(op);
-    const key = `${name.toLowerCase()}|${bank.toLowerCase()}`;
+    const key = `${recipient.toLowerCase()}|${bank.toLowerCase()}`;
     if (seen.has(key)) {
       continue;
     }
     seen.add(key);
-    contacts.push({ name, bank, initials: initialsFromDisplayName(name) });
+    contacts.push({ name: recipient, bank, initials: initialsFromDisplayName(recipient) });
     if (contacts.length >= limit) {
       break;
     }
