@@ -57,7 +57,8 @@ export class PayTransferPixPage implements OnInit {
   bankShortName = 'BK';
 
   transferAmount = BRL_ZERO_DISPLAY;
-  observation = 'Segue o valor do aluguel';
+  /** Campo livre: começa vazio para o usuário digitar sua própria mensagem. */
+  observation = '';
 
   readonly feeCurrency = 'R$';
   feeValue = '0,00';

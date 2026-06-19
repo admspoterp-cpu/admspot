@@ -38,7 +38,8 @@
           class="tp-field-input"
           type="text"
           name="pixKey"
-          [(ngModel)]="pixKey"
+          [ngModel]="pixKey"
+          (ngModelChange)="onPixKeyChange($event)"
           inputmode="text"
           autocomplete="off"
           placeholder="Digite a chave"
@@ -48,7 +49,7 @@
       <button type="button" class="tp-field tp-field-select tap-highlight-none" (click)="pickKeyType()">
         <span class="tp-field-label">Tipo de chave</span>
         <div class="tp-select-row">
-          <span class="tp-select-value">{{ keyType }}</span>
+          <span class="tp-select-value">{{ keyTypeLabel(keyType) }}</span>
           <img
             class="tp-select-caret"
             src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-f6d9d94f-a44c-4c33-9738-42bc6b85277b.svg"

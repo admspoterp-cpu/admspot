@@ -32,9 +32,20 @@ export class TransferPixPage implements ViewWillEnter {
 
   pixKey = '';
   keyType: DictKeyType = 'CPF';
+  /** Seleção manual do tipo: impede que a auto-detecção sobrescreva a escolha. */
+  private keyTypeManuallySet = false;
   continuing = false;
 
   private readonly keyTypes: readonly DictKeyType[] = ['CPF', 'CNPJ', 'EMAIL', 'PHONE', 'EVP'];
+
+  /** Rótulos do select. O valor permanece o código da API (ex.: EVP → "Aleatória"). */
+  private readonly keyTypeLabels: Record<DictKeyType, string> = {
+    CPF: 'CPF',
+    CNPJ: 'CNPJ',
+    EMAIL: 'EMAIL',
+    PHONE: 'PHONE',
+    EVP: 'Aleatória',
+  };
 
   ionViewWillEnter(): void {
     if (this.authSession.isTokenExpired()) {
@@ -80,14 +91,74 @@ export class TransferPixPage implements ViewWillEnter {
     this.navController.back();
   }
 
+  /** Rótulo do tipo para exibição (EVP → "Aleatória"). */
+  keyTypeLabel(t: DictKeyType): string {
+    return this.keyTypeLabels[t] ?? t;
+  }
+
+  /** Auto-seleciona o tipo conforme o padrão digitado na chave. */
+  onPixKeyChange(value: string): void {
+    this.pixKey = value;
+    // Campo limpo reinicia a detecção automática para a próxima chave.
+    if (!value.trim()) {
+      this.keyTypeManuallySet = false;
+    }
+    const detected = this.detectPixKeyType(value);
+    if (detected && !this.keyTypeManuallySet) {
+      this.keyType = detected;
+    }
+  }
+
+  /**
+   * Identifica o tipo da chave PIX pelo formato informado: e-mail, EVP (UUID),
+   * telefone (com DDI), CPF (11 díg.) ou CNPJ (14 díg.). Retorna `null` quando o
+   * padrão ainda é ambíguo/incompleto, preservando a seleção atual.
+   */
+  private detectPixKeyType(raw: string): DictKeyType | null {
+    const value = raw.trim();
+    if (!value) {
+      return null;
+    }
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      return 'EMAIL';
+    }
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
+      return 'EVP';
+    }
+    if (value.startsWith('+')) {
+      return 'PHONE';
+    }
+    // CPF/CNPJ/telefone só têm dígitos. Havendo letras, ainda é e-mail/EVP em
+    // digitação (ex.: UUID parcial) — não classifica por contagem de dígitos.
+    if (/[a-z]/i.test(value)) {
+      return null;
+    }
+    const digits = value.replace(/\D/g, '');
+    if (!digits) {
+      return null;
+    }
+    // Telefone BR com código do país: 55 + DDD + 8/9 dígitos (12 ou 13 dígitos).
+    if ((digits.length === 12 || digits.length === 13) && digits.startsWith('55')) {
+      return 'PHONE';
+    }
+    if (digits.length === 11) {
+      return 'CPF';
+    }
+    if (digits.length === 14) {
+      return 'CNPJ';
+    }
+    return null;
+  }
+
   async pickKeyType(): Promise<void> {
     const sheet = await this.actionSheetController.create({
       header: 'Tipo de chave',
       buttons: [
         ...this.keyTypes.map((t) => ({
-          text: t,
+          text: this.keyTypeLabel(t),
           handler: () => {
             this.keyType = t;
+            this.keyTypeManuallySet = true;
           },
         })),
         {

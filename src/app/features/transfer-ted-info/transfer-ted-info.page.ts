@@ -34,7 +34,8 @@ export class TransferTedInfoPage implements OnInit {
   recipientDocument = '';
 
   transferAmount = BRL_ZERO_DISPLAY;
-  observation = 'Segue o valor do aluguel';
+  /** Campo livre: começa vazio para o usuário digitar sua própria mensagem. */
+  observation = '';
 
   readonly feeCurrency = 'R$';
   readonly feeValue = '2,50';
