@@ -43,6 +43,13 @@ h1 {
   line-height: 1.2;
 }
 
+.welcome-name {
+  // Nome completo (nome e sobrenome): equilibra a quebra em telas estreitas
+  // e impede estouro horizontal com nomes longos.
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
 .form {
   display: flex;
   flex-direction: column;

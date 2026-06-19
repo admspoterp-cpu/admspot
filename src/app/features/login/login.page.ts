@@ -54,13 +54,9 @@ export class LoginPage implements ViewWillEnter {
     void this.initRememberedMode();
   }
 
-  /** Primeiro nome para a saudação. */
-  get welcomeFirstName(): string {
-    const n = (this.rememberedName ?? '').trim();
-    if (!n) {
-      return '';
-    }
-    return n.split(/\s+/)[0];
+  /** Nome completo (nome e sobrenome) para a saudação. */
+  get welcomeFullName(): string {
+    return (this.rememberedName ?? '').trim().replace(/\s+/g, ' ');
   }
 
   togglePasswordVisibility(): void {
