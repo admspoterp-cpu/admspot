@@ -236,6 +236,21 @@ ion-content.dashboard-content::part(scroll) {
   border-bottom: 0;
 }
 
+/* Funcionalidade bloqueada (em breve): dim + cadeado no lugar da seta. */
+.list-item:disabled,
+.list-item--locked {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.list-item-lock {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  font-size: 16px;
+  color: var(--brand-gray);
+}
+
 .item-text {
   flex: 1;
   text-align: left;
@@ -1083,4 +1098,95 @@ ion-content.dashboard-content::part(scroll) {
   font-size: 15px;
   line-height: 21px;
   font-family: 'Inter', sans-serif;
+}
+
+/* Cartões — aviso "em breve" no mesmo padrão de sheet do dashboard */
+.cartoes-soon-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 100%);
+  width: min(430px, 100%);
+  background: #ffffff;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 30;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.cartoes-soon-sheet.open {
+  transform: translate(-50%, 0);
+}
+
+.cartoes-soon-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: 0;
+  background: transparent;
+  color: #6f7284;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.cartoes-soon-close ion-icon {
+  font-size: 28px;
+}
+
+.cartoes-soon-content {
+  padding: 40px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.cartoes-soon-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #eaf1fb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.cartoes-soon-badge ion-icon {
+  font-size: 34px;
+  color: #235697;
+}
+
+.cartoes-soon-content h3 {
+  margin: 0;
+  color: #3b3d4b;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 600;
+}
+
+.cartoes-soon-content p {
+  margin: 12px 0 24px;
+  color: #7d7c93;
+  font-size: 15px;
+  line-height: 1.4;
+  max-width: 300px;
+}
+
+.cartoes-soon-cta {
+  width: 100%;
+  height: 52px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(270deg, #235697 0%, #114280 100%);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
 }

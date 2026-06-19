@@ -558,3 +558,58 @@ export function buildExtratoGroupsAllDays(operacoes: ExtratoOperacaoRaw[]): Extr
 
   return groups;
 }
+
+export type RecentTransferContact = {
+  initials: string;
+  name: string;
+  bank: string;
+};
+
+/** Transferência efetivamente enviada (débito) — base de "últimos realizados". */
+function isSentTransfer(op: ExtratoOperacaoRaw): boolean {
+  if (String(op.tipo_registro ?? '').trim() !== 'app_real_transfer') {
+    return false;
+  }
+  return !isOperacaoRecebido(op);
+}
+
+/**
+ * Últimos destinatários para quem o usuário transferiu (PIX/TED), mais recentes
+ * primeiro e sem repetir a mesma pessoa. Substitui o mock fixo da tela de transferência.
+ */
+export function buildRecentTransferContacts(
+  operacoes: ExtratoOperacaoRaw[],
+  limit = 5,
+): RecentTransferContact[] {
+  const withParsed: { op: ExtratoOperacaoRaw; at: Date }[] = [];
+  for (const op of operacoes) {
+    if (!isSentTransfer(op)) {
+      continue;
+    }
+    const at = parseDataHoraBrOrCreated(op);
+    if (at) {
+      withParsed.push({ op, at });
+    }
+  }
+  withParsed.sort((a, b) => b.at.getTime() - a.at.getTime());
+
+  const contacts: RecentTransferContact[] = [];
+  const seen = new Set<string>();
+  for (const { op } of withParsed) {
+    const name = String(op.trasnfer_bank_ownerName ?? '').trim();
+    if (!name) {
+      continue;
+    }
+    const bank = beneficiaryBankFromOperacao(op);
+    const key = `${name.toLowerCase()}|${bank.toLowerCase()}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    contacts.push({ name, bank, initials: initialsFromDisplayName(name) });
+    if (contacts.length >= limit) {
+      break;
+    }
+  }
+  return contacts;
+}

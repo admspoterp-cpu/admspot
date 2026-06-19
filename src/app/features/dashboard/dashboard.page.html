@@ -92,7 +92,7 @@
           />
           <span>Depositar</span>
         </button>
-        <button type="button" class="action-btn tap-highlight-none" (click)="goToCartoes()">
+        <button type="button" class="action-btn tap-highlight-none" (click)="openCartoesSoon()">
           <img
             src="assets/icons/cartao.svg"
             alt="Cartões"
@@ -138,7 +138,12 @@
           />
         </button>
 
-        <button type="button" class="list-item tap-highlight-none">
+        <button
+          type="button"
+          class="list-item list-item--locked tap-highlight-none"
+          disabled
+          aria-label="Criar cartão pré-pago (em breve)"
+        >
           <img
             src="assets/icons/pre-pago.svg"
             alt="Icon"
@@ -147,13 +152,15 @@
             <p class="item-title">Criar cartão pré-pago</p>
             <p class="item-subtitle">Obtenha mais do seu saldo</p>
           </div>
-          <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-3b2a7c14-f9b5-4a9b-9b54-36a706642dde.svg"
-            alt="Arrow"
-          />
+          <ion-icon class="list-item-lock" name="lock-closed-outline" aria-hidden="true"></ion-icon>
         </button>
 
-        <button type="button" class="list-item tap-highlight-none no-divider">
+        <button
+          type="button"
+          class="list-item list-item--locked tap-highlight-none no-divider"
+          disabled
+          aria-label="Venda parcelado (em breve)"
+        >
           <img
             src="assets/icons/parcelado.svg"
             alt="Icon"
@@ -162,10 +169,7 @@
             <p class="item-title">Venda parcelado</p>
             <p class="item-subtitle">Venda parcelado</p>
           </div>
-          <img
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CaretRight-8b6b1423-6c44-4c0e-bbad-048b39ff0c6f.svg"
-            alt="Arrow"
-          />
+          <ion-icon class="list-item-lock" name="lock-closed-outline" aria-hidden="true"></ion-icon>
         </button>
       </section>
 
@@ -273,7 +277,7 @@
         <ion-icon name="qr-code-outline" [class.inactive-icon]="activeTab !== 'Pagar'"></ion-icon>
         <span [class.active-tab]="activeTab === 'Pagar'" [class.inactive-tab]="activeTab !== 'Pagar'">Pagar</span>
       </button>
-      <button type="button" class="nav-item tap-highlight-none" (click)="goToCartoes()">
+      <button type="button" class="nav-item tap-highlight-none" (click)="openCartoesSoon()">
         <img
           src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/CreditCard-8c67880f-a49e-49f2-bfc8-d835d0d35561.svg"
           alt="Cards"
@@ -293,7 +297,7 @@
 
     <div
       class="payment-sheet-backdrop"
-      [class.open]="paymentSheetOpen || transferSheetOpen || notificationsSheetOpen || recargaSheetOpen"
+      [class.open]="paymentSheetOpen || transferSheetOpen || notificationsSheetOpen || recargaSheetOpen || cartoesSoonSheetOpen"
       (click)="closeOverlaySheets()"
     ></div>
 
@@ -417,7 +421,7 @@
             />
           </button>
 
-          <div class="transfer-or-row" aria-hidden="true">
+          <div class="transfer-or-row" aria-hidden="true" *ngIf="transferFavorites.length">
             <span class="transfer-or-line"></span>
             <span class="transfer-or-label">OR</span>
             <span class="transfer-or-line"></span>
@@ -563,6 +567,28 @@
             <p class="notifications-empty-sub">Suas notificações aparecerão aqui assim que chegarem.</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Cartões pré-pagos — aviso "em breve" (substitui a navegação para /cartoes) -->
+    <section class="cartoes-soon-sheet" [class.open]="cartoesSoonSheetOpen" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="cartoes-soon-close tap-highlight-none"
+        (click)="closeCartoesSoon()"
+        aria-label="Fechar"
+      >
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+      <div class="cartoes-soon-content">
+        <div class="cartoes-soon-badge">
+          <ion-icon name="card-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <h3>Cartões pré-pagos</h3>
+        <p>Em breve seus cartões Pré-pagos serão gerenciados por aqui.</p>
+        <button type="button" class="cartoes-soon-cta tap-highlight-none" (click)="closeCartoesSoon()">
+          Entendi
+        </button>
       </div>
     </section>
   </div>

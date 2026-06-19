@@ -19,7 +19,9 @@ import { PushFcmTokenService } from '../../services/push-fcm-token.service';
 import { ScanCodesService } from '../../services/scan-codes.service';
 import {
   buildDashboardExtratoGroups,
+  buildRecentTransferContacts,
   type DashboardExtratoRow,
+  type RecentTransferContact,
 } from '../../shared/utils/dashboard-extrato.util';
 import { formatBrlNumber, normalizeMoneyValue } from '../../utils/brl-format';
 import type { ComprovantePaymentNavState } from '../comprovante-payment/comprovante-payment.page';
@@ -50,6 +52,8 @@ export class DashboardPage implements ViewWillEnter {
   transferSheetOpen = false;
   notificationsSheetOpen = false;
   recargaSheetOpen = false;
+  /** Aviso "em breve" dos cartões pré-pagos (substitui a navegação para /cartoes). */
+  cartoesSoonSheetOpen = false;
   recargaSubmitting = false;
   selectedChargeFileName = '';
   recargaPhone = '';
@@ -66,11 +70,8 @@ export class DashboardPage implements ViewWillEnter {
 
   readonly recargaOperatorSelectInterfaceOptions = { header: 'Operadora', subHeader: 'Selecione a operadora' };
 
-  /** Mock favoritos — alinhar com API depois */
-  readonly transferFavorites: { initials: string; name: string; bank: string }[] = [
-    { initials: 'LP', name: 'Luiz Fernando Henrique', bank: 'NU PAGAMENTOS - IP' },
-    { initials: 'AL', name: 'Ana Luiza Pinto', bank: 'NU PAGAMENTOS - IP' },
-  ];
+  /** Últimos destinatários reais (extrato) — carregados em `loadExtratoResumo`. */
+  transferFavorites: RecentTransferContact[] = [];
   private readonly navController = inject(NavController);
   private readonly router = inject(Router);
   private readonly actionSheetController = inject(ActionSheetController);
@@ -152,6 +153,7 @@ export class DashboardPage implements ViewWillEnter {
       this.todayExtrato = [];
       this.previousDayExtrato = [];
       this.previousDayExtratoTitle = '';
+      this.transferFavorites = [];
       return;
     }
 
@@ -163,6 +165,7 @@ export class DashboardPage implements ViewWillEnter {
       this.todayExtrato = [];
       this.previousDayExtrato = [];
       this.previousDayExtratoTitle = '';
+      this.transferFavorites = [];
       return;
     }
 
@@ -170,6 +173,7 @@ export class DashboardPage implements ViewWillEnter {
     this.todayExtrato = groups.today;
     this.previousDayExtrato = groups.previousDay;
     this.previousDayExtratoTitle = groups.previousDayTitle;
+    this.transferFavorites = buildRecentTransferContacts(data.operacoes);
   }
 
   /**
@@ -246,6 +250,7 @@ export class DashboardPage implements ViewWillEnter {
     this.transferSheetOpen = false;
     this.notificationsSheetOpen = false;
     this.recargaSheetOpen = false;
+    this.cartoesSoonSheetOpen = false;
   }
 
   openPaymentSheet(): void {
@@ -340,6 +345,7 @@ export class DashboardPage implements ViewWillEnter {
     this.closeTransferSheet();
     this.closeNotificationsSheet();
     this.closeRecargaSheet();
+    this.closeCartoesSoon();
   }
 
   goToQrScanner(): void {
@@ -352,10 +358,14 @@ export class DashboardPage implements ViewWillEnter {
     void this.navController.navigateForward('/depositar');
   }
 
-  goToCartoes(): void {
-    this.activeTab = 'Cards';
+  /** Cartões pré-pagos ainda não disponíveis: abre o aviso "em breve". */
+  openCartoesSoon(): void {
     this.closeOverlaySheets();
-    void this.navController.navigateForward('/cartoes');
+    this.cartoesSoonSheetOpen = true;
+  }
+
+  closeCartoesSoon(): void {
+    this.cartoesSoonSheetOpen = false;
   }
 
   goToNovaCobranca(): void {
