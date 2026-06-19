@@ -132,7 +132,10 @@ export class DepositarPage implements ViewWillEnter {
     };
 
     if (!access || !sourceToken) {
-      await showToast('Desculpe, estamos trabalhando nisso', 'medium');
+      await showToast(
+        'Não foi possível identificar a carteira. Faça login novamente ou defina uma carteira padrão.',
+        'medium',
+      );
       return;
     }
 
@@ -145,11 +148,17 @@ export class DepositarPage implements ViewWillEnter {
     }
 
     if (data?.success === true) {
-      await showToast('Chave criado com sucesso.', 'success');
+      await showToast('Chave PIX criada com sucesso.', 'success');
       await this.loadWalletAccount();
       return;
     }
 
-    await showToast('Desculpe, estamos trabalhando nisso', 'medium');
+    // Mostra o motivo real devolvido pela API (tipo/limite/conta não aprovada, etc.) em vez de um
+    // aviso genérico. `data === null` indica falha de rede/HTTP, sem corpo para detalhar.
+    const reason = data?.message?.trim();
+    await showToast(
+      reason || 'Não foi possível criar a chave PIX agora. Tente novamente.',
+      data ? 'danger' : 'medium',
+    );
   }
 }

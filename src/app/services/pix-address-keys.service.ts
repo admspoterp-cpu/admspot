@@ -12,24 +12,31 @@ export type PixAddressKeysResponse = {
   message?: string;
 };
 
+/** Tipo de chave PIX a registrar. A tela Depositar cria sempre uma aleatória (`EVP`). */
+export type PixAddressKeyType = 'EVP' | 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE';
+
 @Injectable({ providedIn: 'root' })
 export class PixAddressKeysService {
   /**
+   * Registra uma chave PIX na conta digital da carteira padrão.
    * `source_token` = `asaas_api_token` da carteira padrão (`GET /auth/me`).
+   * `type` é obrigatório no Asaas; o botão "Criar nova chave PIX" cria uma aleatória (`EVP`).
    */
   async createAddressKey(
     accessToken: string,
     sourceToken: string,
+    keyType: PixAddressKeyType = 'EVP',
   ): Promise<PixAddressKeysResponse | null> {
     if (Capacitor.isNativePlatform()) {
-      return this.createNative(accessToken, sourceToken);
+      return this.createNative(accessToken, sourceToken, keyType);
     }
-    return this.createWeb(accessToken, sourceToken);
+    return this.createWeb(accessToken, sourceToken, keyType);
   }
 
   private async createNative(
     accessToken: string,
     sourceToken: string,
+    keyType: PixAddressKeyType,
   ): Promise<PixAddressKeysResponse | null> {
     const url = getGestorApiUrl(PIX_ADDRESS_KEYS_PATH);
     const res = await CapacitorHttp.post({
@@ -39,7 +46,7 @@ export class PixAddressKeysService {
         Authorization: `Bearer ${accessToken}`,
         Cookie: `PHPSESSID=${PHPSESSID}`,
       },
-      data: { source_token: sourceToken },
+      data: { source_token: sourceToken, type: keyType },
     });
     if (res.status < 200 || res.status >= 300) {
       return null;
@@ -50,6 +57,7 @@ export class PixAddressKeysService {
   private async createWeb(
     accessToken: string,
     sourceToken: string,
+    keyType: PixAddressKeyType,
   ): Promise<PixAddressKeysResponse | null> {
     const url = getGestorApiUrl(PIX_ADDRESS_KEYS_PATH);
     const res = await fetch(url, {
@@ -59,7 +67,7 @@ export class PixAddressKeysService {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ source_token: sourceToken }),
+      body: JSON.stringify({ source_token: sourceToken, type: keyType }),
     });
     if (!res.ok) {
       return null;
