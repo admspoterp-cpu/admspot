@@ -1,16 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController, LoadingController, NavController, ViewWillEnter } from '@ionic/angular';
+import { LoadingController, NavController, ViewWillEnter } from '@ionic/angular';
 
 import { GESTOR_ORIGIN } from '../../services/api-base-url';
 import type { WalletItemPayload } from '../../services/auth-me.model';
 import { AuthMeService } from '../../services/auth-me.service';
 import { AuthSessionService } from '../../services/auth-session.service';
 import { WalletSetDefaultService } from '../../services/wallet-set-default.service';
-
-const SET_DEFAULT_FAILURE_MESSAGE =
-  'Pedimos desculpas, estamos enfrentando dificuldades para processar sua solicitação no momento. ' +
-  'Por favor, aguarde alguns minutos e tente novamente. Caso o problema persista, entre em contato com o suporte.';
 
 @Component({
   selector: 'app-wallet-digital-setup',
@@ -20,7 +16,6 @@ const SET_DEFAULT_FAILURE_MESSAGE =
 })
 export class WalletDigitalSetupPage implements ViewWillEnter {
   private readonly navController = inject(NavController);
-  private readonly alertController = inject(AlertController);
   private readonly loadingController = inject(LoadingController);
   private readonly authSession = inject(AuthSessionService);
   private readonly authMe = inject(AuthMeService);
@@ -36,6 +31,9 @@ export class WalletDigitalSetupPage implements ViewWillEnter {
 
   /** Carteiras do utilizador quando nenhuma está como padrão (`is_default`). */
   wallets: WalletItemPayload[] = [];
+
+  /** Evita toques concorrentes (duplo-toque / clique+enter) disparando set-default e navegação em duplicado. */
+  private tapInFlight = false;
 
   ionViewWillEnter(): void {
     this.pickMode = this.route.snapshot.queryParamMap.get('pick') === '1';
@@ -74,47 +72,61 @@ export class WalletDigitalSetupPage implements ViewWillEnter {
   }
 
   /**
-   * Conta digital inativa → tela informativa. Ativa → `POST /wallet/set-default` e sincroniza com `/auth/me`.
+   * Conta digital inativa → tela informativa. Ativa → define como carteira padrão e abre o dashboard.
+   *
+   * A seleção é gravada **localmente primeiro** (`setSelectedWalletAsDefaultLocal`): isso garante que
+   * o dashboard tenha uma carteira ativa imediatamente e que as próximas aberturas abram direto nela,
+   * mesmo se o servidor falhar ou o `/auth/me` ainda não refletir `is_default`. A sincronização com
+   * `POST /wallet/set-default` + `/auth/me` é best-effort e nunca bloqueia a navegação.
    */
   async onWalletTap(wallet: WalletItemPayload): Promise<void> {
-    if (!wallet.conta_digital_asaas_ativa) {
-      void this.router.navigate(['/wallet-digital-unavailable'], {
-        queryParams: this.pickMode ? { returnPick: '1' } : {},
-      });
+    if (this.tapInFlight) {
       return;
     }
-
-    const access = this.authSession.getAccessToken();
-    const walletToken = wallet.wallet_token_account?.trim();
-    if (!access || !walletToken) {
-      return;
-    }
-
-    const loading = await this.loadingController.create({
-      message: 'Atualizando carteira padrão…',
-    });
-    await loading.present();
-
-    const res = await this.walletSetDefault.setDefaultWallet(access, walletToken);
-
-    await loading.dismiss().catch(() => undefined);
-
-    if (res?.success === true) {
-      const me = await this.authMe.fetchMe(access);
-      if (me?.success === true) {
-        this.authSession.applyAuthMeResponse(me);
-      } else {
-        this.authSession.setSelectedWalletAsDefaultLocal(wallet);
+    this.tapInFlight = true;
+    try {
+      if (!wallet.conta_digital_asaas_ativa) {
+        void this.router.navigate(['/wallet-digital-unavailable'], {
+          queryParams: this.pickMode ? { returnPick: '1' } : {},
+        });
+        return;
       }
-      void this.navController.navigateRoot('/dashboard');
-      return;
-    }
 
-    const alert = await this.alertController.create({
-      header: 'Não foi possível concluir',
-      message: SET_DEFAULT_FAILURE_MESSAGE,
-      buttons: ['Ok'],
-    });
-    await alert.present();
+      const access = this.authSession.getAccessToken();
+      if (!access) {
+        this.authSession.clear();
+        void this.navController.navigateRoot('/login');
+        return;
+      }
+
+      // Padrão local imediato: semeia o `previousDefault`, então a reconciliação com `/auth/me`
+      // preserva a escolha mesmo que o servidor ainda não tenha gravado `is_default`.
+      this.authSession.setSelectedWalletAsDefaultLocal(wallet);
+
+      const walletToken = wallet.wallet_token_account?.trim();
+      if (walletToken) {
+        const loading = await this.loadingController.create({
+          message: 'Atualizando carteira padrão…',
+        });
+        await loading.present();
+        try {
+          const res = await this.walletSetDefault.setDefaultWallet(access, walletToken);
+          if (res?.success === true) {
+            const me = await this.authMe.fetchMe(access);
+            if (me?.success === true) {
+              this.authSession.applyAuthMeResponse(me);
+            }
+          }
+        } catch {
+          // Sincronização com o servidor é best-effort: a seleção local já vale.
+        } finally {
+          await loading.dismiss().catch(() => undefined);
+        }
+      }
+
+      void this.navController.navigateRoot('/dashboard');
+    } finally {
+      this.tapInFlight = false;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import {
   isWalletMarkedDefault,
@@ -6,6 +6,7 @@ import {
   type AuthMeUserPayload,
   type WalletItemPayload,
 } from './auth-me.model';
+import { BiometricAuthService } from './biometric-auth.service';
 
 export type AuthUser = {
   id: number;
@@ -46,6 +47,8 @@ function jwtExpMsFromAccessToken(accessToken: string): number | null {
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
+  private readonly biometric = inject(BiometricAuthService);
+
   private readonly accessTokenKey = 'admspot_auth_access_token';
   private readonly userKey = 'admspot_auth_user';
   private readonly tokenExpiresAtKey = 'admspot_auth_token_expires_at_ms';
@@ -130,16 +133,26 @@ export class AuthSessionService {
     const user = this.meUserToAuthUser(data.user);
     this.updateUserProfile(user);
 
-    const items = data.wallets?.items ?? [];
+    const items = Array.isArray(data.wallets?.items) ? data.wallets!.items : [];
     const previousDefault = this.getDefaultWallet();
     const defaultItem = items.find((w) => isWalletMarkedDefault(w.is_default)) ?? null;
 
     try {
-      if (items.length > 0) {
-        localStorage.setItem(this.walletsItemsKey, JSON.stringify(items));
-      } else {
+      // Resposta sem lista de carteiras (vazia/ausente — body parcial ou hiccup transitório do
+      // backend): não destrói uma seleção local já válida. O app é local-first; apagar a carteira
+      // padrão aqui faria a próxima abertura cair na tela de seleção vazia mesmo o usuário já tendo
+      // escolhido uma carteira. Sem seleção prévia, mantém o comportamento de limpar tudo.
+      if (items.length === 0) {
+        if (previousDefault) {
+          return { hasDefaultWallet: true };
+        }
         localStorage.removeItem(this.walletsItemsKey);
+        localStorage.removeItem(this.defaultWalletKey);
+        localStorage.removeItem(this.pendingFirstWalletKey);
+        return { hasDefaultWallet: false };
       }
+
+      localStorage.setItem(this.walletsItemsKey, JSON.stringify(items));
 
       if (defaultItem) {
         localStorage.setItem(this.defaultWalletKey, JSON.stringify(defaultItem));
@@ -147,10 +160,7 @@ export class AuthSessionService {
         return { hasDefaultWallet: true };
       }
 
-      if (
-        previousDefault &&
-        items.some((w) => w.id === previousDefault.id)
-      ) {
+      if (previousDefault && items.some((w) => w.id === previousDefault.id)) {
         const merged = items.find((w) => w.id === previousDefault.id)!;
         localStorage.setItem(
           this.defaultWalletKey,
@@ -161,11 +171,7 @@ export class AuthSessionService {
       }
 
       localStorage.removeItem(this.defaultWalletKey);
-      if (items.length > 0) {
-        localStorage.setItem(this.pendingFirstWalletKey, JSON.stringify(items[0]));
-      } else {
-        localStorage.removeItem(this.pendingFirstWalletKey);
-      }
+      localStorage.setItem(this.pendingFirstWalletKey, JSON.stringify(items[0]));
     } catch {
       // ignore
     }
@@ -236,6 +242,9 @@ export class AuthSessionService {
   }
 
   clear(): void {
+    // Sessão encerrada (logout/expiração) → libera o login rápido automático para a próxima
+    // sessão. Distingue do "bounce" do session-bootstrap, que volta a /login sem chamar clear().
+    this.biometric.resetAutoQuickLoginAttempt();
     try {
       localStorage.removeItem(this.accessTokenKey);
       localStorage.removeItem(this.userKey);

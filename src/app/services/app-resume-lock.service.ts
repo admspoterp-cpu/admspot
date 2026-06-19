@@ -62,10 +62,26 @@ export class AppResumeLockService {
     void App.addListener('appStateChange', ({ isActive }) => {
       this.ngZone.run(() => {
         const url = this.router.url.split(/[#?]/)[0];
+
         if (!isActive) {
-          if (!this.isPublicRoute(url)) {
+          // Arma só num "saiu do app" GENUÍNO de rota protegida. Enquanto a folha biométrica do
+          // próprio app está na tela (`isNativePromptOnScreen`), o resign é auto-induzido — não arma.
+          // Aqui NÃO se usa a carência por tempo: um background real logo após um prompt ainda
+          // deve armar a trava. `unlockInFlight`: idem, evita re-armar com a folha do desbloqueio.
+          if (
+            !this.isPublicRoute(url) &&
+            !this.unlockInFlight &&
+            !this.biometric.isNativePromptOnScreen()
+          ) {
             this.pendingResumeLock = true;
           }
+          return;
+        }
+
+        // Voltou ao primeiro plano: ignora o `active` causado pela própria folha biométrica do app
+        // (login rápido, confirmação de pagamento ou o próprio desbloqueio), incluindo a carência que
+        // absorve o evento de dismiss atrasado. É o que evita o loop de 2–3 prompts no iOS.
+        if (this.biometric.isBiometricPromptBusy()) {
           return;
         }
 
@@ -91,7 +107,16 @@ export class AppResumeLockService {
     if (path === '/' || path === '') {
       return true;
     }
-    return path === '/onboarding' || path.startsWith('/onboarding/') || path === '/login' || path.startsWith('/login/');
+    return (
+      path === '/onboarding' ||
+      path.startsWith('/onboarding/') ||
+      path === '/login' ||
+      path.startsWith('/login/') ||
+      // Rota de passagem pós-login: roteia em seguida para dashboard/seleção/login. Não deve
+      // armar o bloqueio de retomada — é onde a corrida de `appStateChange` costuma cair.
+      path === '/session-bootstrap' ||
+      path.startsWith('/session-bootstrap/')
+    );
   }
 
   private async runUnlockAttempt(opts: { autoTriggered: boolean }): Promise<void> {

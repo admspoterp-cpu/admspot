@@ -47,8 +47,6 @@ export class LoginPage implements ViewWillEnter {
   quickLoginInFlight = false;
 
   private readonly isNative = Capacitor.isNativePlatform();
-  /** Garante que a biometria só dispara automaticamente uma vez por abertura. */
-  private autoPrompted = false;
 
   ionViewWillEnter(): void {
     void this.initRememberedMode();
@@ -89,8 +87,9 @@ export class LoginPage implements ViewWillEnter {
     this.rememberedDocMasked = profile.documentMasked || null;
     this.showWelcome = true;
 
-    if (!this.autoPrompted) {
-      this.autoPrompted = true;
+    // Guarda no serviço singleton: o login rápido automático dispara só uma vez por sessão do app,
+    // mesmo que a LoginPage seja recriada (ex.: `session-bootstrap` volta para `/login`).
+    if (this.biometricAuth.claimAutoQuickLoginAttempt()) {
       void this.loginWithBiometric();
     }
   }

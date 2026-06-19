@@ -45,6 +45,60 @@ type VerifyCopy = {
  */
 @Injectable({ providedIn: 'root' })
 export class BiometricAuthService {
+  /**
+   * Profundidade de prompts biométricos nativos do próprio app em curso (> 0 = folha de Face ID /
+   * digital literalmente na tela). A folha faz o iOS emitir `appStateChange` (resign → active); sem
+   * distinguir isso, o resume-lock interpretaria como "voltou do multitarefa" e dispararia biometria
+   * de novo, gerando 2–3 prompts em sequência no login automático.
+   */
+  private nativePromptDepth = 0;
+
+  /** Carência (epoch ms) após a folha fechar, para absorver o evento `active` (dismiss) atrasado. */
+  private suppressResumeUntilMs = 0;
+
+  /** Garante que o login rápido só dispare automaticamente uma vez por sessão do app. */
+  private autoQuickLoginAttempted = false;
+
+  /** `true` enquanto a folha biométrica do próprio app está literalmente na tela. */
+  isNativePromptOnScreen(): boolean {
+    return this.nativePromptDepth > 0;
+  }
+
+  /**
+   * `true` enquanto a folha biométrica do app está na tela OU dentro da carência logo após fechar.
+   * Usado para ignorar o evento de "voltar" (`active`) que o iOS emite ao dispensar a folha — é o
+   * que evitava o loop de 2–3 prompts. NÃO deve gatear o ramo de "armar" (resign), senão um
+   * background genuíno logo após um prompt deixaria a tela protegida sem trava.
+   */
+  isBiometricPromptBusy(): boolean {
+    return this.nativePromptDepth > 0 || Date.now() < this.suppressResumeUntilMs;
+  }
+
+  /** Reserva a tentativa de login rápido automático; retorna `true` só na primeira vez da sessão. */
+  claimAutoQuickLoginAttempt(): boolean {
+    if (this.autoQuickLoginAttempted) {
+      return false;
+    }
+    this.autoQuickLoginAttempted = true;
+    return true;
+  }
+
+  /** Permite que o login rápido automático volte a disparar (logout / sessão encerrada). */
+  resetAutoQuickLoginAttempt(): void {
+    this.autoQuickLoginAttempted = false;
+  }
+
+  /** Início de um prompt nativo: a folha passa a estar na tela. */
+  private beginNativePrompt(): void {
+    this.nativePromptDepth += 1;
+  }
+
+  /** Fim do prompt nativo: sai da tela e abre carência curta p/ absorver o `active` (dismiss) atrasado. */
+  private endNativePrompt(): void {
+    this.nativePromptDepth = Math.max(0, this.nativePromptDepth - 1);
+    this.suppressResumeUntilMs = Date.now() + 1_500;
+  }
+
   /** `true` quando o app corre em shell nativo (não no browser). */
   isNativeApp(): boolean {
     return Capacitor.isNativePlatform();
@@ -120,6 +174,9 @@ export class BiometricAuthService {
 
   /** Remove as credenciais guardadas (logout / "entrar com outra conta"). */
   async clearLoginCredentials(): Promise<void> {
+    // Logout / "entrar com outra conta": permite que o login rápido automático volte a disparar
+    // numa próxima sessão de login.
+    this.resetAutoQuickLoginAttempt();
     if (!Capacitor.isNativePlatform()) {
       return;
     }
@@ -160,6 +217,7 @@ export class BiometricAuthService {
       return { kind: 'no_credentials' };
     }
 
+    this.beginNativePrompt();
     try {
       const creds = await NativeBiometric.getSecureCredentials({
         server: LOGIN_CREDENTIALS_SERVER,
@@ -175,6 +233,8 @@ export class BiometricAuthService {
       return { kind: 'success', credentials: { username: creds.username, password: creds.password } };
     } catch (err: unknown) {
       return this.mapVerifyError(err);
+    } finally {
+      this.endNativePrompt();
     }
   }
 
@@ -189,6 +249,7 @@ export class BiometricAuthService {
       return { kind: 'not_available' };
     }
 
+    this.beginNativePrompt();
     try {
       await NativeBiometric.verifyIdentity({
         ...copy,
@@ -197,6 +258,8 @@ export class BiometricAuthService {
       return { kind: 'success' };
     } catch (err: unknown) {
       return this.mapVerifyError(err);
+    } finally {
+      this.endNativePrompt();
     }
   }
 
