@@ -33,7 +33,7 @@
       <button
         type="button"
         class="mais-row tap-highlight-none"
-        (click)="onComingSoon('Privacidade e segurança')"
+        (click)="goToPrivacidadeSeguranca()"
       >
         <span class="mais-row-label">Privacidade e segurança</span>
         <img [src]="caretRightSrc" alt="" class="mais-chevron" />
@@ -62,12 +62,12 @@
 
     <section class="mais-block" aria-labelledby="mais-suporte">
       <h2 id="mais-suporte" class="mais-section-title">Suporte</h2>
-      <button type="button" class="mais-row tap-highlight-none" (click)="onComingSoon('Falar com suporte')">
+      <button type="button" class="mais-row tap-highlight-none" (click)="goToSuporte()">
         <span class="mais-row-label">Falar com suporte</span>
         <img [src]="caretRightSrc" alt="" class="mais-chevron" />
         <span class="mais-row-line" role="presentation"></span>
       </button>
-      <button type="button" class="mais-row tap-highlight-none" (click)="onComingSoon('F.A.Q')">
+      <button type="button" class="mais-row tap-highlight-none" (click)="goToFaq()">
         <span class="mais-row-label">F.A.Q</span>
         <img [src]="caretRightSrc" alt="" class="mais-chevron" />
         <span class="mais-row-line" role="presentation"></span>

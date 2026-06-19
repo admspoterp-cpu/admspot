@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { BiometricAuthError, NativeBiometric } from '@capgo/capacitor-native-biometric';
+import { AccessControl, BiometricAuthError, NativeBiometric } from '@capgo/capacitor-native-biometric';
 
-/** Resultado detalhado do fluxo de biometria no login */
-export type BiometricLoginOutcome =
-  | { kind: 'success' }
+/** Identificador do item no Keychain (iOS) / Keystore (Android) com as credenciais de login. */
+const LOGIN_CREDENTIALS_SERVER = 'com.admspot.finance.login';
+
+/** Erros possíveis do fluxo biométrico (sem o caso de sucesso). */
+export type BiometricErrorOutcome =
   | { kind: 'not_native' }
   | { kind: 'not_available' }
   /** Usuário tocou em Cancelar ou fechou o fluxo */
@@ -15,6 +17,19 @@ export type BiometricLoginOutcome =
   | { kind: 'lockout'; temporary: boolean }
   /** Outros erros (sistema, app, etc.) */
   | { kind: 'other_error'; message?: string };
+
+/** Resultado detalhado do fluxo de biometria no login */
+export type BiometricLoginOutcome = { kind: 'success' } | BiometricErrorOutcome;
+
+/** Credenciais recuperadas do cofre seguro. */
+export type StoredLoginCredentials = { username: string; password: string };
+
+/** Resultado da recuperação de credenciais protegidas por biometria. */
+export type BiometricCredentialsOutcome =
+  | { kind: 'success'; credentials: StoredLoginCredentials }
+  /** Não há credenciais guardadas (ainda não fez "lembrar", ou foram invalidadas). */
+  | { kind: 'no_credentials' }
+  | BiometricErrorOutcome;
 
 type VerifyCopy = {
   reason: string;
@@ -61,6 +76,108 @@ export class BiometricAuthService {
     });
   }
 
+  /**
+   * `true` se já existem credenciais guardadas no cofre seguro para o login rápido.
+   * Sempre `false` fora do app nativo.
+   */
+  async hasSavedLoginCredentials(): Promise<boolean> {
+    if (!Capacitor.isNativePlatform()) {
+      return false;
+    }
+    try {
+      const result = await NativeBiometric.isCredentialsSaved({ server: LOGIN_CREDENTIALS_SERVER });
+      return result.isSaved === true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Guarda documento+senha no Keychain/Keystore protegidos por biometria
+   * (`AccessControl.BIOMETRY_ANY`). No Android, gravar exige confirmação biométrica;
+   * no iOS é gravação silenciosa. Retorna `true` se gravou.
+   */
+  async saveLoginCredentials(username: string, password: string): Promise<boolean> {
+    if (!Capacitor.isNativePlatform()) {
+      return false;
+    }
+    try {
+      const availability = await NativeBiometric.isAvailable({ useFallback: false });
+      if (!availability.isAvailable) {
+        return false;
+      }
+      await NativeBiometric.setCredentials({
+        username,
+        password,
+        server: LOGIN_CREDENTIALS_SERVER,
+        accessControl: AccessControl.BIOMETRY_ANY,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Remove as credenciais guardadas (logout / "entrar com outra conta"). */
+  async clearLoginCredentials(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+    try {
+      await NativeBiometric.deleteCredentials({ server: LOGIN_CREDENTIALS_SERVER });
+    } catch {
+      // Sem credenciais para remover — ignora.
+    }
+  }
+
+  /**
+   * Recupera as credenciais guardadas exigindo biometria (a própria leitura mostra
+   * Face ID / digital — iOS no acesso ao Keychain, Android via BiometricPrompt).
+   * É o fluxo de "reabrir o app e entrar só com biometria".
+   */
+  async getLoginCredentialsWithBiometric(): Promise<BiometricCredentialsOutcome> {
+    if (!Capacitor.isNativePlatform()) {
+      return { kind: 'not_native' };
+    }
+
+    try {
+      const availability = await NativeBiometric.isAvailable({ useFallback: false });
+      if (!availability.isAvailable) {
+        return { kind: 'not_available' };
+      }
+    } catch {
+      return { kind: 'not_available' };
+    }
+
+    let saved = false;
+    try {
+      const result = await NativeBiometric.isCredentialsSaved({ server: LOGIN_CREDENTIALS_SERVER });
+      saved = result.isSaved === true;
+    } catch {
+      saved = false;
+    }
+    if (!saved) {
+      return { kind: 'no_credentials' };
+    }
+
+    try {
+      const creds = await NativeBiometric.getSecureCredentials({
+        server: LOGIN_CREDENTIALS_SERVER,
+        reason: 'Confirme a sua identidade para entrar na conta',
+        title: 'AdmSpot Finance',
+        subtitle: 'Face ID ou impressão digital',
+        description: 'Use a biometria para acessar sua conta.',
+        negativeButtonText: 'Cancelar',
+      });
+      if (!creds?.username || !creds?.password) {
+        return { kind: 'no_credentials' };
+      }
+      return { kind: 'success', credentials: { username: creds.username, password: creds.password } };
+    } catch (err: unknown) {
+      return this.mapVerifyError(err);
+    }
+  }
+
   private async runBiometricVerify(copy: VerifyCopy): Promise<BiometricLoginOutcome> {
     if (!Capacitor.isNativePlatform()) {
       return { kind: 'not_native' };
@@ -83,7 +200,7 @@ export class BiometricAuthService {
     }
   }
 
-  private mapVerifyError(err: unknown): BiometricLoginOutcome {
+  private mapVerifyError(err: unknown): BiometricErrorOutcome {
     const code = this.readPluginErrorCode(err);
     const message = this.readErrorMessage(err);
 

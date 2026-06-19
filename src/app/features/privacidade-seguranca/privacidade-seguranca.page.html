@@ -1,0 +1,62 @@
+<ion-content [fullscreen]="true" class="ps-content">
+  <div class="ps-page">
+    <header class="ps-header">
+      <button type="button" class="ps-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="ps-title">Privacidade e Segurança</h1>
+      <span class="ps-header-spacer" aria-hidden="true"></span>
+    </header>
+
+    <section class="ps-block" aria-label="Opções de segurança">
+      <div class="ps-row ps-row--toggle">
+        <div class="ps-row-text">
+          <span class="ps-row-label">Habilitar Biometria</span>
+          <p class="ps-row-hint">
+            Usar biometria para logar e realizar transação.
+          </p>
+        </div>
+        <ion-toggle
+          [checked]="biometriaEnabled"
+          [disabled]="biometriaSwitchDisabled"
+          (ionChange)="onBiometriaChange($event)"
+          aria-label="Habilitar biometria"
+        ></ion-toggle>
+      </div>
+
+      <div class="ps-row-line" role="presentation"></div>
+
+      <div class="ps-row ps-row--toggle">
+        <div class="ps-row-text">
+          <span class="ps-row-label">Habilitar Senha de Transação</span>
+          <p class="ps-row-hint" *ngIf="senhaSwitchDisabled">
+            Desative a biometria para usar a senha de transação.
+          </p>
+        </div>
+        <ion-toggle
+          [checked]="transactionPasswordEnabled"
+          [disabled]="senhaSwitchDisabled"
+          (ionChange)="onSenhaTransacaoChange($event)"
+          aria-label="Habilitar senha de transação"
+        ></ion-toggle>
+      </div>
+
+      <div class="ps-pin-wrap" *ngIf="transactionPasswordEnabled">
+        <label class="ps-pin-label" for="ps-transaction-pin">Senha de transação (4 dígitos)</label>
+        <input
+          id="ps-transaction-pin"
+          class="ps-pin-input"
+          type="password"
+          inputmode="numeric"
+          maxlength="4"
+          autocomplete="one-time-code"
+          name="transactionPin"
+          [(ngModel)]="transactionPin"
+          (ngModelChange)="onPinModelChange()"
+          aria-describedby="ps-pin-help"
+        />
+        <p id="ps-pin-help" class="ps-pin-help">Informe 4 números para confirmar a senha de transação.</p>
+      </div>
+    </section>
+  </div>
+</ion-content>

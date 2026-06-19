@@ -45,6 +45,21 @@ const routes: Routes = [
     loadChildren: () => import('./features/mais/mais.module').then((m) => m.MaisPageModule),
   },
   {
+    path: 'privacidade-seguranca',
+    loadChildren: () =>
+      import('./features/privacidade-seguranca/privacidade-seguranca.module').then(
+        (m) => m.PrivacidadeSegurancaPageModule,
+      ),
+  },
+  {
+    path: 'suporte',
+    loadChildren: () => import('./features/suporte/suporte.module').then((m) => m.SuportePageModule),
+  },
+  {
+    path: 'faq',
+    loadChildren: () => import('./features/faq/faq.module').then((m) => m.FaqPageModule),
+  },
+  {
     path: 'dados-pessoais',
     loadChildren: () =>
       import('./features/dados-pessoais/dados-pessoais.module').then((m) => m.DadosPessoaisPageModule),

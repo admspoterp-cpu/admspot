@@ -1,0 +1,102 @@
+<ion-content [fullscreen]="true" class="sup-content">
+  <div class="sup-page">
+    <header class="sup-header">
+      <button type="button" class="sup-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="sup-title">Suporte</h1>
+      <span class="sup-header-spacer" aria-hidden="true"></span>
+    </header>
+
+    <section class="sup-section" aria-label="Abrir chamado">
+      <h2 class="sup-section-title">Novo chamado</h2>
+
+      <label class="sup-field">
+        <span class="sup-label">Motivo</span>
+        <ion-select
+          class="sup-select"
+          [(ngModel)]="motivoSelecionado"
+          interface="popover"
+          placeholder="Selecione o motivo"
+          (ionChange)="onMotivoChange()"
+          aria-label="Motivo do chamado"
+        >
+          <ion-select-option *ngFor="let m of motivos" [value]="m.value">{{ m.label }}</ion-select-option>
+        </ion-select>
+      </label>
+
+      <ng-container *ngIf="motivoSelecionado">
+        <label class="sup-field">
+          <span class="sup-label">Descreva o ocorrido</span>
+          <textarea
+            class="sup-textarea"
+            [(ngModel)]="descricao"
+            name="descricaoChamado"
+            rows="5"
+            placeholder="Escreva os detalhes para que possamos ajudar."
+            aria-label="Descrição do chamado"
+          ></textarea>
+        </label>
+
+        <div class="sup-field">
+          <span class="sup-label">Anexo (opcional)</span>
+          <div class="sup-file-row">
+            <input
+              #fileAbertura
+              type="file"
+              class="sup-file-input"
+              (change)="onArquivoAbertura($event)"
+              aria-hidden="true"
+              tabindex="-1"
+            />
+            <button type="button" class="sup-file-btn tap-highlight-none" (click)="fileAbertura.click()">
+              <ion-icon name="attach-outline" aria-hidden="true"></ion-icon>
+              <span>{{ anexoNome || 'Escolher arquivo' }}</span>
+            </button>
+            <button
+              *ngIf="anexoNome"
+              type="button"
+              class="sup-file-clear tap-highlight-none"
+              (click)="limparAnexo()"
+              aria-label="Remover anexo"
+            >
+              Remover
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="sup-submit tap-highlight-none"
+          [disabled]="!podeAbrirChamado"
+          (click)="abrirChamado()"
+        >
+          <ion-spinner *ngIf="abrirChamadoBusy" name="crescent" class="sup-submit-spin"></ion-spinner>
+          <span>{{ abrirChamadoBusy ? 'Abrindo…' : 'Abrir chamado' }}</span>
+        </button>
+      </ng-container>
+    </section>
+
+    <section class="sup-section sup-section--list" aria-label="Chamados">
+      <h2 class="sup-section-title">Meus chamados</h2>
+      <p *ngIf="chamados.length === 0" class="sup-empty">Nenhum chamado ainda.</p>
+      <ul class="sup-list" *ngIf="chamados.length > 0">
+        <li *ngFor="let c of chamados">
+          <button type="button" class="sup-list-item tap-highlight-none" (click)="irParaChamado(c)">
+            <div class="sup-list-main">
+              <span class="sup-list-title">{{ tituloLista(c) }}</span>
+              <span
+                class="sup-list-badge"
+                [class.sup-list-badge--ok]="c.status === 'respondido'"
+                [class.sup-list-badge--wait]="c.status === 'aguardando'"
+              >
+                {{ statusLabel(c.status) }}
+              </span>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="sup-list-chevron" aria-hidden="true"></ion-icon>
+          </button>
+        </li>
+      </ul>
+    </section>
+  </div>
+</ion-content>

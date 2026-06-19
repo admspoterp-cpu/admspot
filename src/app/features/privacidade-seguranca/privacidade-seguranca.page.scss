@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:host {
+  display: block;
+  height: 100%;
+  --ps-border: #f3f3f3;
+  --ps-text: #3a3c4c;
+  --ps-muted: #7d7c93;
+  --ps-red: #d02e28;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+ion-content.ps-content {
+  --background: #fff;
+}
+
+.ps-page {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+.ps-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 13px 20px;
+  padding-top: max(13px, env(safe-area-inset-top, 13px));
+  border-bottom: 1px solid var(--ps-border);
+  box-sizing: border-box;
+}
+
+.ps-back {
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.ps-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22.5px;
+  color: var(--ps-text);
+  text-align: center;
+}
+
+.ps-header-spacer {
+  display: block;
+  width: 40px;
+}
+
+.ps-block {
+  padding: 8px 20px 24px;
+}
+
+.ps-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.ps-row--toggle {
+  justify-content: space-between;
+}
+
+.ps-row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ps-row-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ps-text);
+}
+
+.ps-row-hint {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ps-muted);
+}
+
+.ps-row-line {
+  height: 1px;
+  background: var(--ps-border);
+}
+
+.ps-pin-wrap {
+  padding: 8px 0 4px;
+}
+
+.ps-pin-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ps-text);
+}
+
+.ps-pin-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--ps-border);
+  border-radius: 12px;
+  background: #fafafa;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  letter-spacing: 8px;
+  color: var(--ps-text);
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: var(--ps-red);
+  }
+}
+
+.ps-pin-help {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--ps-muted);
+}

@@ -1,0 +1,77 @@
+<ion-header class="ion-no-border sup-ch-header">
+  <ion-toolbar class="sup-ch-toolbar">
+    <ion-buttons slot="start">
+      <button type="button" class="sup-ch-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+    </ion-buttons>
+    <ion-title class="sup-ch-title">{{ chamado?.motivoLabel || 'Chamado' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content #content [fullscreen]="true" class="sup-ch-content">
+  <div class="sup-ch-wrap" *ngIf="chamado">
+    <div
+      *ngFor="let m of mensagensOrdenadas"
+      class="sup-ch-msg"
+      [class.sup-ch-msg--user]="m.from === 'user'"
+      [class.sup-ch-msg--support]="m.from === 'support'"
+    >
+      <div class="sup-ch-bubble">
+        <p class="sup-ch-text">{{ m.text }}</p>
+        <p *ngIf="m.anexoNome" class="sup-ch-attach">
+          <ion-icon name="document-attach-outline" aria-hidden="true"></ion-icon>
+          {{ m.anexoNome }}
+        </p>
+        <time class="sup-ch-time">{{ dataHoraCurta(m.createdAt) }}</time>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer class="ion-no-border sup-ch-footer" *ngIf="chamado">
+  <ion-toolbar class="sup-ch-foot-toolbar">
+    <div class="sup-ch-composer">
+      <input
+        #fileResposta
+        type="file"
+        class="sup-ch-file-input"
+        (change)="onArquivoResposta($event)"
+        aria-hidden="true"
+        tabindex="-1"
+      />
+      <button
+        type="button"
+        class="sup-ch-icon-btn tap-highlight-none"
+        (click)="fileResposta.click()"
+        aria-label="Anexar arquivo"
+      >
+        <ion-icon name="attach-outline"></ion-icon>
+      </button>
+      <textarea
+        class="sup-ch-input"
+        [(ngModel)]="respostaTexto"
+        name="respostaChamado"
+        rows="2"
+        placeholder="Digite sua mensagem…"
+        aria-label="Mensagem"
+      ></textarea>
+      <button
+        type="button"
+        class="sup-ch-send tap-highlight-none"
+        [disabled]="!podeEnviar"
+        (click)="enviarResposta()"
+        aria-label="Enviar"
+      >
+        <ion-spinner *ngIf="enviando" name="crescent" class="sup-ch-send-spin"></ion-spinner>
+        <ion-icon *ngIf="!enviando" name="send-outline"></ion-icon>
+      </button>
+    </div>
+    <p *ngIf="anexoRespostaNome" class="sup-ch-foot-file">
+      {{ anexoRespostaNome }}
+      <button type="button" class="sup-ch-foot-clear tap-highlight-none" (click)="limparAnexoResposta()">
+        ✕
+      </button>
+    </p>
+  </ion-toolbar>
+</ion-footer>

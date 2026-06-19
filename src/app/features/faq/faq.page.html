@@ -1,0 +1,88 @@
+<ion-content [fullscreen]="true" class="faq-content">
+  <div class="faq-page">
+    <header class="faq-header">
+      <button type="button" class="faq-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
+        <img [src]="caretLeftSrc" alt="" />
+      </button>
+      <h1 class="faq-title">F.A.Q</h1>
+      <span class="faq-header-spacer" aria-hidden="true"></span>
+    </header>
+
+    <p class="faq-intro">
+      Aqui você encontra respostas rápidas para as principais dúvidas sobre o uso da plataforma,
+      funcionalidades do sistema e recursos financeiros disponíveis.
+    </p>
+
+    <ion-accordion-group class="faq-accordion-group" [multiple]="false">
+      <ion-accordion value="o-que-admspot" class="faq-acc">
+        <ion-item slot="header" class="faq-acc-header" lines="none">
+          <ion-label class="faq-acc-title">O que é a AdmSpot?</ion-label>
+        </ion-item>
+        <div class="faq-acc-body ion-padding" slot="content">
+          <p>
+            A AdmSpot é uma plataforma completa de gestão empresarial (ERP) integrada com serviços
+            financeiros. Com ela, você controla vendas, estoque, financeiro e cobranças em um único
+            lugar.
+          </p>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="app-mobile" class="faq-acc">
+        <ion-item slot="header" class="faq-acc-header" lines="none">
+          <ion-label class="faq-acc-title">O que é o app mobile AdmSpot?</ion-label>
+        </ion-item>
+        <div class="faq-acc-body ion-padding" slot="content">
+          <p>
+            É o aplicativo financeiro do gestor, com a conta oficial por onde você pode realizar
+            transações e pagamentos, receber valores, fazer cobranças e gerenciar a receita da sua
+            empresa — tudo por aqui.
+          </p>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="para-quem" class="faq-acc">
+        <ion-item slot="header" class="faq-acc-header" lines="none">
+          <ion-label class="faq-acc-title">Para quem é a AdmSpot?</ion-label>
+        </ion-item>
+        <div class="faq-acc-body ion-padding" slot="content">
+          <p>A AdmSpot foi feita para:</p>
+          <ul class="faq-list">
+            <li>Comércios (mercados, lojas, auto center, etc.)</li>
+            <li>Indústrias</li>
+            <li>Prestadores de serviço</li>
+            <li>Franquias e redes</li>
+            <li>Empresas que precisam automatizar cobranças e pagamentos</li>
+          </ul>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="formas-cobranca" class="faq-acc">
+        <ion-item slot="header" class="faq-acc-header" lines="none">
+          <ion-label class="faq-acc-title">Quais formas de cobrança posso gerar?</ion-label>
+        </ion-item>
+        <div class="faq-acc-body ion-padding" slot="content">
+          <p>Você pode gerar:</p>
+          <ul class="faq-list">
+            <li>PIX (QR Code ou chave)</li>
+            <li>Boleto bancário</li>
+            <li>Cartão de crédito (quando habilitado)</li>
+          </ul>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="automatizar" class="faq-acc">
+        <ion-item slot="header" class="faq-acc-header" lines="none">
+          <ion-label class="faq-acc-title">Posso automatizar cobranças?</ion-label>
+        </ion-item>
+        <div class="faq-acc-body ion-padding" slot="content">
+          <p>Sim. Você pode:</p>
+          <ul class="faq-list">
+            <li>Definir vencimentos automáticos</li>
+            <li>Aplicar juros e multa</li>
+            <li>Criar descontos por antecipação</li>
+          </ul>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  </div>
+</ion-content>

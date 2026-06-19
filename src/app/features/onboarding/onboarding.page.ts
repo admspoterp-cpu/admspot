@@ -1,5 +1,8 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { NavController } from '@ionic/angular';
+
+import { RememberedLoginService } from '../../services/remembered-login.service';
 
 @Component({
   selector: 'app-onboarding',
@@ -9,6 +12,7 @@ import { NavController } from '@ionic/angular';
 })
 export class OnboardingPage implements OnInit, OnDestroy {
   private readonly navController = inject(NavController);
+  private readonly remembered = inject(RememberedLoginService);
   private slideIntervalId?: ReturnType<typeof setInterval>;
 
   /** Cópias locais em assets/onboarding/slides */
@@ -24,6 +28,13 @@ export class OnboardingPage implements OnInit, OnDestroy {
   private readonly slideDurationMs = 9000;
 
   ngOnInit(): void {
+    // Usuário lembrado (app nativo): vai direto ao login para entrar por biometria.
+    // O /login confirma as credenciais no cofre e, se faltarem, mostra o formulário.
+    if (Capacitor.isNativePlatform() && this.remembered.has()) {
+      void this.navController.navigateRoot('/login');
+      return;
+    }
+
     this.slideIntervalId = window.setInterval(() => {
       this.activeSlideIndex = (this.activeSlideIndex + 1) % this.slides.length;
     }, this.slideDurationMs);

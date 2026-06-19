@@ -10,55 +10,14 @@
       <ion-icon name="chevron-back-outline" class="back-icon"></ion-icon>
     </ion-button>
 
-    <h1>Acessar minha conta</h1>
-
-    <form class="form">
-      <div class="field">
-        <label for="documento">Documento de acesso</label>
-        <ion-input
-          id="documento"
-          name="loginUser"
-          type="text"
-          [(ngModel)]="loginUser"
-          fill="clear"
-          class="line-input"
-        ></ion-input>
+    <!-- Usuário lembrado: entra só com biometria -->
+    <div class="welcome-back" *ngIf="showWelcome">
+      <div class="welcome-avatar">
+        <ion-icon name="person-circle-outline"></ion-icon>
       </div>
-
-      <div class="field">
-        <label for="senha">Senha</label>
-        <div class="password-row">
-          <ion-input
-            id="senha"
-            [type]="showPassword ? 'text' : 'password'"
-            name="loginPassword"
-            [(ngModel)]="loginPassword"
-            placeholder="Digite sua senha"
-            fill="clear"
-            class="line-input"
-          ></ion-input>
-          <button
-            type="button"
-            class="password-toggle"
-            (click)="togglePasswordVisibility()"
-            [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
-          >
-            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-          </button>
-        </div>
-      </div>
-
-      <div class="meta-row">
-        <label class="remember">
-          <ion-checkbox labelPlacement="end"></ion-checkbox>
-          <span>Me Lembrar</span>
-        </label>
-        <button type="button" class="forgot">Esqueci minha senha</button>
-      </div>
-
-      <ion-button expand="block" class="access-btn" type="button" (click)="onAccess()">
-        Acessar
-      </ion-button>
+      <p class="welcome-hello">Olá,</p>
+      <h1 class="welcome-name">{{ welcomeFirstName || 'bem-vindo de volta' }}</h1>
+      <p class="welcome-doc" *ngIf="rememberedDocMasked">{{ rememberedDocMasked }}</p>
 
       <div
         class="login-bio-feedback"
@@ -67,9 +26,93 @@
       >
         <ion-icon name="finger-print-outline" class="login-bio-icon" aria-hidden="true"></ion-icon>
         <p class="login-biometric-hint">
-          O acesso só continua após confirmar com Face ID ou digital no dispositivo.
+          Confirme com Face ID ou digital para entrar na sua conta.
         </p>
       </div>
-    </form>
+
+      <ion-button
+        expand="block"
+        class="access-btn"
+        type="button"
+        [disabled]="quickLoginInFlight"
+        (click)="loginWithBiometric()"
+      >
+        <ion-icon name="finger-print-outline" slot="start"></ion-icon>
+        Entrar com biometria
+      </ion-button>
+
+      <button type="button" class="link-btn" (click)="useAnotherAccount()">
+        Entrar com outra conta
+      </button>
+    </div>
+
+    <!-- Login manual -->
+    <ng-container *ngIf="!showWelcome">
+      <h1>Acessar minha conta</h1>
+
+      <form class="form">
+        <div class="field">
+          <label for="documento">Documento de acesso</label>
+          <ion-input
+            id="documento"
+            name="loginUser"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="Informe seu CPF/CNPJ"
+            [(ngModel)]="loginUser"
+            fill="clear"
+            class="line-input"
+          ></ion-input>
+        </div>
+
+        <div class="field">
+          <label for="senha">Senha</label>
+          <div class="password-row">
+            <ion-input
+              id="senha"
+              [type]="showPassword ? 'text' : 'password'"
+              name="loginPassword"
+              autocomplete="off"
+              [(ngModel)]="loginPassword"
+              placeholder="Digite sua senha"
+              fill="clear"
+              class="line-input"
+            ></ion-input>
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+            >
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <label class="remember">
+            <ion-checkbox name="rememberMe" labelPlacement="end" [(ngModel)]="rememberMe"></ion-checkbox>
+            <span>Me Lembrar</span>
+          </label>
+          <button type="button" class="forgot">Esqueci minha senha</button>
+        </div>
+
+        <ion-button expand="block" class="access-btn" type="button" (click)="onAccess()">
+          Acessar
+        </ion-button>
+
+        <div
+          class="login-bio-feedback"
+          [class.login-bio-feedback--error]="biometricFeedbackError"
+          aria-live="polite"
+        >
+          <ion-icon name="finger-print-outline" class="login-bio-icon" aria-hidden="true"></ion-icon>
+          <p class="login-biometric-hint">
+            O acesso só continua após confirmar com Face ID ou digital no dispositivo.
+          </p>
+        </div>
+      </form>
+    </ng-container>
   </div>
 </ion-content>

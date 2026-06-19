@@ -62,7 +62,7 @@
           </div>
         </section>
 
-        <h2 class="dp-section-title">Dados editáveis</h2>
+        <h2 class="dp-section-title">Dados Gerais</h2>
 
         <div class="dp-row-2">
           <label class="dp-field-block dp-field-block--half">
@@ -255,7 +255,305 @@
       </div>
 
       <div *ngIf="selectedTab === 'minha-wallet'" class="dp-body dp-body--wallet">
-        <p class="dp-empty">Em breve você poderá gerenciar sua Wallet aqui.</p>
+        <div *ngIf="walletLoading" class="dp-center-msg">Carregando wallet…</div>
+        <p *ngIf="!walletLoading && walletLoadError" class="dp-error">{{ walletLoadError }}</p>
+
+        <ng-container *ngIf="!walletLoading && !walletLoadError && lastWallet !== null">
+          <div class="dp-edit-row">
+            <span class="dp-edit-label">Editar dados</span>
+            <ion-toggle
+              [checked]="walletEditMode"
+              (ionChange)="onWalletEditToggle($event)"
+              aria-label="Editar dados da wallet"
+            ></ion-toggle>
+          </div>
+
+          <section class="dp-photo-block" aria-label="Logo Workspot">
+            <div class="dp-photo-wrap dp-photo-wrap--rounded">
+              <img [src]="displayWorkspotSrc" alt="" class="dp-photo-img" />
+            </div>
+            <input
+              #workspotFile
+              type="file"
+              class="dp-photo-input"
+              accept="image/jpeg,image/png"
+              [disabled]="!walletEditMode"
+              (change)="onWorkspotLogoSelected($event)"
+              aria-hidden="true"
+              tabindex="-1"
+            />
+            <div *ngIf="walletEditMode" class="dp-photo-actions">
+              <button type="button" class="dp-photo-btn tap-highlight-none" (click)="workspotFile.click()">
+                {{ wNewWorkspotPreview ? 'Trocar logo' : 'Carregar logo' }}
+              </button>
+              <button
+                *ngIf="wNewWorkspotPreview"
+                type="button"
+                class="dp-photo-btn dp-photo-btn--ghost tap-highlight-none"
+                (click)="clearWorkspotPreview(workspotFile)"
+              >
+                Remover nova imagem
+              </button>
+            </div>
+          </section>
+
+          <h2 class="dp-section-title">Dados da wallet</h2>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Nome da wallet</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              name="wWalletName"
+              [(ngModel)]="wWalletName"
+              [readonly]="!walletEditMode"
+              autocomplete="organization"
+              aria-label="Nome da wallet"
+            />
+          </label>
+
+          <label *ngIf="showContaDigital" class="dp-field-block">
+            <span class="dp-field-label">Conta digital</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              [value]="contaDigitalLabelPt"
+              readonly
+              tabindex="-1"
+              aria-label="Status da conta digital"
+            />
+          </label>
+
+          <div class="dp-field-block dp-field-block--token">
+            <span class="dp-field-label">Token da wallet</span>
+            <p class="dp-token-hint">Toque no campo abaixo para copiar o token.</p>
+            <button
+              type="button"
+              class="dp-token-copy tap-highlight-none"
+              [class.dp-token-copy--done]="walletTokenCopied"
+              (click)="copyWalletToken()"
+              aria-label="Copiar token da wallet"
+            >
+              <span class="dp-token-value">{{ wWalletTokenDisplay || '—' }}</span>
+              <ion-icon name="copy-outline" class="dp-token-icon" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">E-mail</span>
+            <input
+              class="dp-text-input"
+              type="email"
+              name="wEmail"
+              [(ngModel)]="wEmail"
+              [readonly]="!walletEditMode"
+              autocomplete="email"
+              aria-label="E-mail da wallet"
+            />
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Contato</span>
+            <input
+              class="dp-text-input"
+              type="tel"
+              name="wContact"
+              [(ngModel)]="wContact"
+              [readonly]="!walletEditMode"
+              autocomplete="tel"
+              aria-label="Contato"
+            />
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Atividade (descrição curta)</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              name="wAtividade"
+              [(ngModel)]="wAtividade"
+              [readonly]="!walletEditMode"
+              aria-label="Atividade"
+            />
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Tipo de tributação</span>
+            <select
+              class="dp-text-input dp-select"
+              name="wTipoTributacao"
+              [(ngModel)]="wTipoTributacao"
+              [disabled]="!walletEditMode"
+              aria-label="Tipo de tributação"
+            >
+              <option *ngFor="let o of tipoTributacaoOptions" [value]="o.value">{{ o.label }}</option>
+            </select>
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Regime / tipo</span>
+            <select
+              class="dp-text-input dp-select"
+              name="wType"
+              [(ngModel)]="wType"
+              [disabled]="!walletEditMode"
+              aria-label="Regime tributário"
+            >
+              <option *ngFor="let o of walletRegimeOptions" [value]="o.value">{{ o.label }}</option>
+            </select>
+          </label>
+
+          <div class="dp-row-2">
+            <label class="dp-field-block dp-field-block--half">
+              <span class="dp-field-label">Meta de gastos (R$)</span>
+              <input
+                class="dp-text-input"
+                type="text"
+                name="wSpendingCap"
+                [(ngModel)]="wSpendingCap"
+                appBrlCurrency
+                [readonly]="!walletEditMode"
+                inputmode="numeric"
+                autocomplete="off"
+                aria-label="Meta de gastos em reais"
+              />
+            </label>
+            <label class="dp-field-block dp-field-block--half">
+              <span class="dp-field-label">Meta de receita (R$)</span>
+              <input
+                class="dp-text-input"
+                type="text"
+                name="wEarningGoal"
+                [(ngModel)]="wEarningGoal"
+                appBrlCurrency
+                [readonly]="!walletEditMode"
+                inputmode="numeric"
+                autocomplete="off"
+                aria-label="Meta de receita em reais"
+              />
+            </label>
+          </div>
+
+          <div class="dp-row-2">
+            <label class="dp-field-block dp-field-block--half">
+              <span class="dp-field-label">CEP</span>
+              <input
+                class="dp-text-input"
+                type="text"
+                name="wZipcode"
+                inputmode="numeric"
+                [readonly]="!walletEditMode"
+                [value]="wZipcodeDisplay"
+                (input)="onWalletCepInput($event)"
+                (blur)="onWalletCepBlur()"
+                maxlength="9"
+                aria-label="CEP"
+              />
+              <span *ngIf="walletCepLookupBusy" class="dp-cep-hint">Consultando CEP…</span>
+            </label>
+            <label class="dp-field-block dp-field-block--half">
+              <span class="dp-field-label">Número</span>
+              <input
+                class="dp-text-input"
+                type="text"
+                name="wNumber"
+                [(ngModel)]="wNumber"
+                [readonly]="!walletEditMode"
+                autocomplete="street-address"
+                aria-label="Número do endereço"
+              />
+            </label>
+          </div>
+
+          <p class="dp-field-hint">Logradouro, bairro, país, UF e cidade são preenchidos pelo CEP (somente leitura).</p>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Rua / logradouro</span>
+            <input class="dp-text-input" type="text" [value]="wStreet" readonly tabindex="-1" aria-label="Rua" />
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Bairro</span>
+            <input class="dp-text-input" type="text" [value]="wDistrict" readonly tabindex="-1" aria-label="Bairro" />
+          </label>
+
+          <div class="dp-row-2">
+            <label class="dp-field-block dp-field-block--half">
+              <span class="dp-field-label">País</span>
+              <input class="dp-text-input" type="text" [value]="wCountry" readonly tabindex="-1" aria-label="País" />
+            </label>
+            <label class="dp-field-block dp-field-block--half">
+              <span class="dp-field-label">UF</span>
+              <input class="dp-text-input" type="text" [value]="wState" readonly tabindex="-1" aria-label="UF" />
+            </label>
+          </div>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Cidade</span>
+            <input class="dp-text-input" type="text" [value]="wCity" readonly tabindex="-1" aria-label="Cidade" />
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Documento (atualiza também o CNPJ enviado)</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              name="wDocument"
+              [readonly]="!walletEditMode"
+              [value]="wDocumentDisplay"
+              (input)="onWalletDocumentInput($event)"
+              inputmode="numeric"
+              aria-label="Documento"
+            />
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Nome fantasia</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              name="wNomeFantasia"
+              [(ngModel)]="wNomeFantasia"
+              [readonly]="!walletEditMode"
+              aria-label="Nome fantasia"
+            />
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Gestor (dados pessoais)</span>
+            <input
+              class="dp-text-input"
+              type="text"
+              [value]="gestorNomeFromUser"
+              readonly
+              tabindex="-1"
+              aria-label="Nome do gestor"
+            />
+          </label>
+
+          <label class="dp-field-block">
+            <span class="dp-field-label">Data de registro da empresa</span>
+            <input
+              class="dp-text-input"
+              type="date"
+              name="wCompanyRegistroDate"
+              [(ngModel)]="wCompanyRegistroDate"
+              [readonly]="!walletEditMode"
+              aria-label="Data de registro da empresa"
+            />
+          </label>
+
+          <button
+            *ngIf="walletEditMode"
+            type="button"
+            class="dp-submit tap-highlight-none"
+            [disabled]="walletSaveBusy"
+            (click)="onWalletSave()"
+          >
+            <ion-spinner *ngIf="walletSaveBusy" class="dp-submit-spinner" name="crescent"></ion-spinner>
+            <span>{{ walletSaveBusy ? 'Salvando…' : 'Salvar alterações da wallet' }}</span>
+          </button>
+        </ng-container>
       </div>
     </ng-container>
   </div>

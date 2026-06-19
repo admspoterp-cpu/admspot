@@ -6,9 +6,10 @@ import { IonicModule } from '@ionic/angular';
 
 import { DadosPessoaisPageRoutingModule } from './dados-pessoais-routing.module';
 import { DadosPessoaisPage } from './dados-pessoais.page';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, DadosPessoaisPageRoutingModule],
+  imports: [CommonModule, FormsModule, IonicModule, SharedModule, DadosPessoaisPageRoutingModule],
   declarations: [DadosPessoaisPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
