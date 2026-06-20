@@ -39,19 +39,22 @@ export class PixAddressKeysService {
     keyType: PixAddressKeyType,
   ): Promise<PixAddressKeysResponse | null> {
     const url = getGestorApiUrl(PIX_ADDRESS_KEYS_PATH);
-    const res = await CapacitorHttp.post({
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-        Cookie: `PHPSESSID=${PHPSESSID}`,
-      },
-      data: { source_token: sourceToken, type: keyType },
-    });
-    if (res.status < 200 || res.status >= 300) {
+    try {
+      const res = await CapacitorHttp.post({
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+          Cookie: `PHPSESSID=${PHPSESSID}`,
+        },
+        data: { source_token: sourceToken, type: keyType },
+      });
+      // O backend devolve {success:false, message} também em 4xx/5xx (ex.: 422 com o erro da
+      // Asaas). Parseia o corpo mesmo fora de 2xx para que o motivo real chegue à UI.
+      return this.parseBody(res.data);
+    } catch {
       return null;
     }
-    return this.parseBody(res.data);
   }
 
   private async createWeb(
@@ -60,18 +63,21 @@ export class PixAddressKeysService {
     keyType: PixAddressKeyType,
   ): Promise<PixAddressKeysResponse | null> {
     const url = getGestorApiUrl(PIX_ADDRESS_KEYS_PATH);
-    const res = await fetch(url, {
-      method: 'POST',
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({ source_token: sourceToken, type: keyType }),
-    });
-    if (!res.ok) {
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ source_token: sourceToken, type: keyType }),
+      });
+    } catch {
       return null;
     }
+    // Mesmo em !res.ok o corpo traz {success:false, message}; parseia para mostrar o motivo real.
     return (await res.json().catch(() => null)) as PixAddressKeysResponse | null;
   }
 
