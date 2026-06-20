@@ -15,6 +15,12 @@ export type WalletAccountDigitalAccount = {
   account_number_accountDigit?: string;
 };
 
+/** Chave PIX com o id da Asaas (`pix_key_id`), necessário para excluir a chave. */
+export type WalletAccountPixKey = {
+  pix_key_id: string;
+  pix_key: string;
+};
+
 export type WalletAccountResponse = {
   success: boolean;
   message?: string;
@@ -22,6 +28,8 @@ export type WalletAccountResponse = {
   wallet_token?: string;
   digital_account?: WalletAccountDigitalAccount;
   pix_keys?: string[];
+  /** Lista detalhada (com `pix_key_id`) — usada para exclusão. Pode faltar em backends antigos. */
+  pix_keys_detailed?: WalletAccountPixKey[];
   latest_payload?: string;
   latest_encoded_image?: string;
 };

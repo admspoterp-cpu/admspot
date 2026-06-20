@@ -1,10 +1,11 @@
-<!-- QR e chaves PIX via GET/POST wallet-accout -->
-<ion-content [fullscreen]="true" class="depositar-content" [forceOverscroll]="false">
+<!-- Depositar: QR fixo no topo · chaves PIX scrolláveis no centro · CTA fixo no footer -->
+<ion-content [fullscreen]="true" [scrollY]="false" class="depositar-content" [forceOverscroll]="false">
   <div class="dep-page">
     <button type="button" class="dep-back tap-highlight-none" (click)="goBack()" aria-label="Voltar">
       <ion-icon name="chevron-back-outline"></ion-icon>
     </button>
 
+    <!-- TOPO FIXO -->
     <header class="dep-header">
       <div class="dep-qr-wrap" aria-hidden="true">
         <ng-container *ngIf="loading">
@@ -33,42 +34,60 @@
       </p>
     </header>
 
-    <main class="dep-sheet">
-      <p class="dep-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
-
-      <h2 class="dep-sheet-title">Suas chaves PIX</h2>
-
-      <div
-        class="dep-sheet-scroll"
-        role="region"
-        aria-label="Lista de chaves PIX"
-        *ngIf="pixKeys.length > 0"
-      >
-        <div class="dep-key-block" *ngFor="let key of pixKeys; let i = index">
-          <p class="dep-key-label">Chave PIX #{{ i + 1 }}</p>
-          <button type="button" class="dep-key-row tap-highlight-none" (click)="copyKey(key)">
-            <span class="dep-key-value">{{ key }}</span>
-            <img
-              class="dep-copy-icon"
-              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/PpDwGQ71w5RZv155vdRkzs78Kdu1/Frame427319583-1b354426-a2af-4963-b399-c33ebb04539c.svg"
-              alt=""
-            />
-          </button>
-        </div>
+    <!-- SHEET: cabeçalho fixo · chaves scrolláveis · footer fixo -->
+    <section class="dep-sheet">
+      <div class="dep-sheet-head">
+        <h2 class="dep-sheet-title">Suas chaves PIX</h2>
       </div>
 
-      <p class="dep-empty-keys" *ngIf="!loading && !errorMessage && pixKeys.length === 0">
-        Nenhuma chave PIX cadastrada para esta conta.
-      </p>
+      <div class="dep-sheet-scroll" role="region" aria-label="Lista de chaves PIX">
+        <p class="dep-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
 
+        <div class="dep-key-block" *ngFor="let key of pixKeys; let i = index">
+          <p class="dep-key-label">Chave PIX #{{ i + 1 }}</p>
+          <div class="dep-key-row">
+            <button
+              type="button"
+              class="dep-key-copy tap-highlight-none"
+              (click)="copyKey(key.value)"
+              [attr.aria-label]="'Copiar chave PIX ' + (i + 1)"
+            >
+              <span class="dep-key-value">{{ key.value }}</span>
+              <ion-icon name="copy-outline" class="dep-key-copy-icon" aria-hidden="true"></ion-icon>
+            </button>
+
+            <button
+              type="button"
+              class="dep-key-delete tap-highlight-none"
+              *ngIf="key.id"
+              (click)="onDeleteKey(key)"
+              [disabled]="deletingKeyId === key.id || creatingPixKey"
+              [attr.aria-label]="'Remover chave PIX ' + (i + 1)"
+            >
+              <ion-spinner *ngIf="deletingKeyId === key.id" name="crescent" class="dep-key-delete-spinner"></ion-spinner>
+              <ion-icon *ngIf="deletingKeyId !== key.id" name="trash-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="dep-empty-keys" *ngIf="!loading && !errorMessage && pixKeys.length === 0">
+          <ion-icon name="key-outline" class="dep-empty-icon" aria-hidden="true"></ion-icon>
+          <p>Nenhuma chave PIX cadastrada para esta conta.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA fixo: irmão de .dep-sheet, nunca é cortado mesmo em telas curtas -->
+    <footer class="dep-footer">
       <button
         type="button"
         class="dep-primary-btn tap-highlight-none"
-        [disabled]="creatingPixKey || loading"
+        [disabled]="creatingPixKey || loading || !!deletingKeyId"
         (click)="onCreateNewKey()"
       >
+        <ion-spinner *ngIf="creatingPixKey" name="crescent" class="dep-btn-spinner"></ion-spinner>
         <span>{{ creatingPixKey ? 'Criando…' : 'Criar nova chave PIX' }}</span>
       </button>
-    </main>
+    </footer>
   </div>
 </ion-content>

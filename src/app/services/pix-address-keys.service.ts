@@ -4,6 +4,7 @@ import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { getGestorApiUrl } from './api-base-url';
 
 const PIX_ADDRESS_KEYS_PATH = '/api/central/v1/pix/addressKeys';
+const PIX_ADDRESS_KEYS_DELETE_PATH = '/api/central/v1/pix/addressKeys/delete';
 
 const PHPSESSID = 'ba832f1772c56eb7fb76a591cf310f5f';
 
@@ -78,6 +79,67 @@ export class PixAddressKeysService {
       return null;
     }
     // Mesmo em !res.ok o corpo traz {success:false, message}; parseia para mostrar o motivo real.
+    return (await res.json().catch(() => null)) as PixAddressKeysResponse | null;
+  }
+
+  /**
+   * Exclui uma chave PIX da conta digital (`POST /pix/addressKeys/delete`).
+   * `sourceToken` = `asaas_api_token` da carteira padrão; `pixKeyId` = id da chave na Asaas.
+   */
+  async deleteAddressKey(
+    accessToken: string,
+    sourceToken: string,
+    pixKeyId: string,
+  ): Promise<PixAddressKeysResponse | null> {
+    if (Capacitor.isNativePlatform()) {
+      return this.deleteNative(accessToken, sourceToken, pixKeyId);
+    }
+    return this.deleteWeb(accessToken, sourceToken, pixKeyId);
+  }
+
+  private async deleteNative(
+    accessToken: string,
+    sourceToken: string,
+    pixKeyId: string,
+  ): Promise<PixAddressKeysResponse | null> {
+    const url = getGestorApiUrl(PIX_ADDRESS_KEYS_DELETE_PATH);
+    try {
+      const res = await CapacitorHttp.post({
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+          Cookie: `PHPSESSID=${PHPSESSID}`,
+        },
+        data: { source_token: sourceToken, pix_key_id: pixKeyId },
+      });
+      // Parseia o corpo mesmo em 4xx/5xx para propagar a mensagem real da API.
+      return this.parseBody(res.data);
+    } catch {
+      return null;
+    }
+  }
+
+  private async deleteWeb(
+    accessToken: string,
+    sourceToken: string,
+    pixKeyId: string,
+  ): Promise<PixAddressKeysResponse | null> {
+    const url = getGestorApiUrl(PIX_ADDRESS_KEYS_DELETE_PATH);
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ source_token: sourceToken, pix_key_id: pixKeyId }),
+      });
+    } catch {
+      return null;
+    }
     return (await res.json().catch(() => null)) as PixAddressKeysResponse | null;
   }
 

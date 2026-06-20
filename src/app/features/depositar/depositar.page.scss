@@ -1,4 +1,4 @@
-/* depositar.html — gradiente navy, cartão QR, bottom sheet branco */
+/* depositar — gradiente navy · cartão QR fixo no topo · sheet branco com chaves scrolláveis e CTA fixo */
 
 :host {
   --dep-dark-navy: #162841;
@@ -6,16 +6,23 @@
   --dep-pix-gray: #7d7c93;
   --dep-pix-text: #3a3c4c;
   --dep-pix-code: #373f46;
+  --dep-blue: #235697;
+  --dep-danger: #dc2626;
 }
 
 ion-content.depositar-content {
   --background: transparent;
 }
 
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .dep-page {
-  min-height: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background: linear-gradient(to left, var(--dep-dark-navy), var(--dep-light-navy));
   font-family: 'Inter', sans-serif;
   position: relative;
@@ -25,7 +32,7 @@ ion-content.depositar-content {
   position: absolute;
   top: max(12px, env(safe-area-inset-top, 12px));
   left: 12px;
-  z-index: 4;
+  z-index: 5;
   width: 40px;
   height: 40px;
   border: 0;
@@ -43,43 +50,28 @@ ion-content.depositar-content {
   font-size: 24px;
 }
 
+/* ───── Topo fixo: QR + título + conta ───── */
 .dep-header {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(48px + env(safe-area-inset-top, 0)) 24px 40px;
+  padding: calc(40px + env(safe-area-inset-top, 0)) 24px 24px;
   text-align: center;
 }
 
 .dep-qr-wrap {
   position: relative;
-  width: min(280px, 78vw);
+  width: min(260px, 66vw);
   aspect-ratio: 1;
-  max-height: 280px;
   background: #fff;
-  border-radius: 40px;
+  border-radius: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
-  margin-bottom: 32px;
+  padding: 26px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-}
-
-.dep-qr-frame {
-  position: absolute;
-  width: 85%;
-  height: 85%;
-  object-fit: contain;
-}
-
-.dep-qr-inner {
-  position: absolute;
-  width: 70%;
-  height: 70%;
-  object-fit: contain;
 }
 
 .dep-qr-image {
@@ -91,7 +83,7 @@ ion-content.depositar-content {
 }
 
 .dep-qr-spinner {
-  --color: #235697;
+  --color: var(--dep-blue);
   width: 48px;
   height: 48px;
 }
@@ -119,8 +111,17 @@ ion-content.depositar-content {
   text-align: center;
 }
 
+.dep-title {
+  margin: 20px 0 0;
+  max-width: 250px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
 .dep-account-hint {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   max-width: 280px;
   color: rgba(255, 255, 255, 0.88);
   font-size: 13px;
@@ -135,48 +136,28 @@ ion-content.depositar-content {
   font-size: 12px;
 }
 
-.dep-error {
-  margin: 0 0 12px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #fef2f2;
-  color: #b91c1c;
-  font-size: 14px;
-}
-
-.dep-empty-keys {
-  margin: 0 0 8px;
-  font-size: 14px;
-  color: var(--dep-pix-gray);
-}
-
-.dep-title {
-  margin: 0;
-  max-width: 250px;
-  color: #fff;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.3;
-}
-
+/* ───── Sheet branco: cabeçalho fixo · scroll · footer fixo ───── */
 .dep-sheet {
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: min(65vh, 560px);
   background: #fff;
-  border-radius: 32px 32px 0 0;
-  padding: 32px 20px calc(40px + env(safe-area-inset-bottom, 0));
+  border-radius: 28px 28px 0 0;
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
   box-sizing: border-box;
 }
 
-.dep-sheet-title {
+.dep-sheet-head {
   flex-shrink: 0;
-  margin: 0 0 16px;
+  padding: 22px 22px 12px;
+}
+
+.dep-sheet-title {
+  margin: 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--dep-pix-text);
   letter-spacing: 0.02em;
 }
@@ -184,43 +165,65 @@ ion-content.depositar-content {
 .dep-sheet-scroll {
   flex: 1 1 auto;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
+  padding: 0 22px 8px;
 }
 
+.dep-footer {
+  flex-shrink: 0;
+  padding: 12px 20px calc(20px + env(safe-area-inset-bottom, 0));
+  border-top: 1px solid #eef2f6;
+  background: #fff;
+}
+
+/* ───── Chaves ───── */
 .dep-key-block {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.dep-key-block:first-child {
+  margin-top: 4px;
 }
 
 .dep-key-block:last-child {
-  margin-bottom: 0;
+  margin-bottom: 4px;
 }
 
 .dep-key-label {
   margin: 0 0 6px 4px;
   font-size: 11px;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--dep-pix-gray);
 }
 
 .dep-key-row {
-  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dep-key-copy {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   padding: 14px 16px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #f1f5f9;
   text-align: left;
   font-family: inherit;
   transition: background 0.15s ease;
 }
 
-.dep-key-row:active {
+.dep-key-copy:active {
   background: #e2e8f0;
 }
 
@@ -231,26 +234,90 @@ ion-content.depositar-content {
   font-weight: 500;
   color: var(--dep-pix-code);
   word-break: break-all;
-  text-align: left;
   line-height: 1.35;
 }
 
-.dep-copy-icon {
-  width: 20px;
-  height: 20px;
+.dep-key-copy-icon {
   flex-shrink: 0;
+  font-size: 18px;
+  color: var(--dep-blue);
 }
 
-.dep-primary-btn {
+.dep-key-delete {
   flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 14px;
+  background: #fef2f2;
+  color: var(--dep-danger);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.dep-key-delete:active {
+  background: #fee2e2;
+}
+
+.dep-key-delete:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.dep-key-delete ion-icon {
+  font-size: 20px;
+}
+
+.dep-key-delete-spinner {
+  width: 20px;
+  height: 20px;
+  --color: var(--dep-danger);
+}
+
+/* ───── Estados auxiliares ───── */
+.dep-error {
+  margin: 0 0 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.dep-empty-keys {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 16px;
+  color: var(--dep-pix-gray);
+  text-align: center;
+}
+
+.dep-empty-keys p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.dep-empty-icon {
+  font-size: 36px;
+  color: #cbd5e1;
+}
+
+/* ───── CTA fixo ───── */
+.dep-primary-btn {
   width: 100%;
   height: 54px;
-  margin-top: 24px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   background: linear-gradient(to right, #114280 0%, #235697 100%);
   box-shadow: 0 8px 24px rgba(17, 66, 128, 0.35);
   font-family: inherit;
@@ -269,5 +336,34 @@ ion-content.depositar-content {
 .dep-primary-btn span {
   color: #fff;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.dep-btn-spinner {
+  width: 20px;
+  height: 20px;
+  --color: #fff;
+}
+
+/* Telas baixas (aparelhos menores) — encolhe o topo para o CTA caber sempre, sem cortar. */
+@media (max-height: 640px) {
+  .dep-header {
+    padding-top: calc(16px + env(safe-area-inset-top, 0));
+    padding-bottom: 12px;
+  }
+
+  .dep-qr-wrap {
+    width: min(180px, 40vh);
+    padding: 16px;
+    border-radius: 24px;
+  }
+
+  .dep-title {
+    margin-top: 12px;
+    font-size: 16px;
+  }
+
+  .dep-account-hint {
+    display: none;
+  }
 }
